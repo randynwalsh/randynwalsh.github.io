@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/randynwalsh.github.io/config
+/.vs/randynwalsh.github.io/FileContentIndex
+/.vs
+/css/Archive
