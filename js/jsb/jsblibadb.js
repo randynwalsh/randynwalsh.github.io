@@ -1334,7 +1334,7 @@ async function asyncGetCacheList(directoryPath) {
 
     var cacheList = window["cached_" + directoryPath];
 
-    if (cacheList == undefined || cacheList.length == 0) {
+    if (cacheList == undefined || Object.lens(cacheList).length == 0) {
         // Fetch from server
         if (isString(httppath) && httppath) {
             if (!httppath.endsWith('.js')) httppath = myCacheUrl + 'cached_' + httppath + '.js';
