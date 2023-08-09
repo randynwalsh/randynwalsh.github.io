@@ -1,0 +1,314 @@
+/* Place Fonts, Colors Alignments here*/
+body {
+   background-color: #3b4034;
+   color: white;
+   font-family: Arial, Tahoma, Verdana, Helvetica;
+}
+
+td .editable {
+  background-color: #c7ebc7;
+  color:  rgba(28, 26, 10, 0.96);
+}
+
+.form-control-label {
+    color: rgb(240, 230, 140, .7)
+}
+
+.ui-priority-secondary,
+.ui-widget-content .ui-priority-secondary,
+.ui-widget-header .ui-priority-secondary {
+ background-color: rgba(0, 0, 0, 0.5) !important;
+ color: rgb(241, 235, 175, 1) !important;
+}
+
+.fieldSetBtnLbl.checked { 
+    background-color: #908e23;
+    color  : #f3f1e6
+}
+
+.dropdown-check-list ul.items {
+   background-color: #6b6b31 !important;
+   color: #f5f5f5;
+}
+
+.fieldSetBtnLbl {
+    background-color: #333232;
+    color: #b9b5ae;
+}
+
+html {
+   background-color: inherit;
+}
+
+div {
+   background-color: transparent;
+}
+
+.navbar-default, .navbar-default a {
+    background-color: rgb(43, 42, 35) !important; 
+    border-color: #141513 !important; 
+    color: rgb(232, 221, 130) !important; 
+}
+
+.navbar-default .dropdown-menu  {  color: rgb(234, 236, 229) !important; background: rgb(79, 86, 68) !important;  }
+.navbar-default .dropdown-menu li:hover {  color: #f5f5f5 !important;  background: #2d2c2a !important;  }
+
+#mnuHamburger {
+    background-color: beige;
+}
+.ace-tm {
+   background-color: #4F5644 !important;
+   color: khaki !important;
+}
+
+.ace-tm .ace_gutter {
+   background-color: #4F4445 !important;
+   color: khaki !important;;
+}
+
+html, body, #printDiv, .ui-tabs, .ui-tabs.nav {
+   font: 4mm Myriad,Helvetica,Tahoma,Arial,clean,sans-serif;
+}
+
+.HeaderStyle {
+   font-weight: bold;
+   font-style: italic;
+   text-align: center;
+   background-color: #4A4344;
+   color: Khaki;
+   font-size: large;
+   /*border: 1px solid gray;*/
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.collase_header {
+   background-color: #4F4344;
+   font-weight: bold;
+   font-style: italic;
+   text-align: center;
+}
+
+.collase_block {
+   color: Khaki;
+   border: 2px solid gray;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.BOBlock {
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   border-color: khaki;
+}
+
+/*.inlineJson {
+   border-bottom: solid 2px khaki;
+   margin: 10px;
+   padding:10px;
+}*/
+
+.inlineJsonBlock {
+   border: solid 2px khaki;
+   margin: 10px;
+   padding: 10px;
+}
+
+.BOBlockMulti {
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.repeaterTable, .repeaterTable th, .repeaterTable td {
+   border: 1px solid black;
+}
+
+.CtlLabel {
+   background-color: lightgray;
+   color: #4F5644;
+}
+
+.CtlJsonArray {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=80);
+   opacity: 0.8;
+}
+
+.multiSelectListBox {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=80);
+   opacity: 0.8;
+   background-color: lightgray;
+   color: #4F5644;
+}
+
+.ResetBtn, .SubmitBtn, .SaveBtn, .Button, input[type="button" i], input[type="submit" i], input[type="reset" i], input[type="file" i]::-webkit-file-upload-button, button {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=80);
+   opacity: 0.8;
+   background-color: #4A4344;
+   color: khaki;
+   font-weight: bold;
+   font-size: large;
+}
+
+a {
+    background-color:  #4F5644 !important;
+    border-color:  lightgray !important;
+    /* border: none !important; box-shadow: none !important; */
+    color: khaki !important;
+    font-style: italic !important;
+    background-image: none !important;
+}
+
+.ui-widget-content .ui-state-default { 
+    border-color: gray; 
+    background-image: none !important;
+    background-color: #3c2629 !important ;
+    color: #c7d10c !important;
+}
+
+.ui-widget-content {
+    border: 1px solid #dddddd;
+   background-color: #4F5644 !important ;
+   color: khaki !important;
+   background-image: none !important;
+}
+
+.anchorRemoveRow {
+   /* background: ButtonFace; color: ButtonText; */
+   background-color: #4A4344;
+   color: khaki;
+   border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+}
+
+.anchorRemoveRow:active {
+   border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+}
+
+.anchorRemoveGridRow {
+   color: khaki;
+}
+
+.anchorRemoveGridRow:active {
+   border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+}
+
+.DropDownBox, .DropDownBox_ReadOnly {
+   border: 1px solid;
+   border-top-left-radius: 9px;
+   border-bottom-left-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=80);
+}
+
+.DropDownBox_ReadOnly {
+   background-color: lightgray;
+}
+
+.InputBox {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=80);
+   opacity: 0.8;
+}
+
+.treeLeafBtn {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=80);
+   opacity: 0.8;
+   background-color: lightgray;
+   color: #4F5644;
+}
+
+
+.ComboDivTextBox .AutoTextBox {
+   border-right-style: none;
+   border: 1px solid;
+   border-radius: 0px;
+   -webkit-border-radius: 0px;
+}
+
+
+.InputBox, .IntegerBox, .IntegerBox_ReadOnly, .TextBox, .TextBox_ReadOnly, .AutoTextBox, .PasswordBox, .DateBox, .DateBox_ReadOnly, 
+.TimeBox, .TimeBox_ReadOnly, .PasswordBox, .DateBox, .IntegerBox, 
+.TextArea, .SortableListBox  {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.TextBox_ReadOnly, .DateBox_ReadOnly, .IntegerBox_ReadOnly, .DateBox_ReadOnly, .TimeBox_ReadOnly {
+   background-color: lightgray;
+}
+
+#contextMenu {
+   background-color: lightgray;
+   color: #4F5644;
+}
+
+   #contextMenu li {
+      border-bottom: 1px solid gray;
+      font-size: 4mm;
+   }
+
+/* For @Html.FormWizard() */
+.prev, .next {
+   background-color: #b0232a;
+   padding: 5px 10px;
+   color: #fff;
+   text-decoration: none;
+}
+
+   .prev:hover, .next:hover {
+      background-color: #000;
+      text-decoration: none;
+   }
+
+#steps li {
+   font-size: 24px;
+   padding: 10px;
+   color: #b0b1b3;
+}
+
+   #steps li span {
+      font-size: 11px;
+      display: block;
+   }
+
+   #steps li.current {
+      color: #000;
+   }
+
+#makeWizard {
+   background-color: #b0232a;
+   color: #fff;
+   padding: 5px 10px;
+   text-decoration: none;
+   font-size: 18px;
+}
+
+   #makeWizard:hover {
+      background-color: #000;
+   }
+
+.ComboBox_ReadOnly .TextBox {
+   background-color: lightgray;
+   color: #4F5644;
+}
+
+/*******************************************************************************************************************
+    Menu Bar
+*******************************************************************************************************************/
+menuBar {
+   font-size: 13px;
+}

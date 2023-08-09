@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Access-Control-Allow-Headers" content="Content-Type, Accept, SOAPAction, Origin">
+    <meta http-equiv="Access-Control-Max-Age" content="1728000">
+    <meta http-equiv="Content-Security-Policy" content="img-src * data:; default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <meta http-equiv="Cache-control" content="private">
+
+    <title>JSBAPI (local)</title>
+    <script type="text/javascript">
+        var dbName = "sysprog"
+        var myTitle = "JSB (local)";
+        var myRpcUrl = ""; 
+        var myCacheUrl = "./js/";
+        var server_rpcsid = ""
+        var myVersion = "0.0.765";
+        var doNotUseFileSystem = true; // set to true to avoid prompting user to use file system disk space
+        var fileSystemRequestSize = 1 * 1024 * 1024 // Request 1MB size (bytes) of space;
+    </script>
+
+
+    <!-- ============== CORE ============== -->
+    <link href="./css/normalize.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet' />
+    <script src="./js/jquery/jquery-3.4.1.min.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jquery/jquery-ui.min.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <link href="./js/jquery/jquery-ui.min.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet' />
+    <link rel='shortcut icon' href="./pics/tcl.ico" />
+
+    <!--  ===============Must load after JQuery UI =========================== -->
+    <script src="./js/parsley.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <!-- PhoneGap Must preceed JSB Core Files -->
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+
+    <!-- JSB Core Files -->
+    <link href="./css/jsb.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet' />
+    <link href="./css/bootstrap/bootstrap.min.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet' />
+    <script src="./js/jsb/jsblibvt.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsblib.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsblibadb.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/bootstrap/bootstrap.min.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/magicsuggest.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <link href="./css/magicsuggest.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet' />
+    <link href="./css/ui.jqgrid.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet' />
+
+    <script src="./js/aes.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/pad-nopadding-min.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/mode-cfb-min.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <!-- required JSB linked code -->
+    <script src="./js/jsb/jsb_bf.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsb_html.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsb_odb.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsb_tcl.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <!-- optional JSB linked code, or may be included below as cached items -->
+    <script src="./js/jsb/jsb2js.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsb_mdl.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsb_ctls.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/jsb/jsb_themes.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <!-- local account additions to linked code -->
+    <script src="./js/act_sysprog/jsb_themes.js?cacheBuster=1649361131066!" type="text/javascript"></script>
+    <script src="./js/act_sysprog/cs.js?cacheBuster=1649361131066!" type="text/javascript"></script>
+
+
+    <script>
+        cachedFileNames = [] // cachedFileNames determines which tables have read-only javascript caches
+        cached_jsb_jsxrefs = []
+    </script>
+
+    <!-- cached items: They are "included" either statically or dynamically as needed -->
+    <!-- This 1st set is included now for speed -->
+    <script src="./js/act_defaults/cached_jsb_md.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/act_sysprog/cached_sysprog_md.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <script src="./js/act_defaults/cached_jsb_system.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/act_sysprog/cached_sysprog_system.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <script src="./js/act_defaults/cached_jsb_config.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/act_sysprog/cached_sysprog_jsb_config.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <script src="./js/act_defaults/cached_jsb_users.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/act_sysprog/cached_sysprog_jsb_users.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <script src="./js/act_defaults/cached_jsb_themes.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+    <script src="./js/act_sysprog/cached_sysprog_jsb_themes.js?cacheBuster=1649361131065!" type="text/javascript"></script>
+
+    <!-- This 2nd set will be fetched when needed from the server -->
+    <script>
+        cachedFileNames["jsb_jsxrefs"] = "./js/act_defaults/cached_jsb_jsxrefs.js"
+
+        // pull everything through Q Ptrs to jsbwinforms server
+        if (false && location.href.indexOf("//localhost") == -1) {
+            cachedFileNames["jsb_tcl"] = "./js/act_defaults/cached_jsb_tcl.js"
+            cachedFileNames["jsb_bf"] = "./js/act_defaults/cached_jsb_bf.js"
+            cachedFileNames["jsb_html"] = "./js/act_defaults/cached_jsb_html.js"
+            cachedFileNames["jsb_odb"] = "./js/act_defaults/cached_jsb_odb.js"
+            cachedFileNames["jsb_themes"] = "./js/act_defaults/cached_jsb_themes.js"
+            cachedFileNames["jsb_mdl"] = "./js/act_defaults/cached_jsb_mdl.js"
+            cachedFileNames["jsb_ctls"] = "./js/act_defaults/cached_jsb_ctls.js"
+            cachedFileNames["jsb_viewtemplates"] = "./js/act_defaults/cached_jsb_viewtemplates.js"
+            cachedFileNames["jsb_pagetemplates"] = "./js/act_defaults/cached_jsb_pagetemplates.js"
+            cachedFileNames["jsb_docs"] = "./js/act_defaults/cached_jsb_docs.js"
+        }
+
+        // cachedFileNames["jsb_ctls.dct"] = "./js/act_defaults/cached_jsb_ctls_dct.js"
+        cachedFileNames["democustomers.json"] = "./js/act_defaults/cached_democustomers.json.js"
+        cachedFileNames["democustomers.text"] = "./js/act_defaults/cached_democustomers.text.js"
+        cachedFileNames["jsb_errmsg"] = "./js/act_defaults/cached_jsb_errmsg.js"
+
+
+        // These will be auto created when needed
+        cachedFileNames["tmp"] = ""
+        cachedFileNames["tmp.dct"] = ""
+        cachedFileNames["jsb_examples"] = ""
+        cachedFileNames["jsb_examples.dct"] = ""
+        cachedFileNames["jsb_odb.dct"] = ""; // this is preloaded via ./js/jsb/jsb_odb.js
+        cachedFileNames["jsb_mdl.dct"] = ""; // this is preloaded via ./js/jsb/jsb_mdl.js
+        cachedFileNames["jsb_tcl.dct"] = ""; // this is preloaded via ./js/jsb/jsb_tcl.js
+        cachedFileNames["jsb_html.dct"] = ""; // this is preloaded via ./js/jsb/jsb_html.js
+        cachedFileNames["jsb_bf.dct"] = ""; // this is preloaded via ./js/jsb/jsb_bf.js
+        cachedFileNames["jsb2js.dct"] = ""; // this is preloaded via ./js/jsb/jsb2js.js
+        cachedFileNames["jsb_themes.dct"] = ""; // this is preloaded via ./js/jsb/jsb_themes.js
+    </script>
+
+    <!-- bootstrap theme -->
+    <link href="./css/bootstrap/bootstrap.min.css?cacheBuster=1649361131065!" type='text/css' rel='stylesheet'>
+
+    <!-- custom application -->
+    <script type="text/javascript" src="./js/act_sysprog/cached_sysprog_cs_dct.js?cacheBuster=0.0.765"></script>
+
+    <!-- additional 3rd party packages
+    <script type="text/javascript" src="./js/jquery/jquery.layout.js"></script>
+    -->
+</head>
+<body data-role="none" onload="onDocumentReady()">
+   <div data-role="none" id="jsbAdminBar" style="white-space: nowrap; display: none;">
+      <ul>
+         <li><a onclick="window.location = jsbRootAct() + '?'">TCL</a></li>
+         <li><a onclick="if (dotNetObj && singleStepping) console.log('ShowDevTools'); else { singleStepping = 1; alert('Debug Break Set'); }">DEBUG</a></li>
+         <li><a onclick="window.doDebug = !$(statusBar).is(':Visible'); toggleStatusBar();">Activity</a></li>
+         <li><a onclick="showProfile();">Profiling</a></li>
+         <li><a onclick="showGlobals();">Globals</a></li>
+         <li><a onclick="showNetwork();">Network</a></li>
+         <li><a onclick="showFileSystem();">FileSystem</a></li>
+         <li><a onclick="hideAdminBar(true); hideStatusBar()">Hide</a></li>
+         <li><a onclick="backBrowserBtn()">Back</a></li>
+      </ul>
+   </div>
+
+   <!-- padding-top: 10px, margin-bottom: 10px,  is for statusBar Cant make absolute or phonegap wont scroll to tcl prompt  -->
+   <form id="jsb" class="jsb"></form>
+   <div data-role="none" id="statusBar"></div>
+   <script type="text/javascript">
+      if ($.mobile) $.mobile.autoInitializePage = false;
+      $('#loading').remove()
+   </script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+/* JSB MOBILE CSS - Make Grids larger and color scheme black and white */
+
+.softkeys__btncmd, .kypd-display { background-color: black !important; color: white !important }
+
+.TextBox_ReadOnly, .IntegerBoxReadOnly, .DateBox_ReadOnly, .TimeBox_ReadOnly, textarea[readonly], .CtlLabel, .IntegerBox_ReadOnly, .TimeBox_ReadOnly {
+   border: 1px solid;
+   background-color: black !important;
+   color: lightgray !important;
+}
+
+td, tr { background-color: black !important; color: white !important; }
+th, .ui-widget-content .ui-state-default { border: none; background-image: none !important;
+background-color: gray !important; color: white !important; background-image: none !important;
+}
+
+.css-treeview {
+   font-size: large;
+}
+
+.ui-layout-center, .ui-layout-west, .ui-layout-east, .ui-layout-south, .ui-layout-north {
+   font-size: large;
+}
+
+   
+html, body {
+   background-color: black !important;
+   color: white !important;
+}
+
+.fieldSetBtn:checked + label { 
+    background-color: #847b1b;
+}
+
+.fieldSetBtnLbl.checked {                                   
+    background-color: #847b1b;                       
+} 
+
+.fieldSetBtnLbl {
+    background-color: #555;
+    color: white;
+}
+
+/* table { overflow: auto } */
+
+/* .ui-tabs, */
+html, body, #printDiv, .ui-tabs.nav, .ResetBtn, .SubmitBtn, .SaveBtn, .Button, #steps li, .jqgrow {
+    font-size: medium;
+}
+
+/*
+.jqgrow {
+    font-size: x-large !important;
+}
+*/
+
+.lblctlpair > label, .contextMenu li, .fixedLeft label {
+   font-size: medium;
+}
+
+#statusBar span { color: black }
+
+.ui-dialog .ui-dialog-titlebar {
+ padding: 3px 3pc !important;
+}
+
+/* Equal or Under this size -- Small phone size */
+@media (max-width: 600px) {
+    .ui-datepicker { 
+        font-size: larger;
+    }
+    
+    .ui-timepicker {
+       font-size: medium;
+    }
+    
+    .ResetBtn, .SubmitBtn, .SaveBtn, .Button {
+       font-size: small;
+    } 
+}
+
+/* Equal or over this size */
+@media (min-width: 601px) {
+    .ui-datepicker { 
+        font-size: larger;
+    }
+    
+    .ResetBtn, .SubmitBtn, .SaveBtn, .Button {
+       font-weight: bold;
+       min-width: 140px;
+    }
+}
+  
+.smallbtn {
+   font-size: larger
+}
+
+.dropdown-check-list ul.items li div, .check-list ul.items li div {
+  font-size: 34px;
+  width: 90%;
+  display: inline-block;
+}
+
+li input[type="checkbox"]:checked {
+   background-color:gray;
+}
+
+input { color: black }
+
+select, select option {
+    background: black #important;
+    color: white #important;
+}
+
+/* Place Fonts, Colors Alignments here*/
+html, body {
+   background-color: black;
+   color: white;
+   font-family: Arial, Tahoma, Verdana, Helvetica;
+}
+
+
+.ui-keyboard-button { font-size: .5em !important }
+
+.fieldSetBtnsDiv { font-size: small }
+
+input, select { }
+
+.ui-jqgrid,
+.ui-jqgrid .ui-jqgrid-view,
+.ui-jqgrid .ui-jqgrid-pager,
+.ui-jqgrid .ui-pg-input {
+    font-size: small;
+}
+
+.ui-datepicker td span, .ui-datepicker td a {
+  padding-left: 0 !important;
+}
+
+.ComboBox > select { background-color: white; border-color: white; }
+.ComboBox { border-color: white; }
+
+.ComboBox .DropDownBox, .ComboBox_ReadOnly .DropDownBox { height: 29px }
+
+.ui-jqgrid .ui-jqgrid-htable th div {
+  height: auto !important;
+}
+
+.bbc_blink { font-size: medium }
+
+.lblctlpair_withLabel > label, .lblctlpair_FullLine_withLabel > label {
+  margin-top: 6px;
+}
+
+.HeaderStyle {
+   font-weight: bold;
+   font-style: italic;
+   text-align: center;
+   background-color: #4A4344;
+   color: White;
+   font-size: large;
+   /*border: 1px solid gray;*/
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   margin-top: -4px;
+}
+
+.collase_header {
+   background-color: #4F4344;
+   font-weight: bold;
+   font-style: italic;
+   text-align: center;
+}
+
+.collase_block {
+   color: White;
+   border: 2px solid gray;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.BOBlock {
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   border-color: White;
+}
+
+/*.inlineJson {
+   border-bottom: solid 2px White;
+   margin: 10px;
+   padding:10px;
+}*/
+
+.inlineJsonBlock {
+   border: solid 2px White;
+   margin: 10px;
+   padding: 10px;
+}
+
+.BOBlockMulti {
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.repeaterTable, .repeaterTable th, .repeaterTable td {
+   border: 1px solid black;
+}
+
+.CtlLabel {
+   background-color: #202020;
+   color: rgb(242, 241, 218);;
+}
+
+.CtlJsonArray {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.multiSelectListBox {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   color: Black;
+}
+
+.ResetBtn, .SubmitBtn, .SaveBtn, .Button {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   background-color: #4A4344 !important;
+   color: White !important;
+   opacity: 1;
+}
+
+a { color: White; font-style: italic; }
+
+.anchorRemoveRow {
+   /* background: ButtonFace; color: ButtonText; */
+   background-color: #4A4344;
+   color: White;
+   border-color: ButtonHigh#202020 ButtonShadow ButtonShadow ButtonHigh#202020;
+}
+
+.anchorRemoveRow:active {
+   border-color: ButtonShadow ButtonHigh#202020 ButtonHigh#202020 ButtonShadow;
+}
+
+.anchorRemoveGridRow {
+   color: White;
+}
+
+.anchorRemoveGridRow:active {
+   border-color: ButtonShadow ButtonHigh#202020 ButtonHigh#202020 ButtonShadow;
+}
+.DropDownBox, .DropDownBox_ReadOnly {
+   border: 1px solid;
+   border-top-left-radius: 9px;
+   border-bottom-left-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.DropDownBox_ReadOnly {
+   background-color: #202020;
+}
+
+.InputBox {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.treeLeafBtn {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+   filter: alpha(opacity=100);
+   opacity: 1;
+   background-color: #202020;
+   color: Black;
+}
+
+
+.InputBox, .IntegerBox, .IntegerBox_ReadOnly, .TextBox, .TextBox_ReadOnly, .AutoTextBox, .PasswordBox, .DateBox, .DateBox_ReadOnly, 
+.TimeBox, .TimeBox_ReadOnly, .PasswordBox, .DateBox, .IntegerBox, 
+.TextArea, .SortableListBox  {
+   border: 1px solid;
+   border-radius: 9px;
+   -webkit-border-radius: 9px;
+}
+
+.TextBox_ReadOnly, .DateBox_ReadOnly, .IntegerBox_ReadOnly, .DateBox_ReadOnly, .TimeBox_ReadOnly, .TextArea {
+   background-color: Black;
+   border: 0px;
+}
+
+#contextMenu {
+   background-color: lightgray;
+   color: Black;
+}
+
+   #contextMenu li {
+      border-bottom: 1px solid gray;
+   }
+
+/* For @Html.FormWizard() */
+.prev, .next {
+   background-color: #b0232a;
+   padding: 5px 10px;
+   color: #fff;
+   text-decoration: none;
+}
+
+   .prev:hover, .next:hover {
+      background-color: #000;
+      text-decoration: none;
+   }
+
+#steps li {
+   padding: 10px;
+   color: #b0b1b3;
+}
+
+   #steps li span {
+      font-size: 11px;
+      display: block;
+   }
+
+   #steps li.current {
+      color: #000;
+   }
+
+#makeWizard {
+   background-color: #b0232a;
+   color: #fff;
+   padding: 5px 10px;
+   text-decoration: none;
+   font-size: 18px;
+}
+
+   #makeWizard:hover {
+      background-color: #000;
+   }
+
+input.parsley-error, textarea.parsley-error, .fieldSetBtnsFrame.parsley-error {
+   color: #B94A48 !important;
+   background-color: #F2DEDE !important;
+}
+
+.ComboBox_ReadOnly .TextBox {
+   background-color: #202020;
+   color: Black;
+}
+
+/*******************************************************************************************************************
+    Menu Bar
+*******************************************************************************************************************/
+menuBar {
+   font-size: 13px;
+}
