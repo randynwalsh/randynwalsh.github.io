@@ -3326,7 +3326,7 @@ function DeviceUUID() {
 // </DEVICEUUID>
 
 // <DIALOG>
-async function JSB_BF_DIALOG(Title, Innerhtmldialog, Waitforanswer, Width, _Height) {
+async function JSB_BF_DIALOG(Title, Innerhtmldialog, Waitforanswer, Width, Height) {
     // local variables
     var Sc, Ec;
 
@@ -3338,7 +3338,7 @@ async function JSB_BF_DIALOG(Title, Innerhtmldialog, Waitforanswer, Width, _Heig
     if (InStr1(1, Left(Innerhtmldialog, 4), '\<') == 0) Innerhtmldialog = CStr(Sc) + '\<b\>\</b\>' + CStr(Ec) + Innerhtmldialog;
 
     if (!Waitforanswer) {
-        window.popoutDialog(Title, Innerhtmldialog, Width, _Height, undefined, 'msgboxResult', window);
+        window.popoutDialog(Title, Innerhtmldialog, Width, Height, undefined, 'msgboxResult', window);
         return '';
     }
 
