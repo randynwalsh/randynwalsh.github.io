@@ -519,7 +519,7 @@ anonymousFunc = function () {
     z += "        End If\xFE";
     z += "        \xFE";
     z += "        If viewVars.lastCmd = \"Export to CSV\" Then\xFE";
-    z += "            e64 = Encode(SelectList.GetCSV(), 64)\xFE";
+    z += "            e64 = Encode(DataSource.GetCSV(), 64)\xFE";
     z += "            print @script(\" const b64Data = '\":E64:\"'; saveBlob(b64toBlob(b64Data, 'text/plain'), '<%=pageName%>_<%=niceViewName%>.csv'); doJsbSubmit(); \"):\xFE";
     z += "            E64 = \"\"\xFE";
     z += "            @Server.Pause\xFE";
@@ -637,7 +637,7 @@ anonymousFunc = function () {
     z += "            dtColCnt = dtColumns.Count\xFE";
     z += "            dtRowCount = dtRows.Count\xFE";
     z += "            \xFE";
-    z += "            if dtRowCount < dftRowLimit Or nolimits Then ShowExportBtns = True\xFE";
+    z += "            ShowExportBtns = True\xFE";
     z += "            If dtRowCount > 300 Then searchRowCnt = 300 Else searchRowCnt = dtRowCount\xFE";
     z += "\xFE";
     z += "            devXGrid.LoadClientLayout(\" \")\xFE";

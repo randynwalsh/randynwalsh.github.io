@@ -17,7 +17,7 @@
         var myCacheUrl = "./js/";
         var server_rpcsid = ""
         var myVersion = "0.0.765";
-        var doNotUseFileSystem = true; // set to true to avoid prompting user to use file system disk space
+        var doNotUseFileSystem = false; // set to true to avoid prompting user to use file system disk space
         var fileSystemRequestSize = 1 * 1024 * 1024 // Request 1MB size (bytes) of space;
     </script>
 
@@ -65,8 +65,6 @@
 
     <!-- local account additions to linked code -->
     <script src="./js/act_sysprog/jsb_themes.js?cacheBuster=1649361131066!" type="text/javascript"></script>
-    <script src="./js/act_sysprog/cs.js?cacheBuster=1649361131066!" type="text/javascript"></script>
-
 
     <script>
         cachedFileNames = [] // cachedFileNames determines which tables have read-only javascript caches
@@ -94,24 +92,42 @@
         cachedFileNames["jsb_viewtemplates"] = "./js/act_defaults/cached_jsb_viewtemplates.js"
         cachedFileNames["jsb_jsondef"] = "./js/act_defaults/cached_jsb_jsondefs.js"
         cachedFileNames["jsb_themes"] = "./js/act_defaults/cached_jsb_themes.js"
+        cachedFileNames["jsb_ctls"] = "./js/act_defaults/cached_jsb_ctls.js"
+        cachedFileNames["jsb_mdl"] = "./js/act_defaults/cached_jsb_mdl.js"
+        cachedFileNames["jsb_odb"] = "./js/act_defaults/cached_jsb_odb.js"
         cachedFileNames["jsb_jsxrefs"] = "./js/act_defaults/cached_jsb_jsxrefs.js"
         cachedFileNames["democustomers.json"] = "./js/act_defaults/cached_democustomers.json.js"
         cachedFileNames["democustomers.text"] = "./js/act_defaults/cached_democustomers.text.js"
         cachedFileNames["jsb_errmsg"] = "./js/act_defaults/cached_jsb_errmsg.js"
 
-
         // These will be auto created when needed
+        cachedFileNames["democustomers.json.dct"] = ""
+        cachedFileNames["democustomers.text.dct"] = ""
+        cachedFileNames["jsb_errmsg.dct"] = ""
+        cachedFileNames["jsb_ctls.dct"] = ""
+        cachedFileNames["jsb_tcl.dct"] = ""
+        cachedFileNames["jsb_bf.dct"] = ""
+        cachedFileNames["jsb_html.dct"] = ""
+        cachedFileNames["jsb_odb.dct"] = ""
+        cachedFileNames["jsb_mdl.dct"] = ""
+        cachedFileNames["jsb_themes.dct"] = ""
         cachedFileNames["tmp"] = ""
         cachedFileNames["tmp.dct"] = ""
         cachedFileNames["jsb_examples"] = ""
         cachedFileNames["jsb_examples.dct"] = ""
-        cachedFileNames["jsb_odb.dct"] = ""; // this is preloaded via ./js/jsb/jsb_odb.js
-        cachedFileNames["jsb_mdl.dct"] = ""; // this is preloaded via ./js/jsb/jsb_mdl.js
-        cachedFileNames["jsb_tcl.dct"] = ""; // this is preloaded via ./js/jsb/jsb_tcl.js
-        cachedFileNames["jsb_html.dct"] = ""; // this is preloaded via ./js/jsb/jsb_html.js
-        cachedFileNames["jsb_bf.dct"] = ""; // this is preloaded via ./js/jsb/jsb_bf.js
-        cachedFileNames["jsb2js.dct"] = ""; // this is preloaded via ./js/jsb/jsb2js.js
-        cachedFileNames["jsb_themes.dct"] = ""; // this is preloaded via ./js/jsb/jsb_themes.js
+        cachedFileNames["jsb_odb.dct"] = "";
+        cachedFileNames["jsb_mdl.dct"] = "";
+        cachedFileNames["jsb_tcl.dct"] = "";
+        cachedFileNames["jsb_html.dct"] = "";
+        cachedFileNames["jsb_bf.dct"] = "";
+        cachedFileNames["jsb2js.dct"] = "";
+        cachedFileNames["jsb_themes.dct"] = "";
+        cachedFileNames["trashcan"] = "";
+        cachedFileNames["trashcan.dct"] = "";
+        cachedFileNames["bp"] = "";
+        cachedFileNames["bp.dct"] = "";
+        cachedFileNames["cs"] = "";
+        cachedFileNames["cs.dct"] = "";
     </script>
 
     <!-- bootstrap theme -->
