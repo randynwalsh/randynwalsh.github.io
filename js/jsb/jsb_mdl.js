@@ -3402,7 +3402,7 @@ async function JSB_MDL_EDITPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, Show
         Objectmodel = await JSB_MDL_MODELFORPAGE(ByRef_Projectname, function (_ByRef_Projectname) { ByRef_Projectname = _ByRef_Projectname });
         await JSB_MDL_GETEXTRAPAGECOLUMNS_Sub(Objectmodel.columns, Pagedataset.templateName);
 
-        _Html = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), Objectmodel, CStr(false), Pagedataset, CStr(Viewname));
+        _Html = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), Objectmodel, false, Pagedataset, CStr(Viewname));
 
         if (CBool(Showbackbtn)) {
             Toolbar = JSB_HTML_SUBMITBTN('formBtn', 'B', 'Back');
@@ -3719,7 +3719,7 @@ async function JSB_MDL_EDITVIEWCOLUMN_Sub(ByRef_Projectname, ByRef_Pagename, ByR
         await JSB_MDL_SETDEFAULTS(ByRef_Viewname, Viewmodel.columns, Viewrow, function (_ByRef_Viewname, _P2, _Viewrow) { ByRef_Viewname = _ByRef_Viewname; Viewrow = _Viewrow });
 
         // Display the record
-        _Html = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), Viewmodel, CStr(false), Viewrow, CStr(ByRef_Viewname));
+        _Html = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), Viewmodel, false, Viewrow, CStr(ByRef_Viewname));
         // Html = @jsb_mdl.putRowDataIntoHtml(ProjectName, viewModel, viewRow, viewBackDrop)
 
         Toolbar = JSB_HTML_SUBMITBTN('edc_formBtn', 'SV', 'Save');
@@ -3876,7 +3876,7 @@ async function JSB_MDL_EDITVIEWMODEL_Sub(ByRef_Projectname, ByRef_Pagename, ByRe
 
         await JSB_MDL_MDLSESSIONSETUP_Sub(ByRef_Projectname, ByRef_Pagename, ByRef_Viewname, Dataset, function (_ByRef_Projectname, _ByRef_Pagename, _ByRef_Viewname, _Dataset) { ByRef_Projectname = _ByRef_Projectname; ByRef_Pagename = _ByRef_Pagename; ByRef_Viewname = _ByRef_Viewname; Dataset = _Dataset });
         await JSB_MDL_SETDEFAULTS(ByRef_Viewname, Objectmodel.columns, Dataset, function (_ByRef_Viewname, _P2, _Dataset) { ByRef_Viewname = _ByRef_Viewname; Dataset = _Dataset });
-        F = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), Objectmodel, CStr(false), Dataset, CStr(ByRef_Viewname));
+        F = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), Objectmodel, false, Dataset, CStr(ByRef_Viewname));
 
         Toolbar = '';
         if (CBool(ByRef_Showbackbtn)) {
@@ -8333,7 +8333,7 @@ async function JSB_MDL_PUTROWDATAINTOHTML(ByRef_Projectname, ByRef_Objectmodel, 
 
     var Ctlhtml = '';
 
-    if (Not(ByRef_Htmlbackdrop)) return exit(await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), ByRef_Objectmodel, CStr(false), ByRef_Row, CStr(ByRef_Viewname)));
+    if (Not(ByRef_Htmlbackdrop)) return exit(await JSB_MDL_FORMVIEWNCOLUMNS(CStr(ByRef_Projectname), ByRef_Objectmodel, false, ByRef_Row, CStr(ByRef_Viewname)));
 
     Backdrophtml = Change(ByRef_Htmlbackdrop, am, crlf);
     Backdrophtml = Change(Backdrophtml, '\<mdlCtl', '\<mdlctl');

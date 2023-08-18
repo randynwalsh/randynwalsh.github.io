@@ -87,28 +87,14 @@
     <script src="./js/act_defaults/cached_jsb_users.js?cacheBuster=1649361131065!" type="text/javascript"></script>
     <script src="./js/act_sysprog/cached_sysprog_jsb_users.js?cacheBuster=1649361131065!" type="text/javascript"></script>
 
-    <script src="./js/act_defaults/cached_jsb_themes.js?cacheBuster=1649361131065!" type="text/javascript"></script>
-    <script src="./js/act_sysprog/cached_sysprog_jsb_themes.js?cacheBuster=1649361131065!" type="text/javascript"></script>
-
     <!-- This 2nd set will be fetched when needed from the server -->
     <script>
+        // These files are the source code - may be overriden with Q-Ptr to source on server
+        cachedFileNames["jsb_pagetemplates"] = "./js/act_defaults/cached_jsb_pagetemplates.js"
+        cachedFileNames["jsb_viewtemplates"] = "./js/act_defaults/cached_jsb_viewtemplates.js"
+        cachedFileNames["jsb_jsondef"] = "./js/act_defaults/cached_jsb_jsondefs.js"
+        cachedFileNames["jsb_themes"] = "./js/act_defaults/cached_jsb_themes.js"
         cachedFileNames["jsb_jsxrefs"] = "./js/act_defaults/cached_jsb_jsxrefs.js"
-
-        // pull everything through Q Ptrs to jsbwinforms server
-        if (false && location.href.indexOf("//localhost") == -1) {
-            cachedFileNames["jsb_tcl"] = "./js/act_defaults/cached_jsb_tcl.js"
-            cachedFileNames["jsb_bf"] = "./js/act_defaults/cached_jsb_bf.js"
-            cachedFileNames["jsb_html"] = "./js/act_defaults/cached_jsb_html.js"
-            cachedFileNames["jsb_odb"] = "./js/act_defaults/cached_jsb_odb.js"
-            cachedFileNames["jsb_themes"] = "./js/act_defaults/cached_jsb_themes.js"
-            cachedFileNames["jsb_mdl"] = "./js/act_defaults/cached_jsb_mdl.js"
-            cachedFileNames["jsb_ctls"] = "./js/act_defaults/cached_jsb_ctls.js"
-            cachedFileNames["jsb_viewtemplates"] = "./js/act_defaults/cached_jsb_viewtemplates.js"
-            cachedFileNames["jsb_pagetemplates"] = "./js/act_defaults/cached_jsb_pagetemplates.js"
-            cachedFileNames["jsb_docs"] = "./js/act_defaults/cached_jsb_docs.js"
-        }
-
-        // cachedFileNames["jsb_ctls.dct"] = "./js/act_defaults/cached_jsb_ctls_dct.js"
         cachedFileNames["democustomers.json"] = "./js/act_defaults/cached_democustomers.json.js"
         cachedFileNames["democustomers.text"] = "./js/act_defaults/cached_democustomers.text.js"
         cachedFileNames["jsb_errmsg"] = "./js/act_defaults/cached_jsb_errmsg.js"

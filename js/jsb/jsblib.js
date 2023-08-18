@@ -1804,7 +1804,7 @@ function isWebPage(url) {
     var Ext = getExtension(url);
     return Ext == 'htm' || Ext == 'html' || Ext == 'hta' || Ext == 'aspx';
 }
-    
+
 // The domain of where our page came from
 function jsbRoot() {
     var url = Field(Field(window.location.href, "#", 1), "?", 1)
@@ -1821,12 +1821,13 @@ function jsbRootAccount() {
 
 function jsbRootAct(useRelitivePath) {
     var rootAct = jsbRootAccount();
-    if (useRelitivePath) {
+    if (useRelitivePath) { 
         var jsbroot = jsbRoot();
         if (rootAct.startsWith(jsbroot)) rootAct = rootAct.substr(jsbroot.length - 1);
     }
     return rootAct;
 }
+function JsbRootAct() { return jsbRootAct() }
 
 
 // I made the status bar show different colored backgrounds as each status appears - makes it easier to read

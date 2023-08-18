@@ -79,6 +79,11 @@ anonymousFunc = function () {
     window.cached_md["profile"] = "cv\xFEjsb_tcl\xFEprofile";
     window.cached_md["pwd"] = "cv\xFEjsb_tcl\xFEpwd";
     window.cached_md["reset"] = "cv\xFEjsb_tcl\xFEreset";
+
+    window.cached_md["regen"] = "cv\xFEjsb_mdl\xFEregen";
+    window.cached_md["regenpagemodel"] = "cv\xFEjsb_mdl\xFEregenpagemodel";
+    window.cached_md["regenwebsitemodel"] = "cv\xFEjsb_mdl\xFEregenwebsitemodel";
+
     window.cached_md["save-list"] = "cv\xFEjsb_tcl\xFEsl";
     window.cached_md["search"] = "cv\xFEjsb_tcl\xFEsearch";
     window.cached_md["select"] = "cv\xFEjsb_tcl\xFEselect";
@@ -136,11 +141,6 @@ anonymousFunc = function () {
     window.cached_md["pt"] = "q\xFE\xFEjsb_pagetemplates";
     window.cached_md["jd"] = "q\xFE\xFEjsb_jsondefs";
     window.cached_md["jsondefs"] = "q\xFE\xFEjsb_jsondefs";
-    window.cached_md["viewtemplates"] = "q\xFE\xFEjsb_viewtemplates";
-    window.cached_md["pagetemplates"] = "q\xFE\xFEjsb_pagetemplates";
-    window.cached_md["customers"] = "q\xFE\xFEdemocustomers.text";
-    window.cached_md["customers.text"] = "q\xFE\xFEdemocustomers.text";
-    window.cached_md["customers.json"] = "q\xFE\xFEdemocustomers.json";
     window.cached_md["demos"] = "q\xFDcv\xFE\xFDjsb_tcl\xFEjsb_demos\xFDdemos";
     window.cached_md["html"] = "q\xFE\xFEjsb_html";
     window.cached_md["jd"] = "q\xFE\xFEjsb_jsondefs";
@@ -149,16 +149,30 @@ anonymousFunc = function () {
 
     // q-ptrs to lcl server (except dictionaries)
     window.cached_md["qbp"] = "qd\xFEsysprog.lcl\xFEbp";
-    window.cached_md["qcs"] = "qd\xFEifwissql\xFEcs";
     window.cached_md["qcss"] = "q\xFEsysprog.lcl\xFE.\\css";
     window.cached_md["qjs"] = "q\xFEsysprog.lcl\xFE.\\js";
     window.cached_md["qdot"] = "q\xFEsysprog.lcl\xFE.\\";
     window.cached_md["qapp_code"] = "q\xFEsysprog.lcl\xFE.\\app_code";
 
-    // q-ptr to common server (except dictionaries) - although these are cached in a local .\js
-    window.cached_md["jsb_docs"] = "qd\xFEsysprog.jsb\xFEjsb_docs";
+    // q-ptr to common server (sysprog.jsb) - although these are cached in a local .\js
+    window.cached_md["qjsb_docs"] = "qd\xFEsysprog.jsb\xFEjsb_docs";
     window.cached_md["jsb_demos"] = "qd\xFEsysprog.jsb\xFEjsb_demos";
-
+    window.cached_md["qviewtemplates"] = "q\xFEsysprog.jsb\xFEjsb_viewtemplates";
+    window.cached_md["qpagetemplates"] = "q\xFEsysprog.jsb\xFEjsb_pagetemplates";
+    window.cached_md["qbf"] = "q\xFE\xFEjsb_bf";
+    window.cached_md["qcs"] = "q\xFE\xFEjsb_cs";
+    window.cached_md["qctls"] = "q\xFE\xFEjsb_ctls";
+    window.cached_md["qerrmsg"] = "q\xFE\xFEjsb_errmsg";
+    window.cached_md["qthemes"] = "qd\xFE\xFEjsb_themes";
+    window.cached_md["qodb"] = "qd\xFEsysprog.jsb\xFEjsb_odb";
+    window.cached_md["qtcl"] = "q\xFEsysprog.jsb\xFEjsb_tcl";
+    window.cached_md["qxrefs"] = "q\xFEsysprog.jsb\xFEjsb_jsxrefs";
+    window.cached_md["qhtml"] = "q\xFEsysprog.jsb\xFEjsb_html";
+    window.cached_md["qmdl"] = "q\xFEsysprog.jsb\xFEjsb_mdl";
+    window.cached_md["qvt"] = "q\xFEsysprog.jsb\xFEjsb_viewtemplates";
+    window.cached_md["qpt"] = "q\xFEsysprog.jsb\xFEjsb_pagetemplates";
+    window.cached_md["qjd"] = "q\xFEsysprog.jsb\xFEjsb_jsondefs";
+    window.cached_md["qjsondefs"] = "q\xFEsysprog.jsb\xFEjsb_jsondefs";
 }
 anonymousFunc()
 anonymousFunc = null

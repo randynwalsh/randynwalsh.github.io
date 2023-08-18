@@ -61,7 +61,7 @@ async function JSB_CTLS_CTL_AUTOTEXTBOX_Sub(Projectname, Id, Column, Row, ByRef_
             if (CBool(Column.autopostback) && Id) { ByRef_Html += crlf + 'ctlHtml := @Script(' + Chr(96) + '$(\'#' + Id + '\').change(function() { doJsbSubmit() });' + Chr(96) + ')'; }
         } else {
             Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
             if (CBool(Column.includeurl) && CBool(Column.arrayname)) {
                 ByRef_Html = AutoTextBoxIncludeURL(Id, Column.includeurl, Column.arrayname, Defaultvalue, CNum(Column.minLength), Additionalattributes, Not(Column.noSubValues), Column.restrict2List);;
@@ -219,7 +219,7 @@ async function JSB_CTLS_CTL_CASCADINGAUTOTEXTBOX_Sub(Projectname, Id, Column, Ro
     var Dftval = '';
 
     Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
-    if (!Gencode && Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+    if (!Gencode && !Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
     if (CBool(Column.canedit)) {
         // Column.parentCtlID, QuotedUrl, addBlank
@@ -312,7 +312,7 @@ async function JSB_CTLS_CTL_CASCADINGCOMBOBOX_Sub(Projectname, Id, Column, Row, 
     var Dftval = '';
 
     Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
-    if (!Gencode && Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+    if (!Gencode && !Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
     if (CBool(Column.canedit)) {
         Quotedurl = Column.customRoutine;
@@ -362,7 +362,7 @@ async function JSB_CTLS_CTL_CASCADINGCOMBOBOX_Sub(Projectname, Id, Column, Row, 
             ByRef__Html = CStr(ByRef__Html) + JSB_HTML_RELOADDATALISTFROMURL_ONPARENT_CHANGE(CStr(Koid), CStr(Column.parentCtlID), Quotedurl, CStr(Jsroutine));
 
             // Create a Check routine to setup on KO Load
-            ByRef__Html += JSB_HTML_SCRIPT(cascadingAttach2Parent(CStr(Koid), CStr(Column.parentCtlID), +Dokobinding));
+            ByRef__Html += JSB_HTML_SCRIPT(cascadingAttach2Parent(CStr(Koid), CStr(Column.parentCtlID), Dokobinding));
         }
     } else {
         // Prevents change
@@ -410,7 +410,7 @@ async function JSB_CTLS_CTL_CASCADINGDROPDOWNBOX_Sub(Projectname, Id, Column, Ro
     var Dftval = '';
 
     Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
-    if (!Gencode && Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+    if (!Gencode && !Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
     if (CBool(Column.canedit)) {
         Quotedurl = Column.customRoutine;
@@ -518,7 +518,7 @@ async function JSB_CTLS_CTL_CHECKBOX_Sub(Projectname, Id, Column, Row, ByRef__Ht
         ByRef__Html = 'ctlHtml = @jsb_html.CheckBox(\'' + Id + '\', True, "", Val(' + Dftval + '), ' + CStr(Additionalattributes) + ')';
         if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + Id + '").change(function() { doJsbSubmit() });\')'; }
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
         if (CNum(Defaultvalue)) Ischecked = true;
         ByRef__Html = CHECKBOX(Id, true, '', Ischecked, Additionalattributes);
@@ -551,10 +551,10 @@ async function JSB_CTLS_CTL_COLORPICKER_Sub(Projectname, Id, Column, Row, ByRef_
         if (Gencode) {
             if (Dokobinding) Dftval = undefined; else Dftval = await JSB_CTLS_GETDEFAULTFMT(CStr(Row), CStr(Column.defaultvalue), CStr(Column.name));
             if (CBool(Additionalattributes)) Additionalattributes = '[`' + Join(Additionalattributes, '`,`') + '`]'; else Additionalattributes = '[]';
-            ByRef__Html = 'ctlHtml = @jsb_html.ColorPicker("' + Id + '", ' + Dftval + ', False, ' + CStr(+Dokobinding + 0) + ', ' + CStr(Additionalattributes) + ')';
+            ByRef__Html = 'ctlHtml = @jsb_html.ColorPicker("' + Id + '", ' + Dftval + ', False, ' + CStr(Dokobinding + 0) + ', ' + CStr(Additionalattributes) + ')';
             if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + Id + '").change(function() { doJsbSubmit() });\')'; }
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             ByRef__Html = Colorpicker(Id, Defaultvalue, false, Dokobinding, Additionalattributes);
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + Id + '\').change(function() { doJsbSubmit() });'); }
         }
@@ -644,7 +644,7 @@ async function JSB_CTLS_CTL_COMBOBOX_Sub(Projectname, Id, Column, Row, ByRef__Ht
 
             if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + Id + '").change(function() { doJsbSubmit() });\')'; }
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
             Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
 
@@ -711,7 +711,7 @@ async function JSB_CTLS_CTL_DATEBOX_Sub(Projectname, Id, Column, Row, ByRef__Htm
             ByRef__Html = 'ctlHtml = @jsb_html.DateBox("' + Id + '", ' + Dftval + ', ' + CStr(Not(Column.canedit)) + ', ' + CStr(Additionalattributes) + ', \'' + CStr(Column.yearRange) + '\')';
             if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + Id + '").change(function() { doJsbSubmit() });\')'; }
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             ByRef__Html = DATEBOX(Id, Defaultvalue, Not(Column.canedit), Additionalattributes, Column.yearRange);
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + Id + '\').change(function() { doJsbSubmit() });'); }
         }
@@ -740,7 +740,7 @@ async function JSB_CTLS_CTL_DATETIMEBOX_Sub(Projectname, Id, Column, Row, ByRef_
         if (typeof setByRefValues == 'function') setByRefValues(ByRef__Html)
         return v
     }
-    await JSB_CTLS_CTL_DATEBOX_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+    await JSB_CTLS_CTL_DATEBOX_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     return exit();
 }
 // </CTL_DATETIMEBOX_Sub>
@@ -777,7 +777,7 @@ async function JSB_CTLS_CTL_DOWNLOADLINK_Sub(Projectname, Id, Column, Row, ByRef
         ByRef__Html[ByRef__Html.length] = 'If Left(Url, 4) \<\> "http" Then Url = @htmlRoot:\'uploads/\':Url';
         ByRef__Html[ByRef__Html.length] = 'ctlHtml = @Anchor(\'' + Id + '\', Url, Url, ' + CStr(Additionalattributes) + ')';
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
         ByRef__Html = Anchor(Id, HtmlRoot() + 'uploads/' + Defaultvalue, Defaultvalue, Additionalattributes);
     }
 
@@ -1014,7 +1014,7 @@ async function JSB_CTLS_CTL_HIDDENVAR_Sub(Projectname, Id, Column, Row, ByRef__H
         ByRef__Html = 'ctlHtml = @jsb_html.hiddenVar("' + Id + '", ' + Dftval + ', ' + CStr(Additionalattributes) + ')';
         if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + Id + '").change(function() { doJsbSubmit() });\')'; }
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
         ByRef__Html = HiddenVar(Id, Defaultvalue, Additionalattributes);
         if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + Id + '\').change(function() { doJsbSubmit() });'); }
     }
@@ -1057,7 +1057,7 @@ async function JSB_CTLS_CTL_HTMLBOX_Sub(Projectname, Id, Column, Row, ByRef__Htm
             ByRef__Html = 'ctlHtml = @Html("\<label class=\'CtlLabel\' id=\'' + Id + '\' ' + CStr(Additionalattributes) + '\>":Replace(' + Dftval + ', Chr(13), "\<br /\>"):"\</label\>")';
         }
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
         if (CBool(Column.canedit)) {
             ByRef__Html = JSB_HTML_NICEDITOR(Id, Defaultvalue, CStr(false), Additionalattributes);
@@ -1383,7 +1383,7 @@ async function JSB_CTLS_CTL_KNOB_Sub(Projectname, Id, Column, Row, ByRef__Html, 
 
         if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + Id + '").change(function() { doJsbSubmit() });\')'; }
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
         ByRef__Html = Knob(Id, Defaultvalue, Not(Column.canedit), Additionalattributes, Column.iminvalue, Column.imaxvalue, Column.size, Column.color);
 
@@ -1439,7 +1439,7 @@ async function JSB_CTLS_CTL_LABEL_Sub(Projectname, Id, Column, Row, ByRef__Html,
             ByRef__Html[ByRef__Html.length] = 'ctlHtml = @Html("\<label class=\'CtlLabel form-control\' id=\'ctllbl_' + CStr(Id) + '\' ' + CStr(Additionalattributes) + '\>":Replace(@HtmlEncode(' + _Code + '), Chr(13), "\<br /\>"):"\</label\>\<input class=\'hCtlLabel\' type=\'hidden\' name=\'' + CStr(Id) + '\' value=\'":@HtmlEncode(' + _Code + '):"\' /\>")';
         }
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
         if (CBool(Column.reffile) && CBool(Column.refpk) && CBool(Column.refdisplay) && (Null0(Column.refpk) != Null0(Column.refdisplay))) {
             Displayvalue = await JSB_BF_LOOKUPCODE(Defaultvalue, CStr(Column.refdisplay), CStr(Column.refpk), CStr(Column.reffile), CStr(Column.reflist), CNum(Column.oktocache));
         } else {
@@ -1507,14 +1507,14 @@ async function JSB_CTLS_CTL_MULTISELECTDROPDOWNBOX_Sub(Projectname, Id, Column, 
             if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + CStr(Id) + '").change(function() { doJsbSubmit() });\')'; }
         } else {
             Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
             ByRef__Html = multiSelectDropDownBox(Id, Values, Defaultvalue, await JSB_CTLS_ADDPARSLEY(Column, Additionalattributes), Binding);
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + CStr(Id) + '\').blur(function() { doJsbSubmit() });'); }
         }
     } else {
         // Prevents change
-        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     }
     return exit();
 }
@@ -1635,14 +1635,14 @@ async function JSB_CTLS_CTL_MULTISELECTLISTBOX_Sub(Projectname, Id, Column, Row,
             Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
             Column.notblank = Holdblanks;
 
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
             ByRef__Html = JSB_HTML_MULTISELECTLISTBOX(CStr(Id), Values, Defaultvalue, await JSB_CTLS_ADDPARSLEY(Column, Additionalattributes));
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + CStr(Id) + '\').blur(function() { doJsbSubmit() });'); }
         }
     } else {
         // Prevents change
-        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     }
     return exit();
 }
@@ -1687,7 +1687,7 @@ async function JSB_CTLS_CTL_PASSWORDBOX_Sub(Projectname, Id, Column, Row, ByRef_
             if (CBool(Column.mask)) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + CStr(Id) + '").mask("' + Mid1(Column.mask, InStr1(1, Column.mask, ',') + 1) + '");\')'; }
             if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + CStr(Id) + '").change(function() { doJsbSubmit() });\')'; }
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             ByRef__Html = JSB_HTML_PASSWORDBOX(CStr(Id), Defaultvalue, false, Additionalattributes);
             if (CBool(Column.mask)) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$("#' + CStr(Id) + '").mask("' + Mid1(Column.mask, InStr1(1, Column.mask, ',') + 1) + '");'); }
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + CStr(Id) + '\').change(function() { doJsbSubmit() });'); }
@@ -1739,14 +1739,14 @@ async function JSB_CTLS_CTL_POPSELECTION_Sub(Projectname, Id, Column, Row, ByRef
         } else {
             Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
 
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
             ByRef__Html = InputPopSelection(Id, Values, Defaultvalue, await JSB_CTLS_ADDPARSLEY(Column, Additionalattributes), Column.popupwidth, Column.popupheight, Column.popuptitle);
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + CStr(Id) + '\').change(function() { doJsbSubmit() });'); }
         }
     } else {
         // Prevents change
-        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     }
 
     return exit();
@@ -1807,7 +1807,7 @@ async function JSB_CTLS_CTL_RADIOBOX_Sub(Projectname, Id, Column, Row, ByRef__Ht
         if (Dokobinding) {
             ByRef__Html = JSB_HTML_RADIOBTNS('', Values, undefined, (Not(Column.canedit)), Additionalattributes);
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             ByRef__Html = JSB_HTML_RADIOBTNS(CStr(Id), Values, Defaultvalue, (Not(Column.canedit)), Additionalattributes);
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$("[name=\'' + CStr(Id) + '\']").change(function() { doJsbSubmit() });'); }
         }
@@ -1911,14 +1911,14 @@ async function JSB_CTLS_CTL_SLIDERLABELED_Sub(Projectname, Id, Column, Row, ByRe
                 ByRef__Html = 'ctlHtml = @jsb_html.sliderLabeled("' + Id + '", "' + Change(Column.reflist, '"', '\\"') + '", ' + Dftval + ', ' + CStr(CNum(Column.addBlank) + 0) + ' /* addBlank */, False /* readOnly */, ' + CStr(Additionalattributes) + ', True /* multiValuedData */)';
             }
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             Additionalattributes = await JSB_CTLS_ADDPARSLEY(Column, Additionalattributes);
 
             Values = await JSB_MDL_MDLGETREFVALUES(Projectname, Column, Row, function (_Projectname, _Column, _Row) { Projectname = _Projectname; Column = _Column; Row = _Row });
             ByRef__Html = (JSB_HTML_SLIDERLABELED(Id, Values, Defaultvalue, CStr(Column.addBlank), false, Additionalattributes, CStr(CBool(Column.multiValuedData) || !isEmpty(Column.reflist))));
         }
     } else {
-        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), Id, Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), Id, Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     }
     return exit();
 }
@@ -1972,7 +1972,7 @@ async function JSB_CTLS_CTL_TEXTBOX_Sub(Projectname, Id, Column, Row, ByRef__Htm
     var Defaultvalue = '';
     var Mobilepad = '';
 
-    if (!Gencode && Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+    if (!Gencode && !Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
     if (Null0(Column.linecnt) > 1) {
         Additionalattributes = JSB_BF_MERGEATTRIBUTE('style', 'width: 100%', ';', Additionalattributes);
@@ -2064,7 +2064,7 @@ async function JSB_CTLS_CTL_TEXTBOX_Sub(Projectname, Id, Column, Row, ByRef__Htm
                 ByRef__Html = JSB_HTML_TEXTAREA(Id, Defaultvalue, CStr(Column.linecnt), '', Additionalattributes);
             }
         } else {
-            await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), Id, Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+            await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), Id, Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
         }
     }
     return exit();
@@ -2141,12 +2141,12 @@ async function JSB_CTLS_CTL_TIMEBOX_Sub(Projectname, Id, Column, Row, ByRef__Htm
             ByRef__Html = 'ctlHtml = @jsb_html.TimeBox("' + CStr(Id) + '", ' + Dftval + ', ' + CStr(Not(Column.canedit)) + ', ' + CStr(Additionalattributes) + ')';
             if (CBool(Column.autopostback) && Id) { ByRef__Html += crlf + 'ctlHtml := @Script(\'$("#' + CStr(Id) + '").change(function() { doJsbSubmit() });\')'; }
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             ByRef__Html = JSB_HTML_TIMEBOX(CStr(Id), Defaultvalue, Not(Column.canedit), Additionalattributes);
             if (CBool(Column.autopostback) && Id) { ByRef__Html = CStr(ByRef__Html) + JSB_HTML_SCRIPT('$(\'#' + CStr(Id) + '\').change(function() { doJsbSubmit() });'); }
         }
     } else {
-        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     }
     return exit(undefined);
 }
@@ -2162,7 +2162,7 @@ async function JSB_CTLS_CTL_UPLOADBOX_Sub(Projectname, Id, Column, Row, ByRef__H
     var Lbladditionalattributes = undefined;
     var Ctladditionalattributes = undefined;
 
-    if (!Gencode && Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+    if (!Gencode && !Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
 
     if (CBool(Column.canedit)) {
         Lbladditionalattributes = await JSB_CTLS_ADDPARSLEY(Column, Lbladditionalattributes); // Force to be an Array[]
@@ -2181,11 +2181,11 @@ async function JSB_CTLS_CTL_UPLOADBOX_Sub(Projectname, Id, Column, Row, ByRef__H
             if (CBool(Ctladditionalattributes)) Ctladditionalattributes = '[`' + Join(Ctladditionalattributes, '`,`') + '`]';
             ByRef__Html = 'ctlHtml := @jsb_html.UploadBox("' + Id + '", ' + CStr(Row) + ', ' + CStr(CNum(Column.autopostback) + 0) + ' /* autopostback */, false /* allowMultipleFiles */, \'' + CStr(Column.mimetypes) + '\', ' + CStr(Lbladditionalattributes) + ', ' + CStr(Ctladditionalattributes) + ')';
         } else {
-            if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+            if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
             ByRef__Html = JSB_HTML_UPLOADBOX(Id, Defaultvalue, ':Column.autopostback + 0:', false, CStr(Column.mimetypes), Lbladditionalattributes, Ctladditionalattributes);
         }
     } else {
-        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), Id, Column, Row, ByRef__Html, CStr(Dokobinding), Lbladditionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_LABEL_Sub(CStr(Projectname), Id, Column, Row, ByRef__Html, Dokobinding, Lbladditionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
     }
     return exit();
 }
@@ -2219,7 +2219,7 @@ async function JSB_CTLS_CTL_URLBOX_Sub(Projectname, Id, Column, Row, ByRef__Html
 
     if (CBool(Column.canedit)) {
         Additionalattributes[Additionalattributes.length] = 'data-parsley-type="url"';
-        await JSB_CTLS_CTL_TEXTBOX_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, CStr(Dokobinding), Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
+        await JSB_CTLS_CTL_TEXTBOX_Sub(CStr(Projectname), CStr(Id), Column, Row, ByRef__Html, Dokobinding, Additionalattributes, Gencode, CStr(Viewname), function (_ByRef__Html) { ByRef__Html = _ByRef__Html });
         return exit(undefined);
     }
 
@@ -2235,10 +2235,590 @@ async function JSB_CTLS_CTL_URLBOX_Sub(Projectname, Id, Column, Row, ByRef__Html
         if (Dokobinding) Dftval = undefined; else Dftval = await JSB_CTLS_GETDEFAULTFMT(CStr(Row), CStr(Column.defaultvalue), CStr(Column.name));
         ByRef__Html = 'ctlHtml = @jsb_html.Anchor("' + Id + '", ' + Dftval + ', ' + Dftval + ', ' + CStr(Additionalattributes) + ')';
     } else {
-        if (Not(Dokobinding)) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
+        if (!Dokobinding) Defaultvalue = getDefaultValue(CStr(Row[Column.name]), CStr(Column.defaultvalue), CStr(Column.name), CStr(Viewname));
         ByRef__Html = Anchor(Id, Defaultvalue, Defaultvalue, Additionalattributes);
     }
 
     return exit(undefined);
 }
 // </CTL_URLBOX_Sub>
+
+// <_ADDPARSLEY_Sub>
+async function JSB_CTLS__ADDPARSLEY_Sub() {
+}
+// </_ADDPARSLEY_Sub>
+
+// <ADDPARSLEY>
+async function JSB_CTLS_ADDPARSLEY(Column, Additionalattributes) {
+    var Parsleyneeded = undefined;
+    var Attributes = undefined;
+
+    Attributes = Additionalattributes;
+    if (Not(Attributes)) {
+        Attributes = [undefined,];
+    } else if (typeOf(Attributes) != 'Array') {
+        Attributes = JSB_BF_MERGEATTRIBUTE('', '', '', Attributes);
+    }
+
+    if (CBool(Column.tooltip)) {
+        if (!InStr1(1, Attributes, 'title')) Attributes[Attributes.length] = 'title="' + CStr(Column.tooltip) + '"';
+        if (!InStr1(1, Attributes, 'placeholder')) Attributes[Attributes.length] = 'placeholder="' + CStr(Column.tooltip) + '"';
+    } else if (CBool(Column.suppresslabel)) {
+        if (!InStr1(1, Attributes, 'title')) Attributes[Attributes.length] = 'title="' + CStr(Column.label) + '"';
+        if (!InStr1(1, Attributes, 'placeholder')) Attributes[Attributes.length] = 'placeholder="' + CStr(Column.label) + '"';
+    } else if (CBool(Column.label)) {
+        if (!InStr1(1, Attributes, 'placeholder')) Attributes[Attributes.length] = 'placeholder="' + CStr(Column.label) + '"';
+    }
+
+    Parsleyneeded = (CBool(Column.required) || CBool(Column.notblank) || !isEmpty(Column.iminvalue) || !isEmpty(Column.imaxvalue) || !isEmpty(Column.xminvalue) || !isEmpty(Column.xmaxvalue) || !isEmpty(Column.regx));
+    if (!Parsleyneeded) return Attributes;
+
+    Attributes[Attributes.length] = [undefined, 'parsley-trigger="change focusout"'];
+    if (CBool(Column.required) || CBool(Column.notblank)) Attributes[Attributes.length] = 'required';
+
+    if (Column.datatype == 'integer') {
+        if (Len(Column.iminvalue)) Attributes[Attributes.length] = 'min="' + CStr(Column.iminvalue) + '"';
+        if (Len(Column.imaxvalue)) Attributes[Attributes.length] = 'max="' + CStr(Column.imaxvalue) + '"';
+    } else if (Column.datatype == 'double') {
+        if (CBool(Column.xminvalue)) Attributes[Attributes.length] = 'min="' + CStr(Column.xminvalue) + '"';
+        if (CBool(Column.xmaxvalue)) Attributes[Attributes.length] = 'max="' + CStr(Column.xmaxvalue) + '"';
+    }
+
+    if (CBool(Column.regx)) {
+        Attributes[Attributes.length] = 'pattern="' + Mid1(Column.regx, InStr1(1, Column.regx, ',') + 1) + '"';
+        if (CBool(Column.regxtext)) Attributes[Attributes.length] = 'data-parsley-error-message="' + CStr(Column.regxtext) + '"';
+    }
+
+    Attributes = JSB_BF_MERGEATTRIBUTE('onchange', 'parsleyReset(this)', ';', Attributes);
+
+    return Attributes;
+}
+// </ADDPARSLEY>
+
+// <_GETDEFAULTFMT_Sub>
+async function JSB_CTLS__GETDEFAULTFMT_Sub() {
+}
+// </_GETDEFAULTFMT_Sub>
+
+// <GETDEFAULTFMT>
+async function JSB_CTLS_GETDEFAULTFMT(Row, Defaultvalue, Columnname) {
+    var Defaultvalues = undefined;
+    var R = undefined;
+    var Isexpression = undefined;
+    var I = undefined;
+    var Funcname = '';
+    var Extra = '';
+    var Newdefaultvalue = '';
+    var Mrow = '';
+    var Q = '';
+    var Ldftval = '';
+
+    if (Not(Defaultvalue)) return CStr(Row) + '';
+
+    // Check for {xxx} substituions
+    Isexpression = (InStr1(1, Defaultvalue, '{') || InStr1(1, Defaultvalue, '(') || InStr1(1, Defaultvalue, '+') || InStr1(1, Defaultvalue, '-') || InStr1(1, Defaultvalue, '/') || InStr1(1, Defaultvalue, '*') || InStr1(1, Defaultvalue, ':'));
+    Defaultvalues = Split(Defaultvalue, '{');
+    R = [undefined, Defaultvalues[1]];
+    var _ForEndI_2 = UBound(Defaultvalues);
+    for (I = 2; I <= _ForEndI_2; I++) {
+        Funcname = LTrim(RTrim(Defaultvalues[I]));
+        Funcname = Field(Funcname, '}', 1);
+        if (Left(Funcname, 1) == '@') Funcname = Mid1(Funcname, 2);
+
+        if (InStr1(1, Funcname, '(')) {
+            Extra = '(' + dropLeft(Funcname, '(');
+            Funcname = Field(Funcname, '(', 1);
+        } else {
+            Extra = '';
+        }
+
+        switch (LCase(Funcname)) {
+            case 'objectname': case 'viewname':
+                Newdefaultvalue = '\'' + CStr(Columnname) + '\'';
+
+                break;
+
+            case 'niceobjectname': case 'niceviewname':
+                Newdefaultvalue = '\'' + JSB_BF_NICENAME(CStr(Columnname)) + '\'';
+
+                break;
+
+            case 'paramvar': case '@param':
+                Newdefaultvalue = '@ParamVar' + Extra;
+
+                break;
+
+            case 'sessionvar': case 'session':
+                Newdefaultvalue = '@SessionVar' + Extra;
+
+                break;
+
+            case 'applicationvar': case 'application':
+                Newdefaultvalue = '@ApplicationVar' + Extra;
+
+                break;
+
+            case 'queryvar': case 'urlparam': case 'urlvar': case 'param':
+                Newdefaultvalue = '@QueryVar' + Extra;
+
+                break;
+
+            case 'lastvalue':
+                Newdefaultvalue = '@session(\'LastValue:' + CStr(Columnname) + '\')';
+
+                break;
+
+            case 'time':
+                Newdefaultvalue = 'Time(Time())';
+
+                break;
+
+            case 'itime':
+                Newdefaultvalue = 'Time()';
+
+                break;
+
+            case 'timestamp': case 'now':
+                Newdefaultvalue = 'Now()';
+
+                break;
+
+            case 'yy':
+                Newdefaultvalue = 'Mid(Date(Date()), 3, 2)';
+
+                break;
+
+            case 'yyyy':
+                Newdefaultvalue = 'Theyear(Date())';
+
+                break;
+
+            case 'mm':
+                Newdefaultvalue = 'Themonth(Date())';
+
+                break;
+
+            case 'dd':
+                Newdefaultvalue = 'Theday(Date())';
+
+                break;
+
+            case 'date':
+                Newdefaultvalue = 'Date(Date())';
+
+                break;
+
+            case 'idate':
+                Newdefaultvalue = 'Date()';
+
+                break;
+
+            case 'datetime':
+                Newdefaultvalue = 'DateTime()';
+
+                break;
+
+            case 'timedate':
+                Newdefaultvalue = 'TimeDate()';
+
+                break;
+
+            case 'guid':
+                Newdefaultvalue = 'Guid()';
+
+                break;
+
+            case 'username':
+                Newdefaultvalue = '@UserName';
+
+                break;
+
+            default:
+                // Assumed to be a column name
+                Mrow = Field(Row, '[', 1);
+                Newdefaultvalue = Mrow + '[\'' + Funcname + '\']';
+        }
+
+        R[R.length] = 'IFF(' + CStr(Row) + ', ' + CStr(Row) + ', ' + Newdefaultvalue + ')';
+    }
+    Newdefaultvalue = Join(R, '');
+
+    Q = '';
+    if (!Isexpression) {
+        Newdefaultvalue = Defaultvalue;
+        Ldftval = LCase(Defaultvalue);
+
+        if (isNumeric(Newdefaultvalue)); else if (Ldftval == 'false' || Ldftval == 'true' || Ldftval == 'null'); else if (Left(Newdefaultvalue, 1) == '\'' && Right(Newdefaultvalue, 1) == '\''); else if (Left(Newdefaultvalue, 1) == '"' && Right(Newdefaultvalue, 1) == '"'); else if (Left(Newdefaultvalue, 1) == '`' && Right(Newdefaultvalue, 1) == '`'); else if (!InStr1(1, Newdefaultvalue, '`')) {
+            Q = '`';
+        } else if (!InStr1(1, Newdefaultvalue, '\'')) {
+            Q = '\'';
+        } else if (!InStr1(1, Newdefaultvalue, '"')) {
+            Q = '"';
+        } else {
+            Alert('Your default value for ' + Newdefaultvalue + ' contains both types of quotes.');
+        }
+    }
+
+    return 'IFF(' + CStr(Row) + ', ' + CStr(Row) + ', ' + Q + Newdefaultvalue + Q + ')';
+}
+// </GETDEFAULTFMT>
+
+// <_JSON_SETUP_Sub>
+async function JSB_CTLS__JSON_SETUP_Sub() {
+}
+// </_JSON_SETUP_Sub>
+
+// <JSON_SETUP>
+async function JSB_CTLS_JSON_SETUP(Projectname, Id, Column, Row, ByRef_Errors, Additionalattributes, ByRef_Defaultrow, ByRef_Dataset, ByRef_Model, ByRef_Editviewname, setByRefValues) {
+    function exit(v) {
+        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Errors, ByRef_Defaultrow, ByRef_Dataset, ByRef_Model, ByRef_Editviewname)
+        return v
+    }
+    var Columndefs = undefined;
+    var Fhandle = undefined;
+    var Xmodel = undefined;
+    var Def = undefined;
+    var Js = undefined;
+    var Inlinerow = undefined;
+    var Scolumn = undefined;
+    var Cdefs = '';
+    var D = '';
+
+    ByRef_Editviewname = '';
+
+    if (CBool(Column.useview)) {
+        if (await JSB_ODB_READJSON(Xmodel, await JSB_BF_FHANDLE('dict', Projectname), CStr(Column.useview), function (_Xmodel) { Xmodel = _Xmodel })); else {
+            ByRef_Errors = html('Unable to find view ' + CStr(Column.useview) + ' for json_inline column ' + CStr(Column.name));
+            return exit(false);
+        }
+        ByRef_Editviewname = CStr(Projectname) + '*' + CStr(Column.useview);
+        Columndefs = Xmodel.columns;;
+    } else if (CBool(Column.reflist)) {
+        Cdefs = Change(Column.reflist, am, '');
+        Columndefs = parseJSON('{cdefs:[' + Cdefs + ']}').cdefs;;
+    } else if (!isEmpty(Column.reffile)) {
+        if (LCase(Column.reffile) == 'jsb_jsondefs') {
+            if (await JSB_ODB_READ(Cdefs, await JSB_BF_FHANDLE('jsb_jsondefs'), CStr(Column.refpk), function (_Cdefs) { Cdefs = _Cdefs })) {
+                Cdefs = Change(Cdefs, am, '');
+                Columndefs = parseJSON('{cdefs:[' + Cdefs + ']}').cdefs;
+            } else {
+                ByRef_Errors = html('Unable to find refpk ' + CStr(Column.refpk) + ' in jsb_jsondefs column ' + CStr(Column.name));
+                return exit(false);
+            }
+        } else {
+            if (await JSB_ODB_OPEN('Dict', CStr(Column.reffile), Fhandle, function (_Fhandle) { Fhandle = _Fhandle })); else {
+                ByRef_Errors = html('Unable to find reffile ' + CStr(Column.reffile) + ' for json_inline column ' + CStr(Column.name));
+                return exit(false);
+            }
+            Columndefs = await JSB_BF_GETTABLECOLUMNDEFS(CStr(Column.reffile), CStr(false), true);;
+        }
+    } else {
+        ByRef_Errors = html('Your json_inline for column ' + CStr(Column.name) + ' isn\'t setup correctly.  There is no reflist.');
+        return exit(false);
+    }
+
+    var Tstdataset = clone(Row[Column.name]);
+    if (typeOf(Tstdataset) != 'Array') {
+        if (isEmpty(Tstdataset)) Tstdataset = '[]';
+        if (Left(Tstdataset, 1) == '{') Tstdataset = '[' + CStr(Tstdataset) + ']';
+        if (Left(Tstdataset, 1) != '[') Tstdataset = '[]';
+        Tstdataset = parseJSON('{dset:' + CStr(Tstdataset) + '}').dset;
+    }
+    ByRef_Dataset = Tstdataset;
+    At_Session.Item('MYDATASET', ByRef_Dataset);
+
+    ByRef_Defaultrow = {};
+
+    // set default values in defaultRow and insure json_inline values are an array in the Row
+    for (Def of iterateOver(Columndefs)) {
+        if (CBool(Def.name)) {
+            D = Def.defaultvalue;
+            if (Def.control == 'json_inline') {
+                if (Left(D, 1) != '[' || Right(D, 1) != ']') {
+                    if (Left(D, 1) == '{' && Right(D, 1) == '}') D = '[' + D + ']'; else D = '[]';
+                }
+                Js = parseJSON('{array:' + D + '}');
+                D = Js.array;
+                for (Inlinerow of iterateOver(ByRef_Dataset)) {
+                    if (Not(isArray(Inlinerow[Def.name]))) Inlinerow[Def.name] = [undefined,];
+                }
+            }
+            ByRef_Defaultrow[Def.name] = D;
+        }
+    }
+
+    if (Not(Column.canedit)) {
+        for (Scolumn of iterateOver(Columndefs)) {
+            Scolumn.canedit = false;
+            Scolumn.pickfunction = '';
+        }
+    }
+
+    ByRef_Model = {};
+
+    ByRef_Model.columns = Columndefs;
+    return exit(true);
+}
+// </JSON_SETUP>
+
+// <_KOGRIDVIEWNCOLUMNS_Sub>
+async function JSB_CTLS__KOGRIDVIEWNCOLUMNS_Sub() {
+}
+// </_KOGRIDVIEWNCOLUMNS_Sub>
+
+// <KOGRIDVIEWNCOLUMNS>
+async function JSB_CTLS_KOGRIDVIEWNCOLUMNS(Projectname, Modelcolumns, Parentmodel, Id, Removerowtext, Canedit, Viewname) {
+    var _Html = undefined;
+    var Ci = undefined;
+    var Ctlname = '';
+    var L1 = '';
+    var Nicecolumnname = '';
+    var Ctlhtml = '';
+    var Pickurl = '';
+    var Pid = '';
+    var Column = undefined;
+    var Additionalattrs = undefined;
+
+    _Html = [undefined,];
+    _Html[_Html.length] = html('\<tr\>');
+
+    Ci = LBound(Modelcolumns) - 1;
+    for (Column of iterateOver(Modelcolumns)) {
+        Ci++;
+        if (Column.display != 'hidden' && !isEmpty(Column.name)) {
+            Ctlname = LCase(Column.control);
+            if (!Ctlname) Ctlname = 'textbox';
+
+            if (Ctlname == 'json_inline') Ctlname = 'json_popup';
+
+            L1 = Column.label;
+            Nicecolumnname = 'KO_' + JSB_BF_NICENAME(CStr(Column.name));
+
+            Ctlname = 'jsb_ctls.ctl_' + Ctlname;
+            Additionalattrs = [undefined, 'style=\'width:auto;' + CStr(Column.ctlstyle) + '\''];
+            if (Null0(Column.linecnt) > 1) Column.linecnt = 1;
+            Ctlhtml = '';
+
+            await asyncCallByName(Ctlname, me, 0 /*ignore if missing */, Projectname, Nicecolumnname, Column, {}, Ctlhtml, true, Additionalattrs, false, Viewname, function (_Ctlhtml) { Ctlhtml = _Ctlhtml });
+
+            if (CBool(Column.pickfunction)) {
+                Pickurl = dropIfRight(CStr(Column.pickfunction), '.page');
+                Pickurl = Change(Pickurl, '{projectname}', urlEncode(Projectname));
+                if (InStr1(1, Pickurl, '//') == 0) {
+                    if (Left(Pickurl, 1) == '/') Pickurl = Mid1(Pickurl, 2);
+                    Pickurl = jsbRestCall(Pickurl);
+                }
+                Ctlhtml = addPick(Ctlhtml, Nicecolumnname, 'Pick ' + L1, '80%', '60%', Pickurl, Column.autopostback);
+            }
+
+            _Html[_Html.length] = html('\<td\>\<mdlctl id=\'ctl_' + Nicecolumnname + '\'\>') + Ctlhtml + html('\</mdlctl\>\</td\>');
+        }
+    }
+
+    if (Canedit) {
+        if (Not(Removerowtext)) Removerowtext = 'Remove';
+        _Html[_Html.length] = html('\<td class="anchorRemoveGridTD"\>');
+
+        if (Parentmodel) {
+            Pid = JSB_BF_NICENAME(Change(Parentmodel, '().', '_')) + CStr(Id);
+            _Html[_Html.length] = html('\<a class="anchorRemoveGridRow" data-bind="click: function() { if (confirm(\'Are you sure you want to ' + Removerowtext + ' this row?\')) koModel.' + Pid + '_delRow($data, $index(), $parent) } "\>' + Removerowtext + '\</a\>');
+        } else {
+            // Html[-1] = @Html(`<a class="anchorRemoveGridRow" data-bind="click: function() { $root.`:PID:`_delRow">`:removeRowText:`</a>`)
+            _Html[_Html.length] = html('\<a class="anchorRemoveGridRow" data-bind="click: function() { if (confirm(\'Are you sure you want to ' + Removerowtext + ' this row?\')) koModel.' + CStr(Id) + '_delRow($data, $index()) }"\>' + Removerowtext + '\</a\>');
+        }
+
+        _Html[_Html.length] = html('\</td\>');
+    }
+
+    _Html[_Html.length] = html('\</tr\>');
+
+    return Join(_Html, '');
+}
+// </KOGRIDVIEWNCOLUMNS>
+
+// <_KOLOAD_Sub>
+async function JSB_CTLS__KOLOAD_Sub() {
+}
+// </_KOLOAD_Sub>
+
+// <KOLOAD>
+async function JSB_CTLS_KOLOAD(Columnname, Defaultvalue, Valuefield, Addifnotinlist, Jsfunctionname, Jsextrafunctionparameters, Dontclosestring) {
+    var Result = '';
+
+    if (Len(Jsextrafunctionparameters)) Jsextrafunctionparameters = ', ' + CStr(Jsextrafunctionparameters);
+    if (Not(Valuefield)) Valuefield = 'value';
+    Result = 'data-bind="';
+    if (Addifnotinlist) { Result += 'addIfNotInList: {}, '; }
+    Result += 'attr: {id: \'KO_' + JSB_BF_NICENAME(CStr(Columnname)) + '_\' + $index()}, ';
+    // result := `attr: {id: 'KO_`:NiceName(ColumnName):`'}, `
+    if (Defaultvalue) {
+        Result += Valuefield + ': $data[\'' + CStr(Columnname) + '\'], ' + Valuefield + ': $data[\'' + CStr(Columnname) + '\']?$data[\'' + CStr(Columnname) + '\']:\'' + CStr(Defaultvalue) + '\'';
+    } else {
+        Result += Valuefield + ': $data[\'' + CStr(Columnname) + '\']';
+    }
+    Result += ', valueUpdate:\'blur\'';
+    if (Jsfunctionname) {
+        if (InStr1(1, Jsfunctionname, '(')) {
+            Result += ', css: { ' + JSB_BF_NICENAME(CStr(Columnname)) + '_load: ' + CStr(Jsfunctionname) + ' }';
+        } else {
+            Result += ', css: { ' + JSB_BF_NICENAME(CStr(Columnname)) + '_load: ' + CStr(Jsfunctionname) + '($element, $data, $index' + Jsextrafunctionparameters + ') }';
+        }
+    }
+    if (Not(Dontclosestring)) Result += '"';
+    return Result;
+}
+// </KOLOAD>
+
+// <_PUSH_REFEXTRAMETA_Sub>
+async function JSB_CTLS__PUSH_REFEXTRAMETA_Sub() {
+}
+// </_PUSH_REFEXTRAMETA_Sub>
+
+// <PUSH_REFEXTRAMETA_Sub>
+async function JSB_CTLS_PUSH_REFEXTRAMETA_Sub(ByRef_Row, Viewmodel, setByRefValues) {
+    function exit(v) {
+        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Row)
+        return v
+    }
+    Viewmodel.columns.push({ "name": 'lblRef', "label": 'ref', "control": 'label', "suppresslabel": true, "fullline": true, "defaultvalue": 'The following fields are for your Reference file' });
+    Viewmodel.columns.push({ "name": 'reffile', "index": 21, "label": 'Ref File', "width": '12em', "control": 'comboBox', "autopostback": true, "canedit": true, "reffile": '{listfiles}' });
+    Viewmodel.columns.push({ "name": 'refsql', "label": 'Ref SQL', "width": '12em', "control": 'textbox', "canedit": true, "notblank": false });
+    Viewmodel.columns.push({ "name": 'refpk', "label": 'Ref PK', "width": '12em', "control": 'comboBox', "canedit": true, "reffile": '{!reffile}' });
+    Viewmodel.columns.push({ "name": 'refdisplay', "label": 'Ref display', "width": '12em', "control": 'comboBox', "canedit": true, "reffile": '{!reffile}' });
+    Viewmodel.columns.push({ "name": 'refwhere', "label": 'Ref Where', "width": '12em', "control": 'textbox', "canedit": true, "notblank": false });
+    Viewmodel.columns.push({ "name": 'reflist', "label": 'Ref List', "width": 23, "control": 'textbox', "canedit": true, "tooltip": 'Display,Key;...' });
+    Viewmodel.columns.push({ "name": 'multiValuedData', "newlineprefix": true, "label": 'multi-Valued Data', "control": 'checkbox', "canedit": true, "defaultvalue": 1, "reflist": 'false,0;true,1' });
+    Viewmodel.columns.push({ "name": 'addBlank', "label": 'Add Blank Value', "control": 'checkbox', "canedit": true, "defaultvalue": 0, "reflist": 'false,0;true,1' });
+    Viewmodel.columns.push({ "name": 'oktocache', "label": 'OK 2 Cache', "control": 'checkbox', "canedit": true, "defaultvalue": true, "reflist": 'false,0;true,1' });
+    Viewmodel.columns.push({ "name": 'savenewvalues', "label": 'Save New Values', "control": 'checkbox', "canedit": true, "defaultvalue": false, "reflist": 'false,0;true,1' });
+
+    Viewmodel.columns.push({ "name": 'lblRef2', "label": 'ref2', "control": 'label', "suppresslabel": true, "fullline": true, "defaultvalue": '' });
+    Viewmodel.columns.push({});
+    return exit();
+}
+// </PUSH_REFEXTRAMETA_Sub>
+
+// <_REPEATERFORMBACKGROUND_Pgm>
+async function JSB_CTLS__REPEATERFORMBACKGROUND_Pgm() {  // PROGRAM
+    Commons_JSB_CTLS = {};
+    Equates_JSB_CTLS = {};
+
+    return;
+}
+// </_REPEATERFORMBACKGROUND_Pgm>
+
+// <REPEATERFORMBACKGROUND>
+async function JSB_CTLS_REPEATERFORMBACKGROUND(Projectname, Id, Objectmodel, Dataarray, Removerowtext, Canedit, Parentmodel, Viewname) {
+    // local variables
+    var _Html, Cm;
+
+    var Dropit = undefined;
+    var Lastdivi = undefined;
+    var Ls = '';
+    var Rs = '';
+    var Pfx = '';
+    var _Innerhtml = '';
+
+    At_Session.Item('MYDATASET', Dataarray);
+
+    _Innerhtml = await JSB_MDL_FORMVIEWNCOLUMNS(CStr(Projectname), Objectmodel, CNum(CStr(Id) + '().'), {}, CStr(Viewname));
+
+    if (Canedit && Removerowtext) {
+        Dropit = InStr1(1, _Innerhtml, '\<div class="form-group row"\>') < 40;
+        if (Dropit) {
+            Lastdivi = Index1(_Innerhtml, '\</div\>', Count(_Innerhtml, '\</div\>'));
+            Ls = Left(_Innerhtml, Lastdivi - 1);
+            Rs = Mid1(_Innerhtml, Lastdivi);
+        } else {
+            Ls = _Innerhtml;
+            Rs = '';
+        }
+
+        Pfx = '\<div class="col-xs-1"\>\<a class="anchorRemoveRow" style="display:table" data-bind="click: function() { if (confirm(\'Are you sure you want to ' + CStr(Removerowtext) + ' this row?\'))';
+        Rs += html('\</div\>');
+
+        if (Parentmodel) {
+            _Innerhtml = Ls + html(Pfx + ' $root.' + JSB_BF_NICENAME(Change(Parentmodel, '().', '_')) + CStr(Id) + '_delRow($data, $index(), $parent) } "\>' + CStr(Removerowtext) + '\</a\>') + Rs;
+        } else {
+            _Innerhtml = Ls + html(Pfx + ' koModel.' + CStr(Id) + '_delRow($data, $index()) }"\>' + CStr(Removerowtext) + '\</a\>') + Rs;
+        }
+    }
+
+    _Innerhtml = Div(CStr(Id) + '_ContextDiv', _Innerhtml, [undefined, 'class=\'inlineJsonBlock\'']);
+    _Html = JSB_HTML_REPEATERHTML(CStr(Id), 'div', html('\<div class=\'inlineJson ' + CStr(Id) + '\'\>'), _Innerhtml, html('\</div\>'), CStr(Parentmodel));
+    _Html = Change(_Html, 'mdlctl', 'nstctl');
+
+    if (CBool(isAdmin()) && Viewname) {
+        Cm = {};
+        Cm[Viewname] = { "cmd": 'viewView', "val": Viewname };
+        Cm[Viewname] = { "cmd": 'editView', "val": Viewname };
+
+        _Html = CStr(_Html) + CStr(ContextMenu('#' + CStr(Id) + '_ContextDiv', Cm));
+    }
+
+    return _Html;
+}
+// </REPEATERFORMBACKGROUND>
+
+// <_REPEATERGRIDBACKGROUND_Pgm>
+async function JSB_CTLS__REPEATERGRIDBACKGROUND_Pgm() {  // PROGRAM
+    Commons_JSB_CTLS = {};
+    Equates_JSB_CTLS = {};
+
+    return;
+}
+// </_REPEATERGRIDBACKGROUND_Pgm>
+
+// <REPEATERGRIDBACKGROUND>
+async function JSB_CTLS_REPEATERGRIDBACKGROUND(Projectname, Id, Objectmodel, Dataarray, Removerowtext, Canedit, Parentmodel, Viewname) {
+    // local variables
+    var Modelcolumns, Ci, Column, _Html;
+
+    var Cm = undefined;
+    var Koid = '';
+    var Outerhtmlprefix = '';
+    var _Innerhtml = '';
+    var Outerhtmlsuffix = '';
+
+    Modelcolumns = await JSB_MDL_DROPGRIDCOLUMNS(Objectmodel.columns);
+
+    At_Session.Item('MYDATASET', Dataarray);
+
+    if (Parentmodel) Koid = JSB_BF_NICENAME(CStr(Id)); else Koid = 'koModel.' + JSB_BF_NICENAME(CStr(Id));
+
+    Outerhtmlprefix = html('\<table id="' + JSB_BF_NICENAME(CStr(Id)) + '_table" class="repeaterTable" data-bind="visible: ' + Koid + '().length\>0"\>\<thead\>');
+
+    var _ForEndI_2 = UBound(Modelcolumns);
+    for (Ci = 1; Ci <= _ForEndI_2; Ci++) {
+        Column = Modelcolumns[Ci];
+        if (isEmpty(Column.control)) Column.control = 'textbox';
+        Outerhtmlprefix += html('\<th\>') + CStr(Column.label) + html('\</th\>');
+    }
+
+    Outerhtmlprefix += html('\<th\>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\</th\>\</thead\>');
+
+    if (Viewname) {
+        _Innerhtml = await JSB_CTLS_KOGRIDVIEWNCOLUMNS(CStr(Projectname), Modelcolumns, CStr(Parentmodel), CStr(Id), CStr(Removerowtext), Canedit, CStr(Viewname));
+    } else {
+        _Innerhtml = await JSB_CTLS_KOGRIDVIEWNCOLUMNS(CStr(Projectname), Modelcolumns, CStr(Parentmodel), CStr(Id), CStr(Removerowtext), Canedit, CStr(Objectmodel.attachdb) + am + CStr(Objectmodel.tableName));
+    }
+
+    Outerhtmlsuffix = html('\</table\>');
+
+    _Html = JSB_HTML_REPEATERHTML(CStr(Id), 'tbody', Outerhtmlprefix, _Innerhtml, Outerhtmlsuffix, CStr(Parentmodel));
+
+    if (CBool(isAdmin()) && Viewname) {
+        Cm = {};
+        Cm[Viewname] = { "cmd": 'viewView', "val": Viewname };
+        Cm[Viewname] = { "cmd": 'editView', "val": Viewname };
+
+        // CM = []
+        // CM[-1] = "Display: ":viewname:",viewView,":viewName
+        // CM[-1] = "Edit: ":viewname:",editView,":viewName
+
+        _Html = CStr(_Html) + CStr(ContextMenu('#' + JSB_BF_NICENAME(CStr(Id)) + '_table', Cm));
+    }
+
+    return _Html;
+}
+// </REPEATERGRIDBACKGROUND>

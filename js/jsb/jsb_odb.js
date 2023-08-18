@@ -2124,9 +2124,8 @@ async function JSB_ODB_OPEN(Dictdata, Fname, ByRef_Fhandle, setByRefValues) {
             ByRef_Fhandle = '@' + _Protocol + '.' + CStr(ByRef_Fhandle);
             return exit(Success);
         }
-
         // Local versions come before q-ptrs
-        if (await asyncOpen(Dictdata, Fname, _fHandle => ByRef_Fhandle = _fHandle)) return exit(true);
+        // I_Open DictData, FName To fHandle Then Return True;
     }
 
     // Check for Q versions and set QActName
@@ -2134,7 +2133,7 @@ async function JSB_ODB_OPEN(Dictdata, Fname, ByRef_Fhandle, setByRefValues) {
         if (Dictdata == 'dict') {
             // DICT is local
             if (await asyncOpen('dict', Qfname, _fHandle => ByRef_Fhandle = _fHandle)) return exit(true);
-            if (await asyncCreateTable("DATA", 'dict ' + Qfname, _fHandle => activeProcess.At_File = _fHandle)); else return exit(false);
+            if (await asyncCreateTable("", 'dict ' + Qfname, _fHandle => activeProcess.At_File = _fHandle)); else return exit(false);
             if (await asyncOpen('dict', Qfname, _fHandle => ByRef_Fhandle = _fHandle)) return exit(true);
             return exit(false);
         }

@@ -37,7 +37,7 @@ var odbCurrentDBName = "";    // current attached database
 var cachedFileNames = {}      // a json list of valid files that are or can be fetched.  ie: cachedFileNames["filename"] = "httppathToFetch"; // simple path(xx) -> myCacheUrl + "cached_" + xx + ".js"; full path: http://...... .js
 var virginIDS = {}            // a JSON list of TableNames with nested ItemNames from cached_jsfile.js scripts
 var deletedIDS = {}           // a JSON list of TableNames with nested ItemNames of deleted item names (same format as virginIDS)
-
+var tryFileSystem = !doNotUseFileSystem;
 
 // Hybrid globals
 var delayedHybridWrite_timer, delayedHybridWrite_tableName, delayedHybridWrite_data, hybridLastSuccessfulWrite_tableName;
