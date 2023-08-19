@@ -457,7 +457,6 @@ anonymousFunc = function () {
     z += "<%if viewModel.usedevx then %>\xFE";
     z += "    * $options external page\xFE";
     z += "    * $options external <%=niceViewName%>\xFE";
-    z += "    if system(1) = \"js\" then if !window.page then page = False\xFE";
     z += "<%End If%>\xFE";
     z += "    Dim viewModel As JSON\xFE";
     z += "    Dim Html As String = \"\", cname as string\xFE";
@@ -497,7 +496,7 @@ anonymousFunc = function () {
     z += "        userSettings.additionalButtons = moreBtns\xFE";
     z += "        \xFE";
     z += "        // =============   ============= Create the devXGrid  =============   ============= \xFE";
-    z += "        if Page Then\xFE";
+    z += "        if !IsNothing(Page) Then\xFE";
     z += "            // Visual Studio version of ASPX page\xFE";
     z += "            Html = setup_devXGrid(<%=niceViewName%>, DataSource, userSettings)\xFE";
     z += "        Else        \xFE";
