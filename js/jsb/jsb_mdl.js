@@ -9712,16 +9712,18 @@ async function JSB_MDL_SHOWTOP1000_Pgm() {  // PROGRAM
         var Cmd = Field(S, ' ', 1);
         if (LCase(Cmd) == 'run') Tableid = Field(S, ' ', 4); else Tableid = Field(S, ' ', 2);
 
-        if (Not(isAdmin()) && Not(Tableid)) return Stop('tableID (the Table Name) is a required parameter');
+        if (Not(Tableid)) {
+            if (Not(isAdmin())) return Stop('tableID (the Table Name) is a required parameter');
 
-        // for testing
-        if (Domain() == 'idfg.idaho.gov' || Domain() == 'localhost') {
-            Databasename = 'SGS';
-            Tableid = 'PIC_Transect';
-            if (await JSB_ODB_ATTACHDB(Databasename)); else return Stop('Unable to attach to ', Databasename);
-        } else {
-            Tableid = 'democustomers.json';
-            Databasename = '';
+            // for testing
+            if (Domain() == 'idfg.idaho.gov') {
+                Databasename = 'SGS';
+                Tableid = 'PIC_Transect';
+                if (await JSB_ODB_ATTACHDB(Databasename)); else return Stop('Unable to attach to ', Databasename);
+            } else {
+                Tableid = 'democustomers.json';
+                Databasename = '';
+            }
         }
     } else {
         if (Databasename === undefined) return Stop('databaseName is a required parameter');
@@ -9780,7 +9782,8 @@ async function JSB_MDL_SHOWTOP1000(Tabid, Databasename, Tablename, Reportname, D
     var Gridwidth = '';
 
     // Do we have a lat and a lng column?
-    Tablecolumns = await asyncRpcRequest('GETTABLECOLUMNDEFS', Tablename, true, true);
+    // TableColumns = @@getTableColumnDefs(ByVal tableName, True /* Suppress Msgs */, True /* Refresh */)
+    Tablecolumns = await JSB_BF_GETTABLECOLUMNDEFS(CStr(Tablename), CStr(true), true);
     if (HasTag(Tablecolumns[LBound(Tablecolumns)], 'ordinal')) Tablecolumns = Sort(Tablecolumns, 'ordinal');
     if (HasTag(Tablecolumns[LBound(Tablecolumns)], 'Ordinal')) Tablecolumns = Sort(Tablecolumns, 'Ordinal');
 

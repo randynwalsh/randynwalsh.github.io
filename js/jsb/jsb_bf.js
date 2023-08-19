@@ -7309,40 +7309,28 @@ async function JSB_BF_IMAGE_LOAD(Src) {
 // </IMAGE_LOAD>
 
 // <IMAGE_MERGE>
-async function JSB_BF_IMAGE_MERGE(ByRef_Tile1, ByRef_Tile2, ByRef_Opacity, setByRefValues) {
+async function JSB_BF_IMAGE_MERGE(Tile1, Tile2, Opacity) {
     // local variables
-    var Img1, Img2, Width, Width2, _Height, Canvas, Ctx;
+    var Img1, Img2, Width, _Height, Canvas, Ctx;
 
-    function exit(v) {
-        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Tile1, ByRef_Tile2, ByRef_Opacity)
-        return v
-    }
     await Include_JSB_BF___Leaflet(false)
 
-    Img1 = await JSB_BF_IMAGE_LOAD(CStr(ByRef_Tile1));
-    if (Not(Img1)) return exit(undefined);
-
-    Img2 = await JSB_BF_IMAGE_LOAD(CStr(ByRef_Tile2));
-    if (Not(Img2)) return exit(undefined);
+    Img1 = await JSB_BF_IMAGE_LOAD(CStr(Tile1));
+    if (Not(Img1)) return;
+    Img2 = await JSB_BF_IMAGE_LOAD(CStr(Tile2));
 
     Width = Img1.width;
-    Width2 = Img2.width;
-
-    if (Null0(Img2.width) > Null0(Width)) Width = Img2.width;
-
     _Height = Img1.height;
-    if (Null0(Img2.height) > Null0(_Height)) _Height = Img2.height;
 
     Canvas = Image_Canvas(Width, _Height);
     Ctx = Image_CTX(Canvas);
 
     // composite now
     Ctx.drawImage(Img1, 0, 0);
-
-    Ctx.globalAlpha = ByRef_Opacity;
+    Ctx.globalAlpha = Opacity;
     Ctx.drawImage(Img2, 0, 0);
 
-    return exit(Canvas.toDataURL('image/jpeg', 0.3));
+    return Canvas.toDataURL('image/jpeg', 0.3);
 }
 // </IMAGE_MERGE>
 
@@ -10239,8 +10227,8 @@ async function JSB_BF_LEAFLET_READONLINETILE(X, Y, Z) {
     Tile2 = await JSB_BF_LEAFLET_FETCHESRI_TILETRANSPORTATION('trans', X, Y, Z, function (_X, _Y, _Z) { X = _X; Y = _Y; Z = _Z });
     Tile3 = await JSB_BF_LEAFLET_FETCHESRI_TILELABELS('labels', X, Y, Z, function (_X, _Y, _Z) { X = _X; Y = _Y; Z = _Z });
 
-    if (Tile2) { Tile = await JSB_BF_IMAGE_MERGE(Tile, Tile2, 1, function (_Tile, _Tile2, _P3) { Tile = _Tile; Tile2 = _Tile2 }); }
-    if (Tile3) { Tile = await JSB_BF_IMAGE_MERGE(Tile, Tile3, 1, function (_Tile, _Tile3, _P3) { Tile = _Tile; Tile3 = _Tile3 }); }
+    if (Tile2) Tile = await JSB_BF_IMAGE_MERGE(CStr(Tile), Tile2, 1);
+    if (Tile3) Tile = await JSB_BF_IMAGE_MERGE(CStr(Tile), Tile3, 1);
 
     Tile2 = undefined;
     Tile3 = undefined;
@@ -17239,3 +17227,71 @@ async function JSB_BF_GET(Url, Method, ByRef_Header, ByRef_Body, Opts, setByRefV
     return exit(Doc);
 }
 // </GET>
+
+// <DBTABLESCHEMA>
+async function JSB_BF_DBTABLESCHEMA(Databasename, Filename) {
+    // local variables
+    var Fhandle, Column, Ss, Srow, Jrow;
+
+    var Attacheddb = At_Session.Item('ATTACHEDDATABASE');
+    var Aschemadefs = [undefined,];
+    var Results = {};
+
+    if (Filename === undefined) {
+        Filename = Databasename;
+        Databasename = '';
+    }
+
+    if (Databasename) { if (await JSB_ODB_ATTACHDB(Databasename)); else return Stop(activeProcess.At_Errors); }
+
+    // Allow Dictionary items to override some values 
+    if (await JSB_ODB_OPEN('', Filename, Fhandle, function (_Fhandle) { Fhandle = _Fhandle })); else {
+        if (Attacheddb) { if (await JSB_ODB_ATTACHDB(Attacheddb)); else null; }
+        return undefined;
+    }
+
+    var Flatfile = false;
+    if (JSB_BF_TYPEOFFILE(Fhandle) == 'ado') {
+        Aschemadefs = Fhandle.GetSchema();
+        for (Column of iterateOver(Aschemadefs)) {
+            if (Column.ColumnName == 'ItemContent') {
+                Flatfile = true;
+                break;
+            }
+        }
+    } else {
+        Flatfile = true;
+    }
+
+    if (Flatfile) {
+        if (await JSB_ODB_SELECTTO('top 1000 *', Fhandle, '', Ss, function (_Ss) { Ss = _Ss })) {
+            var Dataset = getList(Ss);
+
+            if (!Len(Dataset)) {
+                activeProcess.At_Errors = 'No records found to analyse';
+            } else {
+                var Pk = '';
+                Aschemadefs = await JSB_BF_ANALYSEJSON(Dataset, Pk, false, function (_Pk) { Pk = _Pk });
+                if (Len(Aschemadefs)) {
+                    if (HasTag(Aschemadefs, 'ordinal')) Aschemadefs = Sort(Aschemadefs, '#\>ordinal');
+                    if (HasTag(Aschemadefs, 'Ordinal')) Aschemadefs = Sort(Aschemadefs, '#\>Ordinal');
+                }
+            }
+        }
+    }
+
+    for (Srow of iterateOver(Aschemadefs)) {
+        if (CBool(Srow.ColumnName)) {
+            Jrow = await JSB_BF_COLUMNDEF2JSB(Srow);
+            var Rowname = Jrow.name;
+            if (Rowname) Results[Rowname] = Jrow;
+        } else if (CBool(Srow.name)) {
+            Results[Srow.name] = Srow;
+        }
+
+    }
+    if (Attacheddb) { if (await JSB_ODB_ATTACHDB(Attacheddb)); else null; }
+    return Results;
+
+}
+// </DBTABLESCHEMA>

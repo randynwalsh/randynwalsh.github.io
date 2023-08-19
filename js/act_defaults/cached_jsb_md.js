@@ -156,7 +156,6 @@ anonymousFunc = function () {
 
     // q-ptr to common server (sysprog.jsb) - although these are cached in a local .\js
     window.cached_md["qjsb_docs"] = "qd\xFEsysprog.jsb\xFEjsb_docs";
-    window.cached_md["jsb_demos"] = "qd\xFEsysprog.jsb\xFEjsb_demos";
     window.cached_md["qviewtemplates"] = "q\xFEsysprog.jsb\xFEjsb_viewtemplates";
     window.cached_md["qpagetemplates"] = "q\xFEsysprog.jsb\xFEjsb_pagetemplates";
     window.cached_md["qbf"] = "q\xFE\xFEjsb_bf";
@@ -173,6 +172,14 @@ anonymousFunc = function () {
     window.cached_md["qpt"] = "q\xFEsysprog.jsb\xFEjsb_pagetemplates";
     window.cached_md["qjd"] = "q\xFEsysprog.jsb\xFEjsb_jsondefs";
     window.cached_md["qjsondefs"] = "q\xFEsysprog.jsb\xFEjsb_jsondefs";
+
+    window.cached_md["jsb_demos"] = "qd\xFEsysprog.jsb\xFEjsb_demos";
+    window.cached_md["jsb_mdl"] = "qd\xFEsysprog.jsb\xFEjsb_mdl";
+    window.cached_md["jsb_tcl"] = "qd\xFEsysprog.jsb\xFEjsb_tcl";
+    window.cached_md["jsb_bf"] = "qd\xFEsysprog.jsb\xFEjsb_bf";
+    window.cached_md["jsb_html"] = "qd\xFEsysprog.jsb\xFEjsb_html";
+    window.cached_md["jsb_odb"] = "qd\xFEsysprog.jsb\xFEjsb_odb";
+    window.cached_md["jsb_themes"] = "qd\xFEsysprog.jsb\xFEjsb_themes";
 }
 anonymousFunc()
 anonymousFunc = null

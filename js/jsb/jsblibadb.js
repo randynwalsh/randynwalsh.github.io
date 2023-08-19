@@ -856,7 +856,7 @@ function getFileType(dictData, tableName, setByRefValues) {
     if (dictData == "data") dictData = "";
 
     LN = LCase(Left(tableName, 7));
-    if (LN == "https:/" || LN == "http://") return odbTypeHttp;
+    if (LN == "https:/" || LN == "http://" || LN == "file://" || Left(tableName, 2) == "//") return odbTypeHttp;
 
     if (InStr(tableName, ":") >= 0) {
         protocol = LCase(Field(tableName, ":", 1));
@@ -3860,6 +3860,7 @@ async function asyncHTTPReadWrite(fHandle, itemName, method, opts, atrno, postBo
         NoRedirecting = Field(fHandle, am, 5) != "";
     }
 
+    if (Url == 'file://') Url = 'http://';
     if (postBody) Body = postBody;
 
     if (Method == "") Method = method;

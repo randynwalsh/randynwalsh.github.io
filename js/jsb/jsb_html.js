@@ -4281,7 +4281,7 @@ async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
     var Xhtml, Ftable, Sl, Rows;
 
     var Serverurl = Usersettings.serverURL;
-    if (Not(Serverurl)) Serverurl = JsbRootAct();
+    if (Not(Serverurl)) Serverurl = jsbRootAct();
 
     if (Not(Tablename)) { activeProcess.At_Errors = 'Mising TableName'; return undefined; }
 
@@ -4403,11 +4403,14 @@ async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
             \r\n\
             $(\'#' + CStr(Gridid) + '\').dxDataGrid({\r\n\
     ';
+    if (Not(Ftable)) {
+        S += ' remoteOperations: true,  // Grouping on Server';
+    }
 
     S += '\r\n\
                 // use a remote oData provider\r\n\
                 // see https://js.devexpress.com/Documentation/18_1/ApiReference/ui_widgets/dxdatagrid/Configuration/remoteOperations/\r\n\
-                remoteOperations: true,  // Grouping on Server\r\n\
+                \r\n\
                 dataSource: window.' + CStr(Gridid) + '_customDataStore,\r\n\
                 allowColumnReordering: true,\r\n\
                 allowColumnResizing: true,\r\n\
@@ -4512,7 +4515,7 @@ async function JSB_HTML_GETDEVXGRIDMETA(ByRef_Serverurl, ByRef_Databasename, ByR
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Serverurl, ByRef_Databasename, ByRef_Tablename)
         return v
     }
-    var Schemadefs = await asyncRpcRequest('DBTABLESCHEMA', ByRef_Databasename, ByRef_Tablename, function (_ByRef_Databasename, _ByRef_Tablename) { });
+    var Schemadefs = await JSB_BF_DBTABLESCHEMA(CStr(ByRef_Databasename), CStr(ByRef_Tablename));
 
     var Griddefs = [undefined,];
     var Firstcolumnname = '';
