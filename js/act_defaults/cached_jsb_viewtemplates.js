@@ -457,7 +457,7 @@ anonymousFunc = function () {
     z += "<%if viewModel.usedevx then %>\xFE";
     z += "    * $options external page\xFE";
     z += "    * $options external <%=niceViewName%>\xFE";
-    z += "    if system(1) = \"js\" then if !window.page then page = Nothing\xFE";
+    z += "    if system(1) = \"js\" then if !window.page then page = False\xFE";
     z += "<%End If%>\xFE";
     z += "    Dim viewModel As JSON\xFE";
     z += "    Dim Html As String = \"\", cname as string\xFE";
