@@ -1,5 +1,6 @@
 // additional Definitions for file: JSB_THEMES
 function overloadJsbThemesDef() {
+    // make sure act_defaults loads first
     if (!window.cached_jsb_themes) return setTimeout(overloadJsbThemesDef, 100);
 
     // Override and previous cache definition
