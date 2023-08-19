@@ -9713,8 +9713,6 @@ async function JSB_MDL_SHOWTOP1000_Pgm() {  // PROGRAM
         if (LCase(Cmd) == 'run') Tableid = Field(S, ' ', 4); else Tableid = Field(S, ' ', 2);
 
         if (Not(Tableid)) {
-            if (Not(isAdmin())) return Stop('tableID (the Table Name) is a required parameter');
-
             // for testing
             if (Domain() == 'idfg.idaho.gov') {
                 Databasename = 'SGS';
