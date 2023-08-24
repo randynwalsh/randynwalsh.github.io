@@ -341,9 +341,9 @@ async function JSB_MDL_ADDVIEWBTN(ByRef_Projectname, ByRef_Pagename, ByRef_Viewn
 // <BUILDSQLSELECT>
 async function JSB_MDL_BUILDSQLSELECT(ByRef_Viewmodel, Haslocalformvars, Orderallcolumns, setByRefValues) {
     // local variables
-    var Inputs, Buildselect, Db, Loadvars, Checkrequired, Lpcnt;
-    var Flatfile, Tablecolumns, Columnnames, Tfile, Dbcolumns;
-    var Dbcolumn, Row, Varname, Op, Docompareas, Sqldatatype, Missingparam;
+    var Inputs, Buildselect, Loadvars, Checkrequired, Lpcnt, Flatfile;
+    var Tablecolumns, Columnnames, Tfile, Dbcolumns, Dbcolumn;
+    var Row, Varname, Op, Docompareas, Sqldatatype, Missingparam;
     var Hasparam, Dftval, Cj, _Html, Possibleerrors, Columns, Cnames;
 
     function exit(v) {
@@ -351,13 +351,14 @@ async function JSB_MDL_BUILDSQLSELECT(ByRef_Viewmodel, Haslocalformvars, Orderal
         return v
     }
     // %options aspxC-
+    var Restoredb = '';
 
     Inputs = ByRef_Viewmodel.inputs;
     Buildselect = [undefined,];
 
     if (CBool(Inputs)) {
         if (CBool(ByRef_Viewmodel.attachdb)) {
-            Db = Account();
+            Restoredb = JSB_BF_ATTACHEDDB();
             if (await JSB_ODB_ATTACHDB(CStr(ByRef_Viewmodel.attachdb))); else {
                 Print(); debugger; // No db??;
             }
@@ -376,12 +377,6 @@ async function JSB_MDL_BUILDSQLSELECT(ByRef_Viewmodel, Haslocalformvars, Orderal
             Tablecolumns = await JSB_MDL_GETCOLUMNDEFINITIONS(ByRef_Viewmodel.tableName, Columnnames, function (_Columnnames) { Columnnames = _Columnnames });
             if (await JSB_ODB_OPEN('', CStr(ByRef_Viewmodel.tableName), Tfile, function (_Tfile) { Tfile = _Tfile })) {
                 if (Left(Tfile, 4) == 'ado:') Flatfile = false;
-            }
-        }
-
-        if (CBool(Db)) {
-            if (await JSB_ODB_ATTACHDB(CStr(Db))); else {
-                Print(); debugger; // ??;
             }
         }
 
@@ -535,6 +530,11 @@ async function JSB_MDL_BUILDSQLSELECT(ByRef_Viewmodel, Haslocalformvars, Orderal
 
     _Html[_Html.length] = '   SqlColumns = `' + Join(Cnames, ',') + '`';
 
+    if (Restoredb) {
+        if (await JSB_ODB_ATTACHDB(Restoredb)); else {
+            Print(); debugger; // Unable to restore DB;
+        }
+    }
     return exit(Join(_Html, crlf));
 }
 // </BUILDSQLSELECT>
@@ -947,7 +947,7 @@ async function JSB_MDL_CREATENEWVIEW(ByRef_Viewname, setByRefValues) {
     await JSB_MDL_ADDEXTRACOLUMNS2VIEWMODEL_Sub(Objectmodel, Dataset.templateName, function (_Objectmodel, _P2) { Objectmodel = _Objectmodel });
 
     Dataset = await JSB_MDL_NEWROW(dropIfRight(CStr(ByRef_Viewname), '.view', true), Objectmodel.columns);
-    Dataset.attachdb = Account();
+    Dataset.attachdb = JSB_BF_ATTACHEDDB();
     Dataset.columns = [undefined,];
     return exit(Dataset);
 }
@@ -1594,10 +1594,10 @@ async function JSB_MDL_DBUPLOADDATABASE_Pgm() {  // PROGRAM
     Equates_JSB_MDL = {};
 
     // local variables
-    var Attacheddb, Tabid, Dbprefix, Ftmp, Fsystem, Ftmppath, Actname;
-    var Ctlid, Style, Nicebackground, Header, Ctlhtml, Btns, Cmd;
-    var Uploadddbname, Ext, Uploadedfilecontents, L, Srcdb, Appendrecords;
-    var Dstdb, Ans, Msg, I, Newname, Ds;
+    var Attacheddb, Tabid, Dbprefix, Ftmp, Fsystem, Ftmppath, Ctlid;
+    var Style, Nicebackground, Header, Ctlhtml, Btns, Cmd, Uploadddbname;
+    var Ext, Uploadedfilecontents, L, Srcdb, Appendrecords, Dstdb;
+    var Ans, Msg, I, Newname, Ds;
 
     var gotoLabel = "";
     atgoto: while (true) {
@@ -1608,7 +1608,7 @@ async function JSB_MDL_DBUPLOADDATABASE_Pgm() {  // PROGRAM
 
                 if (await JSB_ODB_ATTACHDB('')); else null;
 
-                Attacheddb = At_Session.Item('ATTACHEDDATABASE');
+                Attacheddb = JSB_BF_ATTACHEDDB();
 
                 if (!(await JSB_BF_ISMANAGER())) {
                     await JSB_BF_MSGBOX('You must be a data Manager to run this command');
@@ -1631,7 +1631,6 @@ async function JSB_MDL_DBUPLOADDATABASE_Pgm() {  // PROGRAM
                 if (Not(Ftmppath)) { gotoLabel = "ERROUT"; continue atgoto; }
 
                 JSB_BF_THEME('lumen');
-                Actname = Account();
                 Tabid = paramVar('tabID');
                 Ctlid = 'uploadBoxID';
                 Style = JSB_HTML_STYLE('#jsb { word-wrap: break-all; white-space: normal }');
@@ -8603,7 +8602,7 @@ async function JSB_MDL_REGEN_Pgm() {  // PROGRAM
     var Ignorefilenotfound = false;
     var Dftallitems = false;
     var Help = [undefined, 'ReGen \<TableName\> \<itemnames\> (N'];
-    Help[Help.length] = Extract(Help, -1, 0, 0) == '   option N)o inline modeler generation';
+    Help[Help.length] = '   option N)o inline modeler generation';
 
     // Include JSB_TCL __SHELL
 
@@ -9829,7 +9828,7 @@ async function JSB_MDL_SHOWTOP1000(Tabid, Databasename, Tablename, Reportname, D
     do {
         Settings.devXGridLayout = Devxgridlayout;
 
-        Htmlgrid = await JSB_HTML_DEVXGRID(Gridid, CStr(Tablename), Settings);
+        Htmlgrid = await JSB_HTML_DEVXGRID(Gridid, Tablename, Settings);
 
         // ======================================================================
         // Create a toolbar
@@ -9889,7 +9888,7 @@ async function JSB_MDL_SHOWTOP1000(Tabid, Databasename, Tablename, Reportname, D
 
         // Theme screen
         if (Not(Tabid) && CBool(Theme)) {
-            _Html = await asyncCallByName(Theme, me, 0/*ignore if missing */, System(27), System(28), _Html);
+            _Html = await asyncCallByName(Theme, me, 0/*ignore if missing */, System(27), System(28), _Html, '');
         }
 
         // ======================================================================

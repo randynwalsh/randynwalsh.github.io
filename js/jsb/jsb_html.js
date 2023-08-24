@@ -1131,28 +1131,163 @@ function JSB_HTML_JSBDEF2JQGRIDDEF(ByRef_Myoptions, ByRef_Tcolumn, setByRefValue
 
 // <JQGRID2>
 function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, Myoptions) {
-    // local variables
-    var Tcolumn, Cols, Column, D;
+    var Cols = undefined;
+    var Columnmodel = undefined;
+    var Defaultrow = undefined;
+    var Js = undefined;
+    var Tcolumn = undefined;
+    var Column = undefined;
+    var _Html = '';
+    var Pkid = '';
+    var Ctltype = '';
+    var Url = '';
+    var D = '';
+    var Addbtn = '';
+    var Pager = '';
+    var Joinedmodel = '';
+    var Lh = '';
+    var Rh = '';
+    var Aw = '';
+    var Tbl = '';
+    var S = '';
+    var Arg = '';
+
+    if (typeOf(Myoptions) != 'JSonObject') { Myoptions = {} }
 
     if (Not(Jqgridid)) Jqgridid = 'jqGrid_' + CStr(Rnd(99999));
-    if (Not(Myoptions.WidthMultiplier)) Myoptions.WidthMultiplier = 1;
 
     // Moved to head - Html = @CssLink(@jsbroot:"css/ui.jqgrid.css")
-    var _Html = Head(JsLink(jsbRoot() + 'js/grid.locale-en.js'));
+    _Html = Head(JsLink(jsbRoot() + 'js/grid.locale-en.js'));
     _Html += Head(JsLink(jsbRoot() + 'js/jquery/jquery.jqgrid.js'));
 
-    var Columnmodel = [undefined,];
+    Cols = [undefined,];
+    Columnmodel = [undefined,];
+    Defaultrow = {};
+
+    if (Not(Myoptions.WidthMultiplier)) Myoptions.WidthMultiplier = 1;
+
+    Pkid = '';
     for (Tcolumn of iterateOver(Usermodelcolumns)) {
-        if (Len(Tcolumn.name)) { Columnmodel[Columnmodel.length] = JSB_HTML_JSBDEF2JQGRIDDEF(Myoptions, Tcolumn, function (_Myoptions, _Tcolumn) { Myoptions = _Myoptions; Tcolumn = _Tcolumn }); }
+        if (Len(Tcolumn.name) && CBool(Tcolumn.primarykey)) { Pkid = Tcolumn.name; break; }
     }
 
-    var Pkid = '';
-    var Defaultrow = {};
-    Cols = [undefined,];
-    for (Column of iterateOver(Columnmodel)) {
-        if (CBool(Column.primarykey)) Pkid = Column.name;
-        if (Len(Column.d)) Defaultrow[Column.name] = Column.d;
-        Cols[Cols.length] = '\'' + CStr(Column.label) + '\'';
+    for (Tcolumn of iterateOver(Usermodelcolumns)) {
+        if (Len(Tcolumn.name)) {
+            Column = {};
+            Column.name = Tcolumn.name;
+            if (CBool(Tcolumn.datatype)) Column.datatype = Tcolumn.datatype;
+            if (CBool(Tcolumn.primarykey)) Column.primarykey = true;
+            if (CBool(Tcolumn.index)) Column.index = Tcolumn.index;
+            if (CBool(Tcolumn.align)) Column.align = Tcolumn.align;
+            if (CBool(Tcolumn.width)) Column.width = Tcolumn.width;
+            if (CBool(Tcolumn.label)) Column.label = Tcolumn.label;
+            if (CBool(Tcolumn.sorttype)) Column.sorttype = Tcolumn.sorttype;
+            if (CBool(Tcolumn.sortable)) Column.sortable = Tcolumn.sortable;
+            if (CBool(Tcolumn.tooltip)) { Column.cellattr = '^^function () { return \' title="' + urlEncode(Tcolumn.tooltip) + '"\'; }^^'; }
+            if (Not(Column.label)) Column.label = Column.name;
+
+            // Valid formatters: http://www.trirand.com/jqgridwiki/doku.php?id=wiki:predefined_formatter
+            // integer, number, currency, date, email, link, showlink, checkbox, select, actions
+            if (CBool(Tcolumn.formatter)) {
+                Column.formatter = Tcolumn.formatter;;
+            } else if (Column.datatype == 'date' || Column.datatype == 'datetime') {
+                Column.formatter = 'date';;
+            } else if (Column.datatype == 'currency') {
+                Column.formatter = 'currency';
+
+                // Else If Column.datatype = "url" Then
+                // Column.formatter = 'link';
+            } else if (Column.datatype == 'integer') {
+                // Column.formatter = 'integer' // By making the formatter an integer, the data will be converted to an integer, and thus empty becomes 0;
+            } else if (Column.datatype == 'autointeger') {
+                Column.formatter = 'integer';;
+            } else if (Column.datatype == 'double') {
+                Column.formatter = 'number';;
+            }
+
+            if (Tcolumn.display == 'hidden' || Tcolumn.display == 'gridhidden') Column.hidden = true;
+
+            // http://www.trirand.com/jqgridwiki/doku.php?id=wiki:common_rules
+            Ctltype = LCase(Tcolumn.control);
+
+            // edittype and editoptions only set if column is editable
+            if (CBool(Tcolumn.canedit) || CBool(Tcolumn.editable)) {
+                Column.editable = true;
+                if (CBool(Tcolumn.edittype)) Column.edittype = Tcolumn.edittype;
+                if (CBool(Tcolumn.editoptions)) Column.editoptions = Tcolumn.editoptions;
+            } else {
+                // Not editable
+                Column.editable = false;
+                if (Ctltype != 'button' && Ctltype != 'anchor' && Ctltype != 'urlbox' && Ctltype != 'url') Ctltype = '';
+            }
+
+            if (Not(Column.edittype) && Ctltype) {
+                // *
+                // * textbox, dropDownBox, combobox, listbox, autotextbox, datebox, timebox, datetimebox, imagebox, currencybox
+                // *                maskedtextbox, radiobox, multiselectlistbox, multiselectdropDownBox, colorpick, slider
+                // *                htmlbox, label, imagebox, uploadimagebox, appendbox, passwordbox
+                // * ->
+                // *      text, textarea, checkbox, select, password, button, image, file custom
+
+                if (Ctltype == 'button') {
+                    Column.formatter = '^^jqGridAddBtn^^';
+                    Url = dropIfRight(CStr(Tcolumn.transferurl), '.page', true);
+                    Column.editoptions = { "colName": Column.Name, "primaryKey": Pkid, "transferurl": Url, "transferto": Tcolumn.transferto, "transferaddfrompage": Tcolumn.transferaddfrompage, "transferextra": Tcolumn.onParentExtra, "datausuage": Tcolumn.datausuage, "title": Column.label };;
+                } else if (Ctltype == 'imagebox') {
+                    // Column.editable = false;
+                } else if (Ctltype == 'checkbox') {
+                    Column.edittype = 'checkbox';
+                    Column.editoptions = { "value": '1:0' };
+                    Column.formatter = 'checkbox';
+                    Column.align = 'center';;
+                } else if (Ctltype == 'label') {
+                    Column.editable = false;;
+                } else if (Ctltype == 'urlbox' || Ctltype == 'anchor') {
+                    Column.formatter = '^^function (cellValue, myOptions, rowObject) { return "\<a href=" + urlEncode(cellValue) + " target=\'_blank\'\>...\</a\>";  }^^';;
+                } else if (Ctltype == 'url') {
+                    Column.formatter = '^^function (cellValue, myOptions, rowObject) { return "\<a href=" + urlEncode(cellValue) + " target=\'_blank\'\>" + cellValue + "\</a\>";  }^^';
+                }
+            }
+
+            if (Right(Column.index, 1) == '#') {
+                Column.sorttype = 'int';
+                Column.index = Left(Column.index, Len(Column.index) - 1);
+                if (Not(Column.align)) Column.align = 'right';
+            } else if (Column.datatype == 'integer' || Column.datatype == 'autointeger') {
+                Column.sorttype = 'int';
+                if (Not(Column.index)) Column.index = Column.name;
+                if (Not(Column.align)) Column.align = 'right';
+            } else if (Column.datatype == 'double') {
+                Column.sorttype = 'float';
+                if (Not(Column.index)) Column.index = Column.name;
+                if (Not(Column.align)) Column.align = 'right';
+            } else {
+                if (Not(Column.index)) Column.index = Column.name;
+            }
+
+            if (CBool(Myoptions.WidthMultiplier) && isNumeric(Column.width) && Len(Column.width)) Column.width = CNum(Column.width) * CNum(Myoptions.WidthMultiplier);
+
+            // need a default row?
+            if (CBool(Myoptions.allowInserts)) {
+                if (CBool(Tcolumn.defaultvalue)) D = Tcolumn.defaultvalue; else D = Tcolumn.defaultValue;
+                if (Not(D)) D = '';
+                if (Column.control == 'json_inline') {
+                    if (Left(D, 1) != '[' || Right(D, 1) != ']') {
+                        if (Left(D, 1) == '{' && Right(D, 1) == '}') D = '[' + D + ']'; else D = '[]';
+                    }
+                    Js = parseJSON('{array:' + D + '}');
+                    D = Js.array;
+                }
+                Defaultrow[Column.name] = D;
+            }
+
+            Column.resizable = true; // default
+
+            Cols[Cols.length] = '\'' + CStr(Column.label) + '\'';
+
+            Columnmodel[Columnmodel.length] = Column;
+            if (CBool(Column.primarykey)) Pkid = Column.name;
+        }
     }
 
     if (CBool(Myoptions.allowDeletes)) {
@@ -1166,18 +1301,18 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         Cols[Cols.length] = '\'' + CStr(Column.label) + '\'';
     }
 
-    var Tbl = Chr(28) + '\<table id=\'' + Jqgridid + '\' style=" position: relative; background-color: transparent;" \>\<tr\>\<td\>\</td\>\</tr\>\</table\>' + crlf + Chr(29);
+    Tbl = Chr(28) + '\<table id=\'' + Jqgridid + '\' style=" position: relative; background-color: transparent;" \>\<tr\>\<td\>\</td\>\</tr\>\</table\>' + crlf + Chr(29);
 
     if (CBool(Myoptions.allowInserts) || CBool(Myoptions.allowUpdates) || CBool(Myoptions.allowDeletes)) {
         if (Not(Pkid)) Tbl += Chr(28) + 'You must setup a primary key column in order for your CRUD operations to work\<br /\>' + Chr(29);
     }
 
     if (CBool(Myoptions.allowInserts)) {
-        var Addbtn = Chr(28) + '\<input type="BUTTON" id="' + Jqgridid + '_newRow" value="New Row" onclick="jqGrid_NewRow(\'' + Jqgridid + '\', ' + Jqgridid + '_dr, ' + CStr(CNum(Myoptions.allowDeletes)) + ', \'' + Pkid + '\')" /\>' + Chr(29);
+        Addbtn = Chr(28) + '\<input type="BUTTON" id="' + Jqgridid + '_newRow" value="New Row" onclick="jqGrid_NewRow(\'' + Jqgridid + '\', ' + Jqgridid + '_dr, ' + CStr(CNum(Myoptions.allowDeletes)) + ', \'' + Pkid + '\')" /\>' + Chr(29);
     }
 
     if (CBool(Myoptions.doPaging)) {
-        var Pager = Chr(28) + '\<div id="' + Jqgridid + '_pager"\>\</div\>' + Chr(29);
+        Pager = Chr(28) + '\<div id="' + Jqgridid + '_pager"\>\</div\>' + Chr(29);
     }
 
     if (CBool(Myoptions.doPaging) || CBool(Myoptions.allowInserts)) {
@@ -1186,21 +1321,23 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         _Html += Tbl;
     }
 
-    var Joinedmodel = Join(CStr(Columnmodel, true), ',' + crlf);
+    Joinedmodel = Join(CStr(Columnmodel, true), ',' + crlf);
 
     // Need to turn these (^^) back into non-JSON strings
 
     while (InStr1(1, Joinedmodel, '"^^')) {
-        var Lh = Field(Joinedmodel, '"^^', 1);
+        Lh = Field(Joinedmodel, '"^^', 1);
         Joinedmodel = dropLeft(Joinedmodel, '"^^');
-        var Sarg = Field(Joinedmodel, '^^"', 1);
-        var Rh = dropIfLeft(Joinedmodel, '^^"');
-        var Jarg = parseJSON('{ Arg: "' + Sarg + '"}');
-        Sarg = Jarg.Arg;
-        Joinedmodel = Lh + Sarg + Rh;
+        Arg = Field(Joinedmodel, '^^"', 1);
+        Rh = dropIfLeft(Joinedmodel, '^^"');
+
+        var Jarg = parseJSON('{ Arg: "' + Arg + '"}');
+        Arg = Jarg.Arg;
+
+        Joinedmodel = Lh + Arg + Rh;
     }
 
-    var S = '\r\n\
+    S = '\r\n\
             // Initial column order for ' + Jqgridid + '\r\n\
             var ' + Jqgridid + '_cm = [' + Joinedmodel + '];\r\n\
             var ' + Jqgridid + '_dr = ' + CStr(Defaultrow) + '\r\n\
@@ -1226,7 +1363,7 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         D = Change(D, lf, '\\n');
 
         S += '\r\n\
-            var ' + Jqgridid + '_data = [' + CStr(D) + ']\r\n\
+            var ' + Jqgridid + '_data = [' + D + ']\r\n\
             window.refreshData = function () {  }\r\n\
             \r\n\
             ' + Jqgridid + '_options = {\r\n\
@@ -1247,7 +1384,7 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         window.refreshData = function () { $("#' + Jqgridid + '").trigger(\'reloadGrid\'); }\r\n\
 \r\n\
         var ' + Jqgridid + '_options = {\r\n\
-            url:' + jsEscapeString(CStr(Restfulnameordataarray, true)) + ',\r\n\
+            url:' + jsEscapeString(CStr(Restfulnameordataarray)) + ',\r\n\
             datatype: "json",\r\n\
             ';
         if (CBool(Myoptions.doPaging)) {
@@ -1264,12 +1401,11 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         }
     }
 
-    var Aw = '';
     if (CBool(Myoptions.width100percent)) Aw = 'true'; else Aw = 'false';
     S += '\r\n\
             colNames: [' + Join(Cols, ',') + '],\r\n\
             colModel: ' + Jqgridid + '_cm,\r\n\
-            cmTemplate: { autoResizable: true, title: false },\r\n\
+            cmTemplate: { autoResizable: true },\r\n\
             autoresizeOnLoad: true,\r\n\
             multiselect: false,\r\n\
             gridview: true, // makes it faster but prohibits the use of treeGrid and subGrid\r\n\
@@ -4148,6 +4284,7 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
     if (Not(Serverurl)) Serverurl = jsbRootAct();
 
     if (Not(Tblnameorarray)) { activeProcess.At_Errors = 'HTML.devXGrid: Mising tblNameOrArray'; return undefined; }
+    Print(); debugger;
 
     if (Not(Usersettings.gridDefs) || Not(Usersettings.primaryKeyField)) {
         var Griddefinition = await JSB_HTML_GETDEVXGRIDMETA(Serverurl, Usersettings.databaseName, Tblnameorarray, function (_Serverurl, _P2, _Tblnameorarray) { Serverurl = _Serverurl; Tblnameorarray = _Tblnameorarray });
@@ -4187,6 +4324,8 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
     var Scriptsetupgrid = '[' + Join(Usersettings.gridDefs, ',' + crlf) + ']';
 
     var S = '';
+
+    if (isSelectlist(CStr(Tblnameorarray))) Tblnameorarray = getList(Tblnameorarray);
 
     if (CBool(isArray(Tblnameorarray))) {
         S += '\r\n\
@@ -4269,7 +4408,7 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
         $(() =\> {\r\n\
             debugger; \r\n\
             \r\n\
-            var devxGridLayout = ' + jsEscapeString(CStr(Usersettings.devXGridLayout)) + ';\r\n\
+            var devxGridLayout = ' + (isString(Usersettings.devXGridLayout) ? jsEscapeString(CStr(Usersettings.devXGridLayout)) : Usersettings.devXGridLayout) + ';\r\n\
             localStorage[\'' + CStr(Gridid) + '\'] = devxGridLayout;\r\n\
             \r\n\
             $(\'#' + CStr(Gridid) + '\').dxDataGrid({\r\n\
@@ -6304,3 +6443,13 @@ function FieldSet(Id, Legend, _Innerhtml, Additionalattributes) {
 
 }
 // </FIELDSET>
+
+// <LAYOUT_Pgm>
+async function JSB_HTML_LAYOUT_Pgm() {  // PROGRAM
+    Commons_JSB_HTML = {};
+    Equates_JSB_HTML = {};
+
+    [undefined, 'FUNCTION LAYOUT(byval CenterHtml As StRiNg, byval NorthHtml As StRiNg, byval NorthOptions As String, byval SouthHtml As StRiNg, byval SouthOptions As String, byval EastHtml As StRiNg, byval EastOptions As String, byval WestHtml As StRiNg, byval WestOptions As String) As String', '    $options async-', '    ', '*', '* Options: Fixed (!resizable, !slidable, !closable)', '*          resizable, slidable, closable    (defaults)', '*          minSize:int, maxSize:int, startsize:int, initClosed, initHidden, allowOverFlow', '*    ', '* example: ', '*   NorthHtml := @button(\'\', @Html(`\u003Cspan class=\"glyphicon glyphicon-menu-hamburger\"\u003E\u003C/span\u003E`), { onclick: \'if (myLayout.west.state.isVisible) return myLayout.hide(\"west\"); myLayout.open(\"west\"); myLayout.show(\"west\") \' } ) ', '*   print @JSB_HTML.LAYOUT(CenterHtml, NorthHtml, \"!resizable, slidable, allowoverflow, startsize:300\", SouthHtml, \"initClosed, startsize:30, minSize:15\", EastHtml, \"startsize: 60, minSize:15\", WestHtml, \"startsize: 60\"):', '*', '* NO options at all will force closed and hidden', '*', '    Dim HTML As String', '    Dim NORTHSIZE As String', '    Dim SOUTHSIZE As String', '    Dim EASTSIZE As String', '    Dim WESTSIZE As String', '    Dim NORTHMINSIZE As String', '    Dim SOUTHMINSIZE As String', '    Dim EASTMINSIZE As String', '    Dim WESTMINSIZE As String', '    Dim NORTHMAXSIZE As String', '    Dim SOUTHMAXSIZE As String', '    Dim EASTMAXSIZE As String', '    Dim WESTMAXSIZE As String', '    Dim NORTHOVERFLOW As String', '    Dim SOUTHOVERFLOW As String', '    Dim EASTOVERFLOW As String', '    Dim WESTOVERFLOW As String', '', '    Dim needLoad As Boolean = true', '    if system(1) = \"js\" then', '        if window.jQuery.layout then needload = false', '    end if', '    if needload then', '        Html = @Head(@JSLink(@jsbroot:\"js/jquery/jquery.layout.js\"))', '    end if', '    ', '', '  if !NorthOptions Then NorthOptions = \"initClosed, initHidden, Fixed\" Else NorthOptions = Replace(NorthOptions, \"px\", \"\")', '  if !SouthOptions Then SouthOptions = \"initClosed, initHidden, Fixed\" Else SouthOptions = Replace(SouthOptions, \"px\", \"\")', '  if !EastOptions Then EastOptions = \"initClosed, initHidden, Fixed\" Else EastOptions = Replace(EastOptions, \"px\", \"\")', '  if !WestOptions Then WestOptions = \"initClosed, initHidden, Fixed\" Else WestOptions = Replace(WestOptions, \"px\", \"\")', '', '  NorthOptions = LCase(NorthOptions)', '  SouthOptions = LCase(SouthOptions)', '  EastOptions = LCase(EastOptions)', '  WestOptions = LCase(WestOptions)', '', '  if Field(NorthOptions, \"startsize:\", 2) then NorthSize = \"size: \'\":Field(Field(NorthOptions, \"startsize:\", 2), \",\", 1):\"\',\"', '  if Field(SouthOptions, \"startsize:\", 2) then SouthSize = \"size: \'\":Field(Field(SouthOptions, \"startsize:\", 2), \",\", 1):\"\',\"', '  if Field(EastOptions, \"startsize:\", 2) then EastSize = \"size: \'\":Field(Field(EastOptions, \"startsize:\", 2), \",\", 1):\"\',\"', '  if Field(WestOptions, \"startsize:\", 2) then WestSize = \"size: \'\":Field(Field(WestOptions, \"startsize:\", 2), \",\", 1):\"\',\"', '', '  if Field(NorthOptions, \"minsize:\", 2) then NorthminSize = \"minSize: \'\":Field(Field(NorthOptions, \"minsize:\", 2), \",\", 1):\"\',\"', '  if Field(SouthOptions, \"minsize:\", 2) then SouthminSize = \"minSize: \'\":Field(Field(SouthOptions, \"minsize:\", 2), \",\", 1):\"\',\"', '  if Field(EastOptions, \"minsize:\", 2) then EastminSize = \"minSize: \'\":Field(Field(EastOptions, \"minsize:\", 2), \",\", 1):\"\',\"', '  if Field(WestOptions, \"minsize:\", 2) then WestminSize = \"minSize: \'\":Field(Field(WestOptions, \"minsize:\", 2), \",\", 1):\"\',\"', '', '  if Field(NorthOptions, \"maxsize:\", 2) then NorthmaxSize = \"maxSize: \'\":Field(Field(NorthOptions, \"maxsize:\", 2), \",\", 1):\"\',\"', '  if Field(SouthOptions, \"maxsize:\", 2) then SouthmaxSize = \"maxSize: \'\":Field(Field(SouthOptions, \"maxsize:\", 2), \",\", 1):\"\',\"', '  if Field(EastOptions, \"maxsize:\", 2) then EastmaxSize = \"maxSize: \'\":Field(Field(EastOptions, \"maxsize:\", 2), \",\", 1):\"\',\"', '  if Field(WestOptions, \"maxsize:\", 2) then WestmaxSize = \"maxSize: \'\":Field(Field(WestOptions, \"maxsize:\", 2), \",\", 1):\"\',\"', '', '  if InStr(NorthOptions, \"fixed\") then NorthOptions = NorthOptions:\", !resizable, !slidable, !closable\"', '  if InStr(SouthOptions, \"fixed\") then SouthOptions = SouthOptions:\", !resizable, !slidable, !closable\"', '  if InStr(EastOptions, \"fixed\") then EastOptions = EastOptions:\", !resizable, !slidable, !closable\"', '  if InStr(WestOptions, \"fixed\") then WestOptions = WestOptions:\", !resizable, !slidable, !closable\"', '', '  if InStr(NorthOptions,  \"allowoverflow\") then NorthOverflow = \"showOverflowOnHover: true,\"', '  if InStr(SouthOptions,  \"allowoverflow\") then SouthOverflow = \"showOverflowOnHover: true,\"', '  if InStr(EastOptions,   \"allowoverflow\") then EastOverflow  = \"showOverflowOnHover: true,\"', '  if InStr(WestOptions,   \"allowoverflow\") then WestOverflow  = \"showOverflowOnHover: true,\"', '', '  Html := `', '     \u003Cdiv id=\"mylayout\" style=\"position: absolute; top: 0; bottom: 0; left: 0; right: 0; border: 0; padding: 0; margin: 0;\"\u003E', '         \u003Cdiv class=\"ui-layout-center\"\u003E`:CenterHtml:`\u003C/div\u003E', '         \u003Cdiv class=\"ui-layout-north\"\u003E`:NorthHtml:`\u003C/div\u003E', '         \u003Cdiv class=\"ui-layout-south\"\u003E`:SouthHtml:`\u003C/div\u003E', '         \u003Cdiv class=\"ui-layout-east\"\u003E`:EastHtml:`\u003C/div\u003E', '         \u003Cdiv class=\"ui-layout-west\"\u003E`:WestHtml:`\u003C/div\u003E', '      \u003C/div\u003E', '      \u003Cscript type=\"text/javascript\"\u003E', '            window.myLayout = $(\'#mylayout\').layout({', '                applyDemoStyles: true,', '                defaults: {', '                    fxName: \"slide\",', '                     fxSpeed: \"fast\"', '                    , resizerClass: \"resizer\"   ', '                    , togglerClass: \"toggler\"   ', '                    , buttonClass: \"button\" ,', '                    paneClass: \"pane\"  ', '                },', '                north: {', '                    initHidden: `:(Index(NorthOptions, \"inithidden\", 1) \u003E 0):`,', '                    initClosed: `:(Index(NorthOptions, \"initclosed\", 1) \u003E 0):`,', '                    resizable: `:(Index(NorthOptions, \"!resizable\", 1) = 0):`,', '                    slidable: `:(Index(NorthOptions, \"!slidable\", 1) = 0):`,', '                    `:NorthSize:`', '                    `:NorthminSize:`', '                    `:NorthmaxSize:`', '                    `:NorthOverflow:`', '                    closable: `:(Index(NorthOptions, \"!closable\", 1) = 0):`', '                },', '                south: {', '                    initHidden: `:(Index(southOptions, \"inithidden\", 1) \u003E 0):`,', '                    initClosed: `:(Index(southOptions, \"initclosed\", 1) \u003E 0):`,', '                    resizable: `:(Index(southOptions, \"!resizable\", 1) = 0):`,', '                    slidable: `:(Index(southOptions, \"!slidable\", 1) = 0):`,', '                    `:southSize:`', '                    `:southminSize:`', '                    `:southmaxSize:`', '                    `:southOverflow:`', '                    closable: `:(Index(southOptions, \"!closable\", 1) = 0):`', '                },', '                east: {', '                    initHidden: `:(Index(eastOptions, \"inithidden\", 1) \u003E 0):`,', '                    initClosed: `:(Index(eastOptions, \"initclosed\", 1) \u003E 0):`,', '                    resizable: `:(Index(eastOptions, \"!resizable\", 1) = 0):`,', '                    slidable: `:(Index(eastOptions, \"!slidable\", 1) = 0):`,', '                    `:eastSize:`', '                    `:eastminSize:`', '                    `:eastmaxSize:`', '                    `:eastOverflow:`', '                    closable: `:(Index(eastOptions, \"!closable\", 1) = 0):`', '                },', '                west: {', '                    initHidden: `:(Index(westOptions, \"inithidden\", 1) \u003E 0):`,', '                    initClosed: `:(Index(westOptions, \"initclosed\", 1) \u003E 0):`,', '                    resizable: `:(Index(westOptions, \"!resizable\", 1) = 0):`,', '                    slidable: `:(Index(westOptions, \"!slidable\", 1) = 0):`,', '                    `:westSize:`', '                    `:westminSize:`', '                    `:westmaxSize:`', '                    `:westOverflow:`', '                    closable: `:(Index(westOptions, \"!closable\", 1) = 0):`', '                }', '            });', '     \u003C/script\u003E', '     `', '     ', '    if InStr(NorthOptions,  \"allowoverflow\") then ', '        Html := `', '            \u003Cstyle\u003E', '                .ui-layout-north { overflow: visible !important; border: none !important }', '                .resizer-north { display: none !important }', '            \u003C/style\u003E', '           `', '    end if', 'Return Chr(28):Html:Chr(29)'];
+    return;
+}
+// </LAYOUT_Pgm>

@@ -1,7 +1,7 @@
 
 // <ACCOUNT>
 function Account() {
-    if (At_Session.Item('ATTACHEDDATABASE')) return At_Session.Item('ATTACHEDDATABASE');
+    if (JSB_BF_ATTACHEDDB()) return JSB_BF_ATTACHEDDB();
     if (CBool(System(19))) return System(19);
     return jsbAccount();
 }
@@ -532,7 +532,7 @@ function ApplicationVar(Keyname) {
 // </APPLICATIONVAR>
 
 // <ATTACHEDDB>
-async function JSB_BF_ATTACHEDDB() {
+function JSB_BF_ATTACHEDDB() {
     return At_Session.Item('ATTACHEDDATABASE');
 }
 // </ATTACHEDDB>
@@ -2480,7 +2480,7 @@ async function JSB_BF_DBISREADONLY(Dbname) {
         try {
             switch (gotoLabel) {
                 case "":
-                    Attacheddb = At_Session.Item('ATTACHEDDATABASE');
+                    Attacheddb = JSB_BF_ATTACHEDDB();
 
                     onErrorGoto = "ERROUT";
                     if (Not(Attacheddb)) { if (await JSB_ODB_ATTACHDB('databaseBuilder_rw')); else { gotoLabel = "ERROUT"; continue atgoto; } }
@@ -9087,8 +9087,8 @@ function jsbRootExecute(Urlcmdandparams, Jsstringescapeit) {
         Rootpath += '?' + Urlcmdandparams;
     }
 
-    if (Jsstringescapeit) Urlcmdandparams = jsEscapeHREF(Urlcmdandparams);
-    return Urlcmdandparams;
+    if (Jsstringescapeit) Rootpath = jsEscapeHREF(Rootpath);
+    return Rootpath;
 }
 // </JSBROOTEXECUTE>
 
@@ -17233,7 +17233,7 @@ async function JSB_BF_DBTABLESCHEMA(Databasename, Filename) {
     // local variables
     var Fhandle, Column, Ss, Srow, Jrow;
 
-    var Attacheddb = At_Session.Item('ATTACHEDDATABASE');
+    var Attacheddb = JSB_BF_ATTACHEDDB();
     var Aschemadefs = [undefined,];
     var Results = {};
 
