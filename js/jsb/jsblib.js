@@ -1821,13 +1821,12 @@ function jsbRootAccount() {
 
 function jsbRootAct(useRelitivePath) {
     var rootAct = jsbRootAccount();
-    if (useRelitivePath) { 
+    if (useRelitivePath) {
         var jsbroot = jsbRoot();
         if (rootAct.startsWith(jsbroot)) rootAct = rootAct.substr(jsbroot.length - 1);
     }
     return rootAct;
 }
-function JsbRootAct() { return jsbRootAct() }
 
 
 // I made the status bar show different colored backgrounds as each status appears - makes it easier to read
@@ -8550,6 +8549,8 @@ function isString(obj) {
 // In general, JSB doesn't use the object-type string, only then string primitive
 function isString(s) { return typeof s == 'string' } // I don't use string objects, so making this quicker, || s instanceof String; 
 
+function isSelectList(o) { return o instanceof selectList }
+
 // isObject for things that are objects outside of my classes
 function isObject(o) {
     if (!o) return false;
@@ -10337,38 +10338,58 @@ function popoutDialog(title, urlOrHtml, width, height, onCloseSubmitOrFunction, 
     var stackLevel = stackWindow(myDialog);    // Create new jsb inside of myDialog
     popOutJSB = main_VT100.$jsbForm
 
-    if (!isURL) {
-        // Move head tags to top
-        if (!isElement) {
-            var headTags = ''
-            do {
-                var ScriptI = InStr(0, urlOrHtml, "<head");
-                if (ScriptI == -1) break;
-                var EndLinkI = InStr(ScriptI, urlOrHtml, "</head>");
-                if (EndLinkI == -1) break;
-                EndLinkI += 7;
-
-                headTags += Mid(urlOrHtml, ScriptI, EndLinkI - ScriptI) + crlf;
-                urlOrHtml = Left(urlOrHtml, ScriptI) + Mid(urlOrHtml, EndLinkI)
-            } while (true);
-            $(popOutJSB).append(headTags);
-        }
-
+    var finishSetup = function () {
         $(popOutJSB).append(urlOrHtml);
+
+        // Setup Dialog Window
+        myDialog.dialog(initDialog);
+        myDialog.dialog("open");
+
+        if (!title) {
+            $(".ui-dialog-titlebar").hide();
+            $(".ui-dialog").css("padding", 0).css("background-color", "transparent")
+            $('#popOutDIV').contents().find("body").css("background-color", "transparent")
+        } else {
+            $(".ui-dialog-titlebar").show();
+        }
     }
 
-    // Setup Dialog Window
-    myDialog.dialog(initDialog);
-    myDialog.dialog("open");
+    var waitToFinish = false;
 
-    if (!title) {
-        $(".ui-dialog-titlebar").hide();
-        $(".ui-dialog").css("padding", 0).css("background-color", "transparent")
-        $('#popOutDIV').contents().find("body").css("background-color", "transparent")
-    } else {
-        $(".ui-dialog-titlebar").show();
+    if (!isURL && !isElement) {
+        // Move head tags to top
+        var headTags = ''
+        do {
+            var ScriptI = InStr(0, urlOrHtml, "<head");
+            if (ScriptI == -1) break;
+            var EndLinkI = InStr(ScriptI, urlOrHtml, "</head>");
+            if (EndLinkI == -1) break;
+            EndLinkI += 7;
+
+            headTags += Mid(urlOrHtml, ScriptI, EndLinkI - ScriptI) + crlf;
+            urlOrHtml = Left(urlOrHtml, ScriptI) + Mid(urlOrHtml, EndLinkI)
+        } while (true);
+
+        if (headTags) {
+            if (InStr(headTags, "file://") > 0) {
+                waitToFinish = true;
+
+                main_VT100.htmlToDOM(headTags);
+                var waitForFlush = function () {
+                    if (main_VT100.inFlush)
+                        return setTimeout(waitForFlush, 200);
+                    return finishSetup();
+                }
+
+                setTimeout(waitForFlush, 50);
+
+            } else {
+                $(popOutJSB).append(headTags);
+            }
+        }
     }
 
+    if (!waitToFinish) finishSetup();
     return myDialog
 }
 

@@ -1,15 +1,7 @@
 anonymousFunc = function () {
     window.cachedFileNames["jsb_config"] = "sysprog_jsb_config"
-    window.cached_jsb_config = {}
+    if (!window.cached_jsb_config) window.cached_jsb_config = {}
     window.cached_jsb_config["authenticationtype"] = { "value": "local", "comment": "choose from local, aspx, none, or gae" };
-    window.cached_jsb_config["core.jsb"] = "jsb2js\xFEjsb2vb\xFEjsb_mdl\xFEjsb_tcl\xFEjsb_html\xFEjsb_themes\xFEjsb_ctls\xFEjsb_bf\xFEjsb_odb\xFEjsb_examples\xFEjsb2vb\xFE* Everything in this file is \"Sync'ed\" and compiled that is above this line.  Below is only synced\xFEjsb_xrefs\xFEjsb_jsxrefs\xFEjsb_vbxrefs\xFEjsb_docs\xFEjsb_pagetemplates\xFEjsb_viewtemplates\xFEjsb_jsondefs\xFEjsb_themes\xFEhtamd\xFEhtaconfig\xFEhtausers\xFEhtasystem\xFEdemocustomers.text\xFEdemocustomers.json\xFEjsb_demos\xFEjs\xFEcss\xFE";
-    window.cached_jsb_config["htmlfiles"] = "jsb_docs";
-    window.cached_jsb_config["js_cachefiles"] = "htausers\xFEhtaconfig\xFEhtamd\xFEhtasystem\xFEjsb_tcl\xFEjsb_bf\xFEjsb_html\xFEjsb_mdl\xFEjsb_ctls\xFEjsb_themes\xFEjsb_pagetemplates\xFEjsb_viewtemplates\xFEjsb_jsondefs\xFEjsb_cspc\xFEjsb_odb\xFEjsb_docs\xFEjsb_examples\xFEdemocustomers.json\xFEdemocustomers.text";
-    window.cached_jsb_config["publicfiles"] = "jsb_html\xFEjsb_bf\xFEjsb_tcl\xFEjsb_demos\xFEjsb_examples\xFEjsb_docs\xFEjsb_pagetemplates\xFEjsb_viewtemplates\xFEjsb_jsondefs\xFEjsb_themes\xFEjsb_mdl\xFEjsb_ctls\xFEjsb_cspc\xFEjsb_odb\xFEdemocustomers.text\xFEdemocustomers.json";
-    window.cached_jsb_config["roles"] = "admin\xFEdirector\xFEmanager\xFEclerk\xFEemployee";
-    window.cached_jsb_config["default_jsb_themes"] = "theme_none";
-    window.cached_jsb_config["defaulttheme"] = "lumen";
-    window.cached_jsb_config["_intro"] = "Welecome to JSB (JSON enabled BASIC programming)\xFE\xFEJSB runs from a terminal command line (TCL) or an IDE.\xFEIt has a debugger, an editor (ED), a database, and some libraries.\xFE\xFE{{<button type='button' onclick='appendKey(\"BASIC JSB_DEMOS MAGGOTS (X\" + Chr(13));'>}}Maggots{{</button>}}\xFE{{<button type='button' onclick='appendKey(\"BASIC JSB_DEMOS MAGGOTS (X\" + Chr(13));'>}}Lasers{{</button>}}\xFE\xFE\xFE{{<button type='button' onclick='appendKey(\"HELP\" + Chr(13));'>}}Click Here{{</button>}} for HELP\xFE\xFEYou are at TCL";
     var z = "Accordion\xFE";
     z += "Account\xFE";
     z += "AddDay\xFE";
@@ -107,7 +99,7 @@ anonymousFunc = function () {
     z += "IsODD\xFE";
     z += "isPhoneGap\xFE";
     z += "isPostBack\xFE";
-    z += "ISSelectlist\xFE";
+    z += "isSelectlist\xFE";
     z += "isSqlServer\xFE";
     z += "isString\xFE";
     z += "isUser\xFE";
@@ -123,7 +115,7 @@ anonymousFunc = function () {
     z += "jsbRoot\xFE";
     z += "jsbRootAccount\xFE";
     z += "jsbRootAccountDirectory\xFE";
-    z += "JsbRootAct\xFE";
+    z += "jsbRootAct\xFE";
     z += "jsbRootActDir\xFE";
     z += "jsbRootDir\xFE";
     z += "jsbRootDirectory\xFE";
@@ -351,6 +343,12 @@ anonymousFunc = function () {
     z += "Locate\xFE";
     z += "cascadingAJaxDropDownBox"
     window.cached_jsb_config["config_jsb2js"] = z;
+    window.cached_jsb_config["core.jsb"] = "jsb2js\xFEjsb2vb\xFEjsb_mdl\xFEjsb_tcl\xFEjsb_html\xFEjsb_themes\xFEjsb_ctls\xFEjsb_bf\xFEjsb_odb\xFEjsb_examples\xFEjsb2vb\xFE* Everything in this file is \"Sync'ed\" and compiled that is above this line.  Below is only synced\xFEjsb_xrefs\xFEjsb_jsxrefs\xFEjsb_vbxrefs\xFEjsb_docs\xFEjsb_pagetemplates\xFEjsb_viewtemplates\xFEjsb_jsondefs\xFEjsb_themes\xFEhtamd\xFEhtaconfig\xFEhtausers\xFEhtasystem\xFEdemocustomers.text\xFEdemocustomers.json\xFEjsb_demos\xFEjs\xFEcss\xFE";
+    window.cached_jsb_config["htmlfiles"] = "jsb_docs";
+    window.cached_jsb_config["js_cachefiles"] = "htausers\xFEhtaconfig\xFEhtamd\xFEhtasystem\xFEjsb_tcl\xFEjsb_bf\xFEjsb_html\xFEjsb_mdl\xFEjsb_ctls\xFEjsb_themes\xFEjsb_pagetemplates\xFEjsb_viewtemplates\xFEjsb_jsondefs\xFEjsb_cspc\xFEjsb_odb\xFEjsb_docs\xFEjsb_examples\xFEdemocustomers.json\xFEdemocustomers.text";
+    window.cached_jsb_config["publicfiles"] = "jsb_html\xFEjsb_bf\xFEjsb_tcl\xFEjsb_demos\xFEjsb_examples\xFEjsb_docs\xFEjsb_pagetemplates\xFEjsb_viewtemplates\xFEjsb_jsondefs\xFEjsb_themes\xFEjsb_mdl\xFEjsb_ctls\xFEjsb_cspc\xFEjsb_odb\xFEdemocustomers.text\xFEdemocustomers.json";
+    window.cached_jsb_config["roles"] = "admin\xFEdirector\xFEmanager\xFEclerk\xFEemployee";
+    window.cached_jsb_config["_intro"] = "Welecome to JSB (JSON enabled BASIC programming language)\xFE\xFEJSB runs from a terminal command line (TCL) or an IDE.\xFEIt has a debugger, an editor (ED), a database, and some libraries.\xFE\xFE{{<button type='button' onclick='appendKey(\"BASIC JSB_DEMOS MAGGOTS (X\" + Chr(13));'>}}Maggots{{</button>}}\xFE{{<button type='button' onclick='appendKey(\"BASIC JSB_DEMOS MAGGOTS (X\" + Chr(13));'>}}Lasers{{</button>}}\xFE\xFE\xFE{{<button type='button' onclick='appendKey(\"HELP\" + Chr(13));'>}}Click Here{{</button>}} for HELP\xFE\xFEYou are at TCL";
 }
 anonymousFunc()
 anonymousFunc = null

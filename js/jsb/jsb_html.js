@@ -277,7 +277,7 @@ function LAYOUT(Centerhtml, Northhtml, Northoptions, Southhtml, Southoptions, Ea
         if (window.jQuery.layout) Needload = false;
     }
     if (Needload) {
-        _Html = Head(JsLink(jsbRoot() + 'js/jquery.layout.js'));
+        _Html = Head(JsLink(jsbRoot() + 'js/jquery/jquery.layout.js'));
     }
 
     if (Not(Northoptions)) Northoptions = 'initClosed, initHidden, Fixed'; else Northoptions = Change(Northoptions, 'px', '');
@@ -1001,7 +1001,7 @@ async function JSB_HTML_JQGRID(Jqgridid, Restfulnameordataarray, Usermodelcolumn
         }
     }
 
-    return JSB_HTML_JQGRID2(CStr(Jqgridid), CStr(Restfulnameordataarray), Usermodelcolumns, Myoptions);
+    return JSB_HTML_JQGRID2(CStr(Jqgridid), Restfulnameordataarray, Usermodelcolumns, Myoptions);
 }
 // </JQGRID>
 
@@ -1131,163 +1131,28 @@ function JSB_HTML_JSBDEF2JQGRIDDEF(ByRef_Myoptions, ByRef_Tcolumn, setByRefValue
 
 // <JQGRID2>
 function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, Myoptions) {
-    var Cols = undefined;
-    var Columnmodel = undefined;
-    var Defaultrow = undefined;
-    var Js = undefined;
-    var Tcolumn = undefined;
-    var Column = undefined;
-    var _Html = '';
-    var Pkid = '';
-    var Ctltype = '';
-    var Url = '';
-    var D = '';
-    var Addbtn = '';
-    var Pager = '';
-    var Joinedmodel = '';
-    var Lh = '';
-    var Rh = '';
-    var Aw = '';
-    var Tbl = '';
-    var S = '';
-    var Arg = '';
-
-    if (typeOf(Myoptions) != 'JSonObject') { Myoptions = {} }
+    // local variables
+    var Tcolumn, Cols, Column, D;
 
     if (Not(Jqgridid)) Jqgridid = 'jqGrid_' + CStr(Rnd(99999));
-
-    // Moved to head - Html = @CssLink(@jsbroot:"css/ui.jqgrid.css")
-    _Html = Head(JsLink(jsbRoot() + 'js/grid.locale-en.js'));
-    _Html += Head(JsLink(jsbRoot() + 'js/jquery.jqgrid.js'));
-
-    Cols = [undefined,];
-    Columnmodel = [undefined,];
-    Defaultrow = {};
-
     if (Not(Myoptions.WidthMultiplier)) Myoptions.WidthMultiplier = 1;
 
-    Pkid = '';
+    // Moved to head - Html = @CssLink(@jsbroot:"css/ui.jqgrid.css")
+    var _Html = Head(JsLink(jsbRoot() + 'js/grid.locale-en.js'));
+    _Html += Head(JsLink(jsbRoot() + 'js/jquery/jquery.jqgrid.js'));
+
+    var Columnmodel = [undefined,];
     for (Tcolumn of iterateOver(Usermodelcolumns)) {
-        if (Len(Tcolumn.name) && CBool(Tcolumn.primarykey)) { Pkid = Tcolumn.name; break; }
+        if (Len(Tcolumn.name)) { Columnmodel[Columnmodel.length] = JSB_HTML_JSBDEF2JQGRIDDEF(Myoptions, Tcolumn, function (_Myoptions, _Tcolumn) { Myoptions = _Myoptions; Tcolumn = _Tcolumn }); }
     }
 
-    for (Tcolumn of iterateOver(Usermodelcolumns)) {
-        if (Len(Tcolumn.name)) {
-            Column = {};
-            Column.name = Tcolumn.name;
-            if (CBool(Tcolumn.datatype)) Column.datatype = Tcolumn.datatype;
-            if (CBool(Tcolumn.primarykey)) Column.primarykey = true;
-            if (CBool(Tcolumn.index)) Column.index = Tcolumn.index;
-            if (CBool(Tcolumn.align)) Column.align = Tcolumn.align;
-            if (CBool(Tcolumn.width)) Column.width = Tcolumn.width;
-            if (CBool(Tcolumn.label)) Column.label = Tcolumn.label;
-            if (CBool(Tcolumn.sorttype)) Column.sorttype = Tcolumn.sorttype;
-            if (CBool(Tcolumn.sortable)) Column.sortable = Tcolumn.sortable;
-            if (CBool(Tcolumn.tooltip)) { Column.cellattr = '^^function () { return \' title="' + urlEncode(Tcolumn.tooltip) + '"\'; }^^'; }
-            if (Not(Column.label)) Column.label = Column.name;
-
-            // Valid formatters: http://www.trirand.com/jqgridwiki/doku.php?id=wiki:predefined_formatter
-            // integer, number, currency, date, email, link, showlink, checkbox, select, actions
-            if (CBool(Tcolumn.formatter)) {
-                Column.formatter = Tcolumn.formatter;;
-            } else if (Column.datatype == 'date' || Column.datatype == 'datetime') {
-                Column.formatter = 'date';;
-            } else if (Column.datatype == 'currency') {
-                Column.formatter = 'currency';
-
-                // Else If Column.datatype = "url" Then
-                // Column.formatter = 'link';
-            } else if (Column.datatype == 'integer') {
-                // Column.formatter = 'integer' // By making the formatter an integer, the data will be converted to an integer, and thus empty becomes 0;
-            } else if (Column.datatype == 'autointeger') {
-                Column.formatter = 'integer';;
-            } else if (Column.datatype == 'double') {
-                Column.formatter = 'number';;
-            }
-
-            if (Tcolumn.display == 'hidden' || Tcolumn.display == 'gridhidden') Column.hidden = true;
-
-            // http://www.trirand.com/jqgridwiki/doku.php?id=wiki:common_rules
-            Ctltype = LCase(Tcolumn.control);
-
-            // edittype and editoptions only set if column is editable
-            if (CBool(Tcolumn.canedit) || CBool(Tcolumn.editable)) {
-                Column.editable = true;
-                if (CBool(Tcolumn.edittype)) Column.edittype = Tcolumn.edittype;
-                if (CBool(Tcolumn.editoptions)) Column.editoptions = Tcolumn.editoptions;
-            } else {
-                // Not editable
-                Column.editable = false;
-                if (Ctltype != 'button' && Ctltype != 'anchor' && Ctltype != 'urlbox' && Ctltype != 'url') Ctltype = '';
-            }
-
-            if (Not(Column.edittype) && Ctltype) {
-                // *
-                // * textbox, dropDownBox, combobox, listbox, autotextbox, datebox, timebox, datetimebox, imagebox, currencybox
-                // *                maskedtextbox, radiobox, multiselectlistbox, multiselectdropDownBox, colorpick, slider
-                // *                htmlbox, label, imagebox, uploadimagebox, appendbox, passwordbox
-                // * ->
-                // *      text, textarea, checkbox, select, password, button, image, file custom
-
-                if (Ctltype == 'button') {
-                    Column.formatter = '^^jqGridAddBtn^^';
-                    Url = dropIfRight(CStr(Tcolumn.transferurl), '.page', true);
-                    Column.editoptions = { "colName": Column.Name, "primaryKey": Pkid, "transferurl": Url, "transferto": Tcolumn.transferto, "transferaddfrompage": Tcolumn.transferaddfrompage, "transferextra": Tcolumn.onParentExtra, "datausuage": Tcolumn.datausuage, "title": Column.label };;
-                } else if (Ctltype == 'imagebox') {
-                    // Column.editable = false;
-                } else if (Ctltype == 'checkbox') {
-                    Column.edittype = 'checkbox';
-                    Column.editoptions = { "value": '1:0' };
-                    Column.formatter = 'checkbox';
-                    Column.align = 'center';;
-                } else if (Ctltype == 'label') {
-                    Column.editable = false;;
-                } else if (Ctltype == 'urlbox' || Ctltype == 'anchor') {
-                    Column.formatter = '^^function (cellValue, myOptions, rowObject) { return "\<a href=" + urlEncode(cellValue) + " target=\'_blank\'\>...\</a\>";  }^^';;
-                } else if (Ctltype == 'url') {
-                    Column.formatter = '^^function (cellValue, myOptions, rowObject) { return "\<a href=" + urlEncode(cellValue) + " target=\'_blank\'\>" + cellValue + "\</a\>";  }^^';
-                }
-            }
-
-            if (Right(Column.index, 1) == '#') {
-                Column.sorttype = 'int';
-                Column.index = Left(Column.index, Len(Column.index) - 1);
-                if (Not(Column.align)) Column.align = 'right';
-            } else if (Column.datatype == 'integer' || Column.datatype == 'autointeger') {
-                Column.sorttype = 'int';
-                if (Not(Column.index)) Column.index = Column.name;
-                if (Not(Column.align)) Column.align = 'right';
-            } else if (Column.datatype == 'double') {
-                Column.sorttype = 'float';
-                if (Not(Column.index)) Column.index = Column.name;
-                if (Not(Column.align)) Column.align = 'right';
-            } else {
-                if (Not(Column.index)) Column.index = Column.name;
-            }
-
-            if (CBool(Myoptions.WidthMultiplier) && isNumeric(Column.width) && Len(Column.width)) Column.width = CNum(Column.width) * CNum(Myoptions.WidthMultiplier);
-
-            // need a default row?
-            if (CBool(Myoptions.allowInserts)) {
-                if (CBool(Tcolumn.defaultvalue)) D = Tcolumn.defaultvalue; else D = Tcolumn.defaultValue;
-                if (Not(D)) D = '';
-                if (Column.control == 'json_inline') {
-                    if (Left(D, 1) != '[' || Right(D, 1) != ']') {
-                        if (Left(D, 1) == '{' && Right(D, 1) == '}') D = '[' + D + ']'; else D = '[]';
-                    }
-                    Js = parseJSON('{array:' + D + '}');
-                    D = Js.array;
-                }
-                Defaultrow[Column.name] = D;
-            }
-
-            Column.resizable = true; // default
-
-            Cols[Cols.length] = '\'' + CStr(Column.label) + '\'';
-
-            Columnmodel[Columnmodel.length] = Column;
-            if (CBool(Column.primarykey)) Pkid = Column.name;
-        }
+    var Pkid = '';
+    var Defaultrow = {};
+    Cols = [undefined,];
+    for (Column of iterateOver(Columnmodel)) {
+        if (CBool(Column.primarykey)) Pkid = Column.name;
+        if (Len(Column.d)) Defaultrow[Column.name] = Column.d;
+        Cols[Cols.length] = '\'' + CStr(Column.label) + '\'';
     }
 
     if (CBool(Myoptions.allowDeletes)) {
@@ -1301,18 +1166,18 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         Cols[Cols.length] = '\'' + CStr(Column.label) + '\'';
     }
 
-    Tbl = Chr(28) + '\<table id=\'' + Jqgridid + '\' style=" position: relative; background-color: transparent;" \>\<tr\>\<td\>\</td\>\</tr\>\</table\>' + crlf + Chr(29);
+    var Tbl = Chr(28) + '\<table id=\'' + Jqgridid + '\' style=" position: relative; background-color: transparent;" \>\<tr\>\<td\>\</td\>\</tr\>\</table\>' + crlf + Chr(29);
 
     if (CBool(Myoptions.allowInserts) || CBool(Myoptions.allowUpdates) || CBool(Myoptions.allowDeletes)) {
         if (Not(Pkid)) Tbl += Chr(28) + 'You must setup a primary key column in order for your CRUD operations to work\<br /\>' + Chr(29);
     }
 
     if (CBool(Myoptions.allowInserts)) {
-        Addbtn = Chr(28) + '\<input type="BUTTON" id="' + Jqgridid + '_newRow" value="New Row" onclick="jqGrid_NewRow(\'' + Jqgridid + '\', ' + Jqgridid + '_dr, ' + CStr(CNum(Myoptions.allowDeletes)) + ', \'' + Pkid + '\')" /\>' + Chr(29);
+        var Addbtn = Chr(28) + '\<input type="BUTTON" id="' + Jqgridid + '_newRow" value="New Row" onclick="jqGrid_NewRow(\'' + Jqgridid + '\', ' + Jqgridid + '_dr, ' + CStr(CNum(Myoptions.allowDeletes)) + ', \'' + Pkid + '\')" /\>' + Chr(29);
     }
 
     if (CBool(Myoptions.doPaging)) {
-        Pager = Chr(28) + '\<div id="' + Jqgridid + '_pager"\>\</div\>' + Chr(29);
+        var Pager = Chr(28) + '\<div id="' + Jqgridid + '_pager"\>\</div\>' + Chr(29);
     }
 
     if (CBool(Myoptions.doPaging) || CBool(Myoptions.allowInserts)) {
@@ -1321,23 +1186,21 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         _Html += Tbl;
     }
 
-    Joinedmodel = Join(CStr(Columnmodel, true), ',' + crlf);
+    var Joinedmodel = Join(CStr(Columnmodel, true), ',' + crlf);
 
     // Need to turn these (^^) back into non-JSON strings
 
     while (InStr1(1, Joinedmodel, '"^^')) {
-        Lh = Field(Joinedmodel, '"^^', 1);
+        var Lh = Field(Joinedmodel, '"^^', 1);
         Joinedmodel = dropLeft(Joinedmodel, '"^^');
-        Arg = Field(Joinedmodel, '^^"', 1);
-        Rh = dropIfLeft(Joinedmodel, '^^"');
-
-        var Jarg = parseJSON('{ Arg: "' + Arg + '"}');
-        Arg = Jarg.Arg;
-
-        Joinedmodel = Lh + Arg + Rh;
+        var Sarg = Field(Joinedmodel, '^^"', 1);
+        var Rh = dropIfLeft(Joinedmodel, '^^"');
+        var Jarg = parseJSON('{ Arg: "' + Sarg + '"}');
+        Sarg = Jarg.Arg;
+        Joinedmodel = Lh + Sarg + Rh;
     }
 
-    S = '\r\n\
+    var S = '\r\n\
             // Initial column order for ' + Jqgridid + '\r\n\
             var ' + Jqgridid + '_cm = [' + Joinedmodel + '];\r\n\
             var ' + Jqgridid + '_dr = ' + CStr(Defaultrow) + '\r\n\
@@ -1363,7 +1226,7 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         D = Change(D, lf, '\\n');
 
         S += '\r\n\
-            var ' + Jqgridid + '_data = [' + D + ']\r\n\
+            var ' + Jqgridid + '_data = [' + CStr(D) + ']\r\n\
             window.refreshData = function () {  }\r\n\
             \r\n\
             ' + Jqgridid + '_options = {\r\n\
@@ -1384,7 +1247,7 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         window.refreshData = function () { $("#' + Jqgridid + '").trigger(\'reloadGrid\'); }\r\n\
 \r\n\
         var ' + Jqgridid + '_options = {\r\n\
-            url:' + jsEscapeString(CStr(Restfulnameordataarray)) + ',\r\n\
+            url:' + jsEscapeString(CStr(Restfulnameordataarray, true)) + ',\r\n\
             datatype: "json",\r\n\
             ';
         if (CBool(Myoptions.doPaging)) {
@@ -1401,11 +1264,12 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
         }
     }
 
+    var Aw = '';
     if (CBool(Myoptions.width100percent)) Aw = 'true'; else Aw = 'false';
     S += '\r\n\
             colNames: [' + Join(Cols, ',') + '],\r\n\
             colModel: ' + Jqgridid + '_cm,\r\n\
-            cmTemplate: { autoResizable: true },\r\n\
+            cmTemplate: { autoResizable: true, title: false },\r\n\
             autoresizeOnLoad: true,\r\n\
             multiselect: false,\r\n\
             gridview: true, // makes it faster but prohibits the use of treeGrid and subGrid\r\n\
@@ -1664,7 +1528,7 @@ function JSB_HTML_NICEDITOR(Id, Defaultvalue, Oncontextmenu, Additionalattribute
     }
 
     _Html = Head(JsLink(jsbRoot() + 'js/nicEdit.js'));
-    _Html += Head(JsLink(jsbRoot() + 'js/jquery.tooltip.pack.js'));
+    _Html += Head(JsLink(jsbRoot() + 'js/jquery/jquery.tooltip.pack.js'));
 
     // When do we display the button bar?
     if (Oncontextmenu) {
@@ -2581,7 +2445,7 @@ function JSB_HTML_SLIDESHOW(Arrayofphoto_Urls) {
     var Photo_Url = '';
 
     Id = JSB_BF_NEWGUID();
-    _Html = Head(JsLink(jsbRoot() + 'js/jquery.bxslider.js'));
+    _Html = Head(JsLink(jsbRoot() + 'js/jquery/jquery.bxslider.js'));
     _Html += Head(CssLink(jsbRoot() + 'css/jquery.bxslider.css'));
 
     _Html += Chr(28) + '\r\n\
@@ -4276,17 +4140,17 @@ function DECIMALBOX(Id, Defaultvalue, Readonly, Additionalattributes, Minvalue, 
 // </DECIMALBOX>
 
 // <DEVXGRID>
-async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
+async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
     // local variables
     var Xhtml, Ftable, Sl, Rows;
 
     var Serverurl = Usersettings.serverURL;
     if (Not(Serverurl)) Serverurl = jsbRootAct();
 
-    if (Not(Tablename)) { activeProcess.At_Errors = 'Mising TableName'; return undefined; }
+    if (Not(Tblnameorarray)) { activeProcess.At_Errors = 'HTML.devXGrid: Mising tblNameOrArray'; return undefined; }
 
     if (Not(Usersettings.gridDefs) || Not(Usersettings.primaryKeyField)) {
-        var Griddefinition = await JSB_HTML_GETDEVXGRIDMETA(Serverurl, Usersettings.databaseName, Tablename, function (_Serverurl, _P2, _Tablename) { Serverurl = _Serverurl; Tablename = _Tablename });
+        var Griddefinition = await JSB_HTML_GETDEVXGRIDMETA(Serverurl, Usersettings.databaseName, Tblnameorarray, function (_Serverurl, _P2, _Tblnameorarray) { Serverurl = _Serverurl; Tblnameorarray = _Tblnameorarray });
         if (Not(Griddefinition)) return undefined;
         Usersettings.primaryKeyField = Griddefinition.primaryKey;
         Usersettings.gridDefs = Griddefinition.gridDefs;
@@ -4324,7 +4188,14 @@ async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
 
     var S = '';
 
-    if (CBool(Usersettings.databaseName)) {
+    if (CBool(isArray(Tblnameorarray))) {
+        S += '\r\n\
+            // setup an array datastore\r\n\
+            $(() =\> {\r\n\
+                window.' + CStr(Gridid) + '_customDataStore = [' + Join(Tblnameorarray, ',' + crlf) + '];\r\n\
+            });\r\n\
+        ';;
+    } else if (CBool(Usersettings.databaseName)) {
         S += '\r\n\
             // setup a custom datastore\r\n\
             $(() =\> {\r\n\
@@ -4337,7 +4208,7 @@ async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
                     key: \'' + CStr(Usersettings.primaryKeyField) + '\',\r\n\
                     load(loadOptions) {\r\n\
                       const deferred = $.Deferred();\r\n\
-                      const args = { databaseName: \'' + CStr(Usersettings.databaseName) + '\', tableName: \'' + CStr(Tablename) + '\' };\r\n\
+                      const args = { databaseName: \'' + CStr(Usersettings.databaseName) + '\', tblNameOrArray: \'' + CStr(Tblnameorarray) + '\' };\r\n\
                 \r\n\
                       [\'skip\',\'take\',\'requireTotalCount\',\'requireGroupCount\',\'sort\',\'filter\',\'totalSummary\',\'group\',\'groupSummary\',].forEach((i) =\> {\r\n\
                         if (i in loadOptions && isNotEmpty(loadOptions[i])) {\r\n\
@@ -4374,7 +4245,7 @@ async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
             });\r\n\
         ';
     } else {
-        if (await JSB_ODB_OPEN('', CStr(Tablename), Ftable, function (_Ftable) { Ftable = _Ftable })) {
+        if (await JSB_ODB_OPEN('', CStr(Tblnameorarray), Ftable, function (_Ftable) { Ftable = _Ftable })) {
             if (await JSB_ODB_SELECTTO('*', Ftable, '', Sl, function (_Sl) { Sl = _Sl })) {
                 Rows = getList(Sl);
 
@@ -4507,15 +4378,15 @@ async function JSB_HTML_DEVXGRID(Gridid, Tablename, Usersettings) {
 // </DEVXGRID>
 
 // <GETDEVXGRIDMETA>
-async function JSB_HTML_GETDEVXGRIDMETA(ByRef_Serverurl, ByRef_Databasename, ByRef_Tablename, setByRefValues) {
+async function JSB_HTML_GETDEVXGRIDMETA(ByRef_Serverurl, ByRef_Databasename, ByRef_Tblnameorarray, setByRefValues) {
     // local variables
     var Columnname, Ci;
 
     function exit(v) {
-        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Serverurl, ByRef_Databasename, ByRef_Tablename)
+        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Serverurl, ByRef_Databasename, ByRef_Tblnameorarray)
         return v
     }
-    var Schemadefs = await JSB_BF_DBTABLESCHEMA(CStr(ByRef_Databasename), CStr(ByRef_Tablename));
+    var Schemadefs = await JSB_BF_DBTABLESCHEMA(CStr(ByRef_Databasename), CStr(ByRef_Tblnameorarray));
 
     var Griddefs = [undefined,];
     var Firstcolumnname = '';
