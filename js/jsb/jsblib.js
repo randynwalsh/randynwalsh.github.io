@@ -8549,6 +8549,7 @@ function isString(obj) {
 // In general, JSB doesn't use the object-type string, only then string primitive
 function isString(s) { return typeof s == 'string' } // I don't use string objects, so making this quicker, || s instanceof String; 
 
+function isSelectlist(o) { return o instanceof selectList }
 function isSelectList(o) { return o instanceof selectList }
 
 // isObject for things that are objects outside of my classes
