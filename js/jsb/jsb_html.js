@@ -4284,13 +4284,12 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
     if (Not(Serverurl)) Serverurl = jsbRootAct();
 
     if (Not(Tblnameorarray)) { activeProcess.At_Errors = 'HTML.devXGrid: Mising tblNameOrArray'; return undefined; }
-    Print(); debugger;
 
     if (Not(Usersettings.gridDefs) || Not(Usersettings.primaryKeyField)) {
-        var Griddefinition = await JSB_HTML_GETDEVXGRIDMETA(Serverurl, Usersettings.databaseName, Tblnameorarray, function (_Serverurl, _P2, _Tblnameorarray) { Serverurl = _Serverurl; Tblnameorarray = _Tblnameorarray });
+        var Griddefinition = await JSB_HTML_GETDEVXGRIDMETA(Serverurl, Usersettings, Tblnameorarray, function (_Serverurl, _Usersettings, _Tblnameorarray) { Serverurl = _Serverurl; Usersettings = _Usersettings; Tblnameorarray = _Tblnameorarray });
         if (Not(Griddefinition)) return undefined;
-        Usersettings.primaryKeyField = Griddefinition.primaryKey;
-        Usersettings.gridDefs = Griddefinition.gridDefs;
+        if (Not(Usersettings.primaryKeyField)) Usersettings.primaryKeyField = Griddefinition.primaryKey;
+        if (Not(Usersettings.gridDefs)) Usersettings.gridDefs = Griddefinition.gridDefs;
     }
 
     var _Html = JsLink('https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.1/polyfill.min.js');
@@ -4402,19 +4401,23 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
         }
     }
 
-    if (!Len(Usersettings.devXGridLayout)) { Usersettings.devXGridLayout = {} }
-
     S += '\r\n\
         $(() =\> {\r\n\
             debugger; \r\n\
-            \r\n\
-            var devxGridLayout = ' + (isString(Usersettings.devXGridLayout) ? jsEscapeString(CStr(Usersettings.devXGridLayout)) : Usersettings.devXGridLayout) + ';\r\n\
-            localStorage[\'' + CStr(Gridid) + '\'] = devxGridLayout;\r\n\
-            \r\n\
+        ';
+
+    if (CBool(Usersettings.devXGridLayout)) { S += 'localStorage[\'' + CStr(Gridid) + '_state\'] = ' + jsEscapeString(CStr(Usersettings.devXGridLayout)) + ';'; }
+
+    S += '\r\n\
             $(\'#' + CStr(Gridid) + '\').dxDataGrid({\r\n\
     ';
-    if (Not(Ftable)) {
-        S += ' remoteOperations: true,  // Grouping on Server';
+
+    if (Not(Ftable) && Not(isArray(Tblnameorarray))) {
+        S += ' remoteOperations: true,  // Grouping on Server\r\n\
+                    scrolling: {\r\n\
+                      mode: \'virtual\',\r\n\
+                      rowRenderingMode: \'virtual\',\r\n\
+                    },';
     }
 
     S += '\r\n\
@@ -4438,15 +4441,11 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
                 stateStoring: {\r\n\
                   enabled: true,\r\n\
                   type: \'localStorage\',\r\n\
-                  storageKey: \'' + CStr(Gridid) + '\', \r\n\
+                  storageKey: \'' + CStr(Gridid) + '_state\', \r\n\
                 },\r\n\
                 searchPanel: {\r\n\
                   visible: true,\r\n\
                   highlightCaseSensitive: true,\r\n\
-                },\r\n\
-                scrolling: {\r\n\
-                  mode: \'virtual\',\r\n\
-                  rowRenderingMode: \'virtual\',\r\n\
                 },\r\n\
                 paging: { pageSize: 10 },\r\n\
                 headerFilter: {\r\n\
@@ -4517,15 +4516,20 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
 // </DEVXGRID>
 
 // <GETDEVXGRIDMETA>
-async function JSB_HTML_GETDEVXGRIDMETA(ByRef_Serverurl, ByRef_Databasename, ByRef_Tblnameorarray, setByRefValues) {
+async function JSB_HTML_GETDEVXGRIDMETA(ByRef_Serverurl, ByRef_Usersettings, ByRef_Tblnameorarray, setByRefValues) {
     // local variables
     var Columnname, Ci;
 
     function exit(v) {
-        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Serverurl, ByRef_Databasename, ByRef_Tblnameorarray)
+        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Serverurl, ByRef_Usersettings, ByRef_Tblnameorarray)
         return v
     }
-    var Schemadefs = await JSB_BF_DBTABLESCHEMA(CStr(ByRef_Databasename), CStr(ByRef_Tblnameorarray));
+    var Schemadefs = undefined;
+    if (CBool(ByRef_Usersettings.columns)) {
+        Schemadefs = ByRef_Usersettings.columns;
+    } else {
+        Schemadefs = await JSB_BF_DBTABLESCHEMA(CStr(ByRef_Usersettings.databaseName), ByRef_Tblnameorarray);
+    }
 
     var Griddefs = [undefined,];
     var Firstcolumnname = '';
@@ -4621,8 +4625,12 @@ async function JSB_HTML_JSBDEF2DEVXGRIDDEF(ByRef_Tcolumn, setByRefValues) {
 
     if (CBool(ByRef_Tcolumn.Caption)) {
         Column.caption = ByRef_Tcolumn.Caption;
-    } else {
-        if (CBool(ByRef_Tcolumn.label)) Column.caption = ByRef_Tcolumn.label; else Column.caption = ByRef_Tcolumn.ColumnName;
+    } else if (CBool(ByRef_Tcolumn.label)) {
+        Column.caption = ByRef_Tcolumn.label;
+    } else if (CBool(ByRef_Tcolumn.ColumnName)) {
+        Column.caption = ByRef_Tcolumn.ColumnName;
+    } else if (CBool(ByRef_Tcolumn.name)) {
+        Column.caption = ByRef_Tcolumn.name;
     }
 
     // https://js.devexpress.com/Documentation/ApiReference/Common/Object_Structures/format/
