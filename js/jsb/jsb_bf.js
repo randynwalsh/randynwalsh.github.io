@@ -484,9 +484,6 @@ async function JSB_BF_ANALYSEJSON(Jsarray, ByRef_Primarykeyname, Forceallownulls
 
 // <ANCHOREDIT>
 function anchorEdit(Fname, Itemid, Description, Fpath, Maxlen, Gotolineno) {
-    // local variables
-    var Useq, Jsstringescapeit;
-
     var Isdir = undefined;
     var Isbinary = undefined;
     var Ispicture = undefined;
@@ -510,10 +507,9 @@ function anchorEdit(Fname, Itemid, Description, Fpath, Maxlen, Gotolineno) {
         } else {
             if (InStr1(1, Itemid, '\'')) Q = '"'; else Q = '\'';
             if (Isbinary || Ispicture) Ued = 'view'; else Ued = 'ed';
-            if (InStr1(1, Fname, '/') || InStr1(1, Fname, '\\')) Useq = '?'; else Useq = '';
             if (Gotolineno) Path += ' (' + CStr(Gotolineno);
-            Path = Ued + CStr(Useq) + '%20' + Change(urlEncode(CStr(Fname) + ' ' + Q + Itemid + Q), '+', '%20');
-            Path = jsbRootExecute(Path, CStr(Jsstringescapeit));
+            Path = '?' + Ued + '%20' + Change(urlEncode(CStr(Fname) + ' ' + Q + Itemid + Q), '+', '%20');
+            Path = jsbRootExecute(Path);
         }
     }
 
@@ -9083,8 +9079,11 @@ function jsbRootExecute(Urlcmdandparams, Jsstringescapeit) {
 
     Urlcmdandparams = Change(Urlcmdandparams, '+', '%20');
     var Rootpath = jsbRootAct(false);
-    if (Right(Rootpath, 1) == '/') {
-        Rootpath += Urlcmdandparams;
+    if (Right(Rootpath, 6) == '.html/') {
+        if (Left(Urlcmdandparams, 1) == '?') Rootpath = Left(Rootpath, Len(Rootpath) - 1);
+        Rootpath += Urlcmdandparams;;
+    } else if (Right(Rootpath, 1) == '/') {
+        Rootpath += Urlcmdandparams;;
     } else {
         var I = InStr1(1, Urlcmdandparams, '?');
         if (I) Urlcmdandparams = (Left(Urlcmdandparams, I - 1) + '&' + Mid1(Urlcmdandparams, I + 1));
@@ -17240,47 +17239,50 @@ async function JSB_BF_DBTABLESCHEMA(Databasename, Filename) {
     var Attacheddb = JSB_BF_ATTACHEDDB();
     var Aschemadefs = [undefined,];
     var Results = {};
+    var Pk = '';
+    var Dataset = undefined;
 
-    if (Filename === undefined) {
-        Filename = Databasename;
-        Databasename = '';
-    }
-
-    if (Databasename) { if (await JSB_ODB_ATTACHDB(Databasename)); else return Stop(activeProcess.At_Errors); }
-
-    // Allow Dictionary items to override some values 
-    if (await JSB_ODB_OPEN('', Filename, Fhandle, function (_Fhandle) { Fhandle = _Fhandle })); else {
-        if (Attacheddb) { if (await JSB_ODB_ATTACHDB(Attacheddb)); else null; }
-        return undefined;
-    }
-
-    var Flatfile = false;
-    if (JSB_BF_TYPEOFFILE(Fhandle) == 'ado') {
-        Aschemadefs = Fhandle.GetSchema();
-        for (Column of iterateOver(Aschemadefs)) {
-            if (Column.ColumnName == 'ItemContent') {
-                Flatfile = true;
-                break;
-            }
-        }
+    if (CBool(isArray(Filename))) {
+        Dataset = Filename;
     } else {
-        Flatfile = true;
+        if (Filename === undefined) {
+            Filename = Databasename;
+            Databasename = '';
+        }
+
+        if (Databasename) { if (await JSB_ODB_ATTACHDB(Databasename)); else return Stop(activeProcess.At_Errors); }
+
+        // Allow Dictionary items to override some values 
+        if (await JSB_ODB_OPEN('', CStr(Filename), Fhandle, function (_Fhandle) { Fhandle = _Fhandle })); else {
+            if (Attacheddb) { if (await JSB_ODB_ATTACHDB(Attacheddb)); else null; }
+            return undefined;
+        }
+
+        var Flatfile = false;
+        if (JSB_BF_TYPEOFFILE(Fhandle) == 'ado') {
+            Aschemadefs = Fhandle.GetSchema();
+            for (Column of iterateOver(Aschemadefs)) {
+                if (Column.ColumnName == 'ItemContent') {
+                    Flatfile = true;
+                    break;
+                }
+            }
+        } else {
+            Flatfile = true;
+        }
     }
 
     if (Flatfile) {
         if (await JSB_ODB_SELECTTO('top 1000 *', Fhandle, '', Ss, function (_Ss) { Ss = _Ss })) {
-            var Dataset = getList(Ss);
+            Dataset = getList(Ss);
+        }
+    }
 
-            if (!Len(Dataset)) {
-                activeProcess.At_Errors = 'No records found to analyse';
-            } else {
-                var Pk = '';
-                Aschemadefs = await JSB_BF_ANALYSEJSON(Dataset, Pk, false, function (_Pk) { Pk = _Pk });
-                if (Len(Aschemadefs)) {
-                    if (HasTag(Aschemadefs, 'ordinal')) Aschemadefs = Sort(Aschemadefs, '#\>ordinal');
-                    if (HasTag(Aschemadefs, 'Ordinal')) Aschemadefs = Sort(Aschemadefs, '#\>Ordinal');
-                }
-            }
+    if (CBool(Dataset)) {
+        Aschemadefs = await JSB_BF_ANALYSEJSON(Dataset, Pk, false, function (_Pk) { Pk = _Pk });
+        if (Len(Aschemadefs)) {
+            if (HasTag(Aschemadefs, 'ordinal')) Aschemadefs = Sort(Aschemadefs, '#\>ordinal');
+            if (HasTag(Aschemadefs, 'Ordinal')) Aschemadefs = Sort(Aschemadefs, '#\>Ordinal');
         }
     }
 
@@ -17294,6 +17296,7 @@ async function JSB_BF_DBTABLESCHEMA(Databasename, Filename) {
         }
 
     }
+
     if (Attacheddb) { if (await JSB_ODB_ATTACHDB(Attacheddb)); else null; }
     return Results;
 
