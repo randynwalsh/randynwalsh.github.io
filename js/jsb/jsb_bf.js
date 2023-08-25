@@ -484,6 +484,9 @@ async function JSB_BF_ANALYSEJSON(Jsarray, ByRef_Primarykeyname, Forceallownulls
 
 // <ANCHOREDIT>
 function anchorEdit(Fname, Itemid, Description, Fpath, Maxlen, Gotolineno) {
+    // local variables
+    var Useq, Jsstringescapeit;
+
     var Isdir = undefined;
     var Isbinary = undefined;
     var Ispicture = undefined;
@@ -506,10 +509,11 @@ function anchorEdit(Fname, Itemid, Description, Fpath, Maxlen, Gotolineno) {
             Path = JSB_BF_JSBROOTEXECUTETCLCMD('L ' + CStr(Fpath) + (Right(Fpath, 1) == '\\' ? '' : '\\') + Itemid);
         } else {
             if (InStr1(1, Itemid, '\'')) Q = '"'; else Q = '\'';
-            if (Isbinary || Ispicture) Ued = 'view '; else Ued = 'ed ';
-            Path = Ued + CStr(Fname) + ' ' + Q + Itemid + Q;
+            if (Isbinary || Ispicture) Ued = 'view'; else Ued = 'ed';
+            if (InStr1(1, Fname, '/') || InStr1(1, Fname, '\\')) Useq = '?'; else Useq = '';
             if (Gotolineno) Path += ' (' + CStr(Gotolineno);
-            Path = JSB_BF_JSBROOTEXECUTETCLCMD(Path);
+            Path = Ued + CStr(Useq) + '%20' + Change(urlEncode(CStr(Fname) + ' ' + Q + Itemid + Q), '+', '%20');
+            Path = jsbRootExecute(Path, CStr(Jsstringescapeit));
         }
     }
 
