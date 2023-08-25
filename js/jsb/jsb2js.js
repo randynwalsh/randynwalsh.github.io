@@ -10389,7 +10389,7 @@ async function Warning(Msg) {
         Commons_JSB2JS.Errline = Commons_JSB2JS.Tkam;
     }
     Println(anchorEdit(CStr(Commons_JSB2JS.Cur_Fname), CStr(Commons_JSB2JS.Itemid), MonoSpace(Space(Commons_JSB2JS.Tkpos - Len(Commons_JSB2JS.Tkstr) + 4)) + '|Warning: ' + Chr(15) + CStr(Commons_JSB2JS.Tkam) + ' ' + CStr(Msg) + Chr(15), '', +'', Commons_JSB2JS.Tkam));
-    Commons_JSB2JS.Errors = Replace(Commons_JSB2JS.Errors, -1, 0, 0, Space(Commons_JSB2JS.Tkpos - Len(Commons_JSB2JS.Tkstr) + 4) + '|Warning: ' + CStr(Msg));
+    Commons_JSB2JS.Errors = (Replace(Commons_JSB2JS.Errors, -1, 0, 0, Space(Commons_JSB2JS.Tkpos - Len(Commons_JSB2JS.Tkstr) + 4) + '|Warning: ' + CStr(Msg)));
     return;
 
     // ********************************************************************************************************************
