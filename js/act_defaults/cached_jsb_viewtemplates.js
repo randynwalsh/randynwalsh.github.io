@@ -369,7 +369,7 @@ anonymousFunc = function () {
     z += "        Settings.lngColumnName = \"<%=lngColumnName%>\"\xFE";
     z += "    <%end if%>\xFE";
     z += "    \xFE";
-    z += "    Settings.hideExportBtns = <%=viewModel.hideExportBtns%>\xFE";
+    z += "    Settings.hideExportBtns = <%=viewModel.hideExportBtns + 0%>\xFE";
     z += "    Settings.showExportBtns = !Settings.hideExportBtns\xFE";
     z += "    \xFE";
     z += "    Settings.tableName = \"<%=viewModel.tableName%>\"\xFE";
