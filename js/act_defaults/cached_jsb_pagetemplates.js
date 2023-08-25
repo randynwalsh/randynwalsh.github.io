@@ -706,7 +706,12 @@ anonymousFunc = function () {
     z += "\xFE";
     z += "    "
     window.cached_jsb_pagetemplates["twoviews"] = z;
-    var z = "    <% if viewModel.attachdb Then %>\xFE";
+    var z = "    <% \xFE";
+    z += "        NiceViewName = LCase(@niceName(@DropIfRight(pageName, \".page\", True)))\xFE";
+    z += "        NiceViewName = @niceName(@DropIfRight(NiceViewName, \".view\", True));\xFE";
+    z += "        readJson viewModel From @fHandle(\"DICT\", ProjectName), nicePageName Else viewModel = {}\xFE";
+    z += "        if viewModel.attachdb then\xFE";
+    z += "    %>\xFE";
     z += "       Dim roleMsg As String = Iff(@@IsAuthenticated, \"\", \"You must be logged in to view this page. \":@Anchor(@@LoginUrl(\"\"), \"Click here to login\"))\xFE";
     z += "       <%\xFE";
     z += "       Select Case LCase(pageModel.minimumRole)\xFE";
