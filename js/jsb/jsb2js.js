@@ -10959,7 +10959,7 @@ async function JSB2JS_AFTERHEADERPARSE_Sub() {
         Commons_JSB2JS.Dontmorphfunctionname = true;
     }
 
-    if (Commons_JSB2JS.Dontmorphfunctionname) {
+    if (Commons_JSB2JS.Dontmorphfunctionname && System(1) == 'aspx') {
         // Make sure we don't conflict with anything in jsblib.js
         if (Not(Commons_JSB2JS.Jsblib_Src)) {
             if (await JSB_ODB_READ(Commons_JSB2JS.Jsblib_Src, await JSB_BF_FHANDLE('js'), 'jsblib.js', function (_Jsblib_Src) { Commons_JSB2JS.Jsblib_Src = _Jsblib_Src })); else Commons_JSB2JS.Jsblib_Src = '';
@@ -10984,7 +10984,7 @@ async function JSB2JS_AFTERHEADERPARSE_Sub() {
     } else {
         if (CBool(Externaldef)) {
             if (Null0(Oldtruename) == Null0(Commons_JSB2JS.Truesubname) && Commons_JSB2JS.Truesubname == UCase(Commons_JSB2JS.Truesubname)) {
-                Needtorecompilemycallers = CStr(Oldtruename) + ' is not longer has $options ijs; need to update dependencies';
+                Needtorecompilemycallers = CStr(Oldtruename) + ' is no longer has the $options ijs; need to update dependencies';
                 Commons_JSB2JS.Externals_Txt = Delete(Commons_JSB2JS.Externals_Txt, Externaldef, 0, 0);
             }
         }

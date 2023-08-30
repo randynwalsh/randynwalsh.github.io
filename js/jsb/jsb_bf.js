@@ -2622,7 +2622,16 @@ async function JSB_BF_DEBUGGER_Sub(Fromobj, Ilineno) {
     // =======================================================================================
     dbgSymList = [undefined,];
 
-    window.dbgAddVar = function (Name) { if (Left(Name, 1) != '_') dbgSymList[dbgSymList.length] = Name; };
+    window.dbgAddVar = (function (Name) {
+        window.dbgAddVar = function (Name) {
+            if (!Name) return;
+            var fc = Name[0].toUpperCase();
+            if (fc != "_" && (fc < "A" || fc > "Z")) return;
+            dbgSymList[dbgSymList.length] = Name;
+            if (Name[0] != "_") return;
+            dbgSymList[dbgSymList.length] = Mid(Name, 1);
+        }
+    });
 
     if ((Not(Fromobj._activeProcess.TclProhibited))) {
         Mycommons = window['Commons_' + CStr(Dbgfname)];
@@ -2754,11 +2763,16 @@ async function JSB_BF_DEBUGGER_Sub(Fromobj, Ilineno) {
         var fromObj = window.dbgEditingObj;
         var vo = null;
 
-        if (fromObj.localValue) vo = fromObj.localValue(Name);
+        if (fromObj.localValue) {
+            for (; ;) {
+                try { vo = fromObj.localValue(Name); break; } catch (e) { };
+                try { vo = fromObj.localValue("_" + Name); break; } catch (e) { };
 
-        var myCommons = window['Commons_' + UCase(fromObj._fileName)]
-        if (myCommons && myCommons.hasOwnProperty(Name)) vo = myCommons[Name];
-
+                var myCommons = window['Commons_' + UCase(fromObj._fileName)]
+                if (myCommons && myCommons.hasOwnProperty(Name)) { vo = myCommons[Name]; break }
+                return;
+            }
+        }
 
         if (!forDisplay) return vo;
         var t = typeOf(vo);
