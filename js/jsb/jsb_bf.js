@@ -507,8 +507,8 @@ function anchorEdit(Fname, Itemid, Description, Fpath, Maxlen, Gotolineno) {
         } else {
             if (InStr1(1, Itemid, '\'')) Q = '"'; else Q = '\'';
             if (Isbinary || Ispicture) Ued = 'view'; else Ued = 'ed';
-            if (Gotolineno) Path += ' (' + CStr(Gotolineno);
             Path = '?' + Ued + '%20' + Change(urlEncode(CStr(Fname) + ' ' + Q + Itemid + Q), '+', '%20');
+            if (Gotolineno) Path += ' (' + CStr(Gotolineno);
             Path = jsbRootExecute(Path);
         }
     }
