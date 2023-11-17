@@ -3965,6 +3965,7 @@ async function Parseprogram() {
 
     Commons_JSB2JS.Functiontype = 0; // -1) Commons, 0) Program, 1) Subroutine, 2) function, 3) @@function (Server Only Compile), 4) Pick/RESTFUL function
     Commons_JSB2JS.Hadgosub = 0;
+
     First_Subname = Commons_JSB2JS.Tkstr;
     Truefirst_Subname = Commons_JSB2JS.Otkstr;
 
@@ -3984,15 +3985,16 @@ async function Parseprogram() {
     Literalname = false;
     Commons_JSB2JS.Dontmorphfunctionname = false;
 
+    await SkipOverComments(true);
+
     Commons_JSB2JS.Oc = '';
     Commons_JSB2JS.Blankok = 0;
     Commons_JSB2JS.Cpassthru = 0;
-    Commons_JSB2JS.Ocpgm = [undefined,];
-
     Commons_JSB2JS.Lcllbl = 10000; // Local Labels
     Commons_JSB2JS.Funcattr = {};
-
-    await SkipOverComments(true);
+    Commons_JSB2JS.Beforeheader = Join(Commons_JSB2JS.Ocpgm, crlf);
+    if (Len(Commons_JSB2JS.Ocpgm)) Commons_JSB2JS.Beforeheader += crlf;
+    Commons_JSB2JS.Ocpgm = [undefined,];
 
     if (Commons_JSB2JS.Tkstr == 'RESTFUL') {
         Commons_JSB2JS.Isrestfulfunction = 1;
@@ -4148,8 +4150,11 @@ async function Parseprogram() {
     }
     await Restoret(A, true);
     Commons_JSB2JS.Hush = Holdhush;
-    Commons_JSB2JS.Ocpgm = [undefined,];
-    Commons_JSB2JS.Oc = '';
+
+    if (!Commons_JSB2JS.Processingtemplates) {
+        Commons_JSB2JS.Ocpgm = [undefined,];
+        Commons_JSB2JS.Oc = '';
+    }
 
     if (Not(Commons_JSB2JS.Hush)) Print(Commons_JSB2JS.Truesubname);
 
@@ -4301,8 +4306,6 @@ async function Parseprogram() {
             await Restoret(Htk);
         }
     }
-
-    await SkipOverComments(true);
 
     return;
 }
@@ -4530,7 +4533,7 @@ async function Incfile(Ifilename, Iitemname) {
         Header[Header.length] = (Space(Commons_JSB2JS.Indent) + 'forceReset |= (typeof ' + CStr(Commonsname) + ' == "undefined") || (typeof ' + CStr(Equatesname) + ' == "undefined"); ');
         Header[Header.length] = Space(Commons_JSB2JS.Indent) + 'if (!forceReset) return; ';
         Header[Header.length] = '';
-        Header[Header.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + CStr(Ifilename) + '", "' + CStr(Ifilename) + '.js", "' + CStr(Includesubname) + '"); me.localValue = function (varName) { return eval(varName) }; ';
+        Header[Header.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + CStr(Ifilename) + '", "' + CStr(Ifilename) + '.js", "' + CStr(Includesubname) + '"); me.localValue = function (varName) { return me[varName] }; ';
         Header[Header.length] = Space(Commons_JSB2JS.Indent) + CStr(Commonsname) + ' = {}; ';
         Header[Header.length] = Space(Commons_JSB2JS.Indent) + CStr(Equatesname) + ' = {}; ';
         Header[Header.length] = '';
@@ -4558,8 +4561,8 @@ async function Incfile(Ifilename, Iitemname) {
         Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = '';
     } else {
         Holdpgm[Holdpgm.length] = '    // Include ' + CStr(Ifilename) + ' ' + CStr(Iitemname);
-        var _ForEndI_84 = UBound(Commons_JSB2JS.Ocpgm);
-        for (I = 1; I <= _ForEndI_84; I++) {
+        var _ForEndI_86 = UBound(Commons_JSB2JS.Ocpgm);
+        for (I = 1; I <= _ForEndI_86; I++) {
             Holdpgm[Holdpgm.length] = Commons_JSB2JS.Ocpgm[I];
         }
         Commons_JSB2JS.Ocpgm = Holdpgm;
@@ -4585,18 +4588,29 @@ async function Incfile(Ifilename, Iitemname) {
 // <SKIPRESTOFLINE>
 async function Skiprestofline() {
     var me = new jsbRoutine("JSB2JS", "PARSEPROGRAM", "Skiprestofline");
-    me.localValue = function (varName) { return eval(varName) }
-    await dbgCheck(me, 617, true /* modal */);
+    me.localValue = function (varName) { return me[varName] }
+    // local variables
+    var Restofline;
+
+    await dbgCheck(me, 621, true /* modal */);
     await Include_JSB2JS__Comms(false)
 
     if (Commons_JSB2JS.Tkpos != 99999) {
-        Commons_JSB2JS.Tkpos = 99999; Commons_JSB2JS.Tkno = Equates_JSB2JS.C_AM;
-        if (Commons_JSB2JS._Incfile == 0 && Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) {
-            if (Trim(Commons_JSB2JS.Oc)) { Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Commons_JSB2JS.Oc; Commons_JSB2JS.Oc = ''; }
-            Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Space(Commons_JSB2JS.Indent) + 'await dbgCheck(me, ' + CStr(Commons_JSB2JS.Tkam + 1) + '); '; // Tkam+1 Because this Is Preceeding The Next Line;
+        if (Commons_JSB2JS.Processingtemplates && Not(Commons_JSB2JS.Hush)) {
+            Restofline = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 9999);
+            Commons_JSB2JS.Oc = CStr(Commons_JSB2JS.Oc) + CStr(Restofline);
+            if (Trim(Restofline) || Trim(Commons_JSB2JS.Tkstr)) {
+                Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = CStr(Commons_JSB2JS.Tkstr) + CStr(Restofline);
+            }
         }
 
-        if (Trim(Commons_JSB2JS.Oc)) { Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Commons_JSB2JS.Oc; Commons_JSB2JS.Oc = Space(Commons_JSB2JS.Indent); }
+        Commons_JSB2JS.Tkpos = 99999; Commons_JSB2JS.Tkno = Equates_JSB2JS.C_AM;
+        if (Trim(Commons_JSB2JS.Oc) && Not(Commons_JSB2JS.Hush)) Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Commons_JSB2JS.Oc;
+        Commons_JSB2JS.Oc = Space(Commons_JSB2JS.Indent);
+
+        if (Commons_JSB2JS._Incfile == 0 && Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) {
+            Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Space(Commons_JSB2JS.Indent) + 'await dbgCheck(me, ' + CStr(Commons_JSB2JS.Tkam + 1) + '); '; // Tkam+1 Because this Is Preceeding The Next Line;
+        }
 
         if (Commons_JSB2JS.Tkam % 10 == 0 && Not(Commons_JSB2JS.Hush)) Print('-');
         if (System(1) == 'js') FlushHTML();
@@ -4612,8 +4626,8 @@ async function Findendofsub(Src, Startlineno) {
     await Include_JSB2JS__Comms(false)
 
     Srca = Split(UCase(Src), Chr(254));
-    var _ForEndI_91 = UBound(Srca);
-    for (Linei = +Startlineno + 1; Linei <= _ForEndI_91; Linei++) {
+    var _ForEndI_94 = UBound(Srca);
+    for (Linei = +Startlineno + 1; Linei <= _ForEndI_94; Linei++) {
         Line = Srca[Linei];
         if (Left(Line, 1) == ' ') Line = Mid1(Line, 2);
         F1 = Field(Line, ' ', 1);
@@ -4630,7 +4644,7 @@ async function Findendofsub(Src, Startlineno) {
 // <SKIPOVERCOMMENTS>
 async function SkipOverComments(Includestringmarker) {
     // local variables
-    var Skipper, Specials, Ntkstr;
+    var Skipper, Specials, Ntkstr, L, Ll;
 
     await Include_JSB2JS__Comms(false)
 
@@ -4653,6 +4667,18 @@ async function SkipOverComments(Includestringmarker) {
 
             await Skiprestofline();;
         } else {
+            if (Commons_JSB2JS.Processingtemplates && Not(Commons_JSB2JS.Hush)) {
+                if (Commons_JSB2JS.Tkno == Equates_JSB2JS.C_AM) {
+                    L = UBound(Commons_JSB2JS.Ocpgm);
+                    Ll = Commons_JSB2JS.Ocpgm[L];
+                    if (Ll == '\<!!\>') {
+                        Commons_JSB2JS.Ocpgm.delete(L);
+                    } else {
+                        Commons_JSB2JS.Ocpgm[+L + 1] = CStr(Commons_JSB2JS.Ocpgm[+L + 1]) + '';
+                    }
+                }
+            }
+
             await Tcv(false);
             if (Locate(Commons_JSB2JS.Tkstr, Specials, 0, 0, 0, "", position => { })) await Options();
         }
@@ -4671,6 +4697,9 @@ async function ResetGlobalOpts() {
     Commons_JSB2JS.Adddebugging = System(1) == 'js';
     Commons_JSB2JS.Hush = false;
 
+    Commons_JSB2JS.Processingtemplates = (Commons_JSB2JS.Pcfname == 'jsb_viewtemplates' || Commons_JSB2JS.Pcfname == 'jsb_pagetemplates');
+
+    if (InStr1(1, Commons_JSB2JS._Options, 'T')) Commons_JSB2JS.Processingtemplates = true;
     if (InStr1(1, Commons_JSB2JS._Options, 'L')) Commons_JSB2JS.Showlist = true;
     if (InStr1(1, Commons_JSB2JS._Options, 'R')) Commons_JSB2JS.Mr83 = InStr1(1, Commons_JSB2JS._Options, 'R');
     if (InStr1(1, Commons_JSB2JS._Options, 'E')) Commons_JSB2JS.Optionexplicit = true;
@@ -4678,6 +4707,7 @@ async function ResetGlobalOpts() {
     if (InStr1(1, Commons_JSB2JS._Options, 'H')) Commons_JSB2JS.Hush = true;
     if (InStr1(1, Commons_JSB2JS._Options, 'C')) Commons_JSB2JS.Addcmt = true;
 
+    if (InStr1(1, Commons_JSB2JS._Options, 'T-')) Commons_JSB2JS.Processingtemplates = false;
     if (InStr1(1, Commons_JSB2JS._Options, 'L-')) Commons_JSB2JS.Showlist = false;
     if (InStr1(1, Commons_JSB2JS._Options, 'S-')) Commons_JSB2JS.Adddebugging = true;
     if (InStr1(1, Commons_JSB2JS._Options, 'R-')) Commons_JSB2JS.Mr83 = false;
@@ -5024,64 +5054,28 @@ async function Include_JSB2JS__Comms(forceReset) {
     forceReset |= (typeof Commons_JSB2JS == "undefined") || (typeof Equates_JSB2JS == "undefined");
     if (!forceReset) return;
 
-    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return eval(varName) };
+    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return me[varName] };
     Commons_JSB2JS = {};
     Equates_JSB2JS = {};
-    // AM is expanded inline as Chr(254);// VM is expanded inline as Chr(253);// SVM is expanded inline as Chr(252);
-    // TAB is expanded inline as Chr(9);
-    Equates_JSB2JS.DFTSTRLEN = 'StringSize';
 
-    // ENUM OF FLAVOR_TYPES
 
-    Equates_JSB2JS.FLAVOR_PARAMETER = 1;
-    Equates_JSB2JS.FLAVOR_EQUATE = 2;
-    Equates_JSB2JS.FLAVOR_COMMON = 3;
-    Equates_JSB2JS.FLAVOR_GOTOLBL = 4;
-    Equates_JSB2JS.FLAVOR_TEMP = 5;
-    Equates_JSB2JS.FLAVOR_LOCAL = 6;
-    Equates_JSB2JS.FLAVOR_EXTERNAL = 7;
-    Equates_JSB2JS.FLAVOR_FUNCTION = 8;
 
-    // SYM_TYPE (EXPRESSION ARE UPPERCASE FOR READABILITY)
-    // (VARIABLES  ARE LOWERCASE FOR READABILITY)
 
-    // -------------- Variant VARIABLE ------------------------
-    Equates_JSB2JS.TYPE_VAR = 'v';
-    Equates_JSB2JS.TYPE_EXP = '?';
 
-    // -------------- Numbers ------------------------
-    Equates_JSB2JS.TYPE_CNUM = 'c';
-    Equates_JSB2JS.TYPE_VNUM = 'n';
-    Equates_JSB2JS.TYPE_ENUM = 'N';
-    Equates_JSB2JS.TYPE_VBOOL = 'b';
-    Equates_JSB2JS.TYPE_EBOOL = 'B';
 
-    // -------------- STRINGS (SIZED) ------------------------
-    Equates_JSB2JS.TYPE_CSTR = 'S';
-    Equates_JSB2JS.TYPE_VSTR = 's';
-    Equates_JSB2JS.TYPE_ESTR = '$';
 
-    Equates_JSB2JS.TYPE_DC = '-';
 
-    // SYM_TYPES
 
-    Equates_JSB2JS.SYMTYPES_STORED = '7';
-    Equates_JSB2JS.SYMTYPES_TEMP = 'L';
 
-    // Await / Promise
 
     Commons_JSB2JS.Externals_Txt = '';
     Commons_JSB2JS.Uc_Externals_Purejs_List = '';
 
-    // *****************************************************************
 
-    // ERROR REPORTING
 
-    // *****************************************************************
     Commons_JSB2JS.Errors = '';
     Commons_JSB2JS.Errline = '';
 
-    // LEXER VARIABLES
 
     Commons_JSB2JS._Options = '';
 
@@ -5097,6 +5091,7 @@ async function Include_JSB2JS__Comms(forceReset) {
     Commons_JSB2JS.Calllist = '';
     Commons_JSB2JS.Typeitem = '';
     Commons_JSB2JS.Filename = '';
+    Commons_JSB2JS.Beforeheader = '';
     Commons_JSB2JS.Errs = '';
     Commons_JSB2JS.Tkline = '';
 
@@ -5104,11 +5099,8 @@ async function Include_JSB2JS__Comms(forceReset) {
     Commons_JSB2JS.Subname = '';
     Commons_JSB2JS.Truesubname = '';
 
-    // *****************************************************************
 
-    // LEXICAL ANALYSIS VARIABLES
 
-    // *****************************************************************
     Commons_JSB2JS.Itemsrc = '';
     Commons_JSB2JS.Symbols = '';
     Commons_JSB2JS.Idsymbols = '';
@@ -5117,7 +5109,6 @@ async function Include_JSB2JS__Comms(forceReset) {
     Commons_JSB2JS.Ocpgm = '';
 
 
-    // Platform record
 
     Commons_JSB2JS.Errpos = '';
     Commons_JSB2JS.Addlist = '';
@@ -5126,94 +5117,9 @@ async function Include_JSB2JS__Comms(forceReset) {
     Commons_JSB2JS.Pcfname = '';
     Commons_JSB2JS.Realpcfname = '';
 
-    // Lexer tokens
 
-    Equates_JSB2JS.C_NUMBER = '!';
-    Equates_JSB2JS.C_STR = '"';
-    Equates_JSB2JS.C_UNKNOWN = '#';
-    Equates_JSB2JS.C_AM = '$';
-    Equates_JSB2JS.C_SM = '%';
 
-    Equates_JSB2JS.C_VM = '&';
-    Equates_JSB2JS.C_BANG = '\'';
-    Equates_JSB2JS.C_AT = '(';
-    Equates_JSB2JS.C_POUND = ')';
-    // EQU C_DOLLAR TO "*" ;* NO LONGER USED
-    Equates_JSB2JS.C_PERCENT = '+';
-    Equates_JSB2JS.C_CIRCUMFLEX = ',';
-    Equates_JSB2JS.C_ANDSIGN = '-';
-    Equates_JSB2JS.C_ASTERISK = '.';
-    Equates_JSB2JS.C_LPAREN = '/';
-    Equates_JSB2JS.C_RPAREN = '0';
-    Equates_JSB2JS.C_UNDER = '1';
-    Equates_JSB2JS.C_PLUS = '2';
-    Equates_JSB2JS.C_MINUS = '3';
-    Equates_JSB2JS.C_EQUAL = '4';
-    Equates_JSB2JS.C_LBRACE = '5';
-    Equates_JSB2JS.C_RBRACE = '6';
-    Equates_JSB2JS.C_SQUIGGLE = '7';
-    Equates_JSB2JS.C_LBRACK = '8';
-    Equates_JSB2JS.C_RBRACK = '9';
-    Equates_JSB2JS.C_BSQUOTE = ':';
-    Equates_JSB2JS.C_COLON = ';';
-    // EQU C_DQUOTE TO "<" ;* " USED FOR STRINGS
-    Equates_JSB2JS.C_SEMI = '=';
-    // EQU C_SQUOTE TO ">" ;* ' USED FOR STRINGS
-    Equates_JSB2JS.C_LESS = '?';
-    Equates_JSB2JS.C_GREAT = '@';
-    Equates_JSB2JS.C_QUESTION = 'A';
-    Equates_JSB2JS.C_COMMA = 'B';
-    Equates_JSB2JS.C_PERIOD = 'C';
-    Equates_JSB2JS.C_FSLASH = 'D';
-    Equates_JSB2JS.C_BAR = 'E';
-    Equates_JSB2JS.C_BSLASH = 'F';
-    Equates_JSB2JS.C_JSON = 'G';
 
-    Equates_JSB2JS.C_IDENT = 'I';
-    Equates_JSB2JS.C_CASE = 'J';
-    Equates_JSB2JS.C_ELSE = 'K';
-    Equates_JSB2JS.C_END = 'L';
-    Equates_JSB2JS.C_FROM = 'M';
-    Equates_JSB2JS.C_NEXT = 'N';
-    Equates_JSB2JS.C_OFF = 'O';
-    Equates_JSB2JS.C_ON = 'P';
-    Equates_JSB2JS.C_REPEAT = 'Q';
-    Equates_JSB2JS.C_THEN = 'R';
-    Equates_JSB2JS.C_TO = 'S';
-    Equates_JSB2JS.C_UNTIL = 'T';
-    Equates_JSB2JS.C_WHILE = 'U';
-    Equates_JSB2JS.C_OR = 'V';
-    Equates_JSB2JS.C_AND = 'W';
-    Equates_JSB2JS.C_MATCH = 'X';
-    Equates_JSB2JS.C_MATCHES = 'Y';
-    Equates_JSB2JS.C_CAT = 'Z';
-    Equates_JSB2JS.C_LT = '[';
-    Equates_JSB2JS.C_GT = '|';
-    Equates_JSB2JS.C_LE = ']';
-    Equates_JSB2JS.C_NE = '^';
-    Equates_JSB2JS.C_GE = '_';
-    Equates_JSB2JS.C_EQ = '`';
-    Equates_JSB2JS.C_STEP = 'a';
-    Equates_JSB2JS.C_BEFORE = 'b';
-    Equates_JSB2JS.C_SETTING = 'c';
-    Equates_JSB2JS.C_BY = 'd';
-    Equates_JSB2JS.C_LOCKED = 'e';
-    Equates_JSB2JS.C_GOTO = 'f';
-    Equates_JSB2JS.C_GOSUB = 'g';
-    Equates_JSB2JS.C_DO = 'h';
-    Equates_JSB2JS.C_MAT = 'i';
-    Equates_JSB2JS.C_DBLSLASH = 'j';
-    Equates_JSB2JS.C_ERROR = 'k';
-    Equates_JSB2JS.C_IN = 'l';
-    Equates_JSB2JS.C_CAPTURING = 'm';
-    Equates_JSB2JS.C_USING = 'n';
-    Equates_JSB2JS.C_WITH = 'o';
-    Equates_JSB2JS.C_LOOP = 'p';
-    Equates_JSB2JS.C_MOD = 'q';
-    Equates_JSB2JS.C_WHERE = 'r';
-    Equates_JSB2JS.C_DEFAULT = 's';
-    Equates_JSB2JS.C_CATCH = 't';
-    Equates_JSB2JS.C_CMTBLOCK = 'u';
 
     return true;
 }
@@ -5506,7 +5412,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
 // <PO_Sub>
 async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, ByRef_Serrcnt, setByRefValues) {
     var me = new jsbRoutine("JSB2JS", "po", "JSB2JS_PO_Sub");
-    me.localValue = function (varName) { return eval(varName) }
+    me.localValue = function (varName) { return me[varName] }
     // local variables
     var Socpgm, Outputtrycatch, Cname, Pdef, Rattr, Declaration;
     var Locallist, Hascommons, Localtypes, Id, _Typedef, Funcheader;
@@ -5519,7 +5425,7 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
         return v
     }
     await dbgCheck(me, 2, true /* modal */);
-    await Include_JSB2JS__Comms(false)
+    await Include_JSB2JS__Comms(true);
 
     // = = = = = jsonBasic compiler output = = = = =
 
@@ -5555,7 +5461,7 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
     }
 
     if (!Commons_JSB2JS.Subname) Commons_JSB2JS.Subname = Commons_JSB2JS.Itemid;
-    if (Commons_JSB2JS.Dontmorphfunctionname) {
+    if (Commons_JSB2JS.Dontmorphfunctionname || Commons_JSB2JS.Processingtemplates) {
         Cname = Commons_JSB2JS.Truesubname;
         ByRef_Appendage = '';
     } else {
@@ -5727,7 +5633,7 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
 
     if (Commons_JSB2JS.Adddebugging || CBool(Commons_JSB2JS.Insideclass)) {
         Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + Change(UCase(Commons_JSB2JS.Pcfname), '\\', '\\\\') + '", "' + CStr(Commons_JSB2JS.Itemid) + '", "' + CStr(Cname) + CStr(ByRef_Appendage) + '"); ';
-        if (Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) { Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'me.localValue = function (varName) { return eval(varName) }'; }
+        if (Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) { Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'me.localValue = function (varName) { return me[varName] }'; }
     }
 
     if (CBool(Locallist)) {
@@ -5850,14 +5756,15 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
     Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = '}';
     Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = '';
 
-    Src = Join(Hpfx, crlf) + crlf + Join(Commons_JSB2JS.Ocpgm, crlf);
+    Src = CStr(Commons_JSB2JS.Beforeheader) + Join(Hpfx, crlf) + crlf + Join(Commons_JSB2JS.Ocpgm, crlf);
+    if (Commons_JSB2JS.Processingtemplates) Src = Change(Src, '\<!!\>' + crlf, '');
 
     if (Commons_JSB2JS.Showlist) {
         Println();
         Println(Src);
     }
 
-    if (Null0(ByRef_Serrcnt) != Commons_JSB2JS.Errcnt) {
+    if (Null0(ByRef_Serrcnt) != Commons_JSB2JS.Errcnt && !Commons_JSB2JS.Processingtemplates) {
         Println(Chr(16), Commons_JSB2JS.Subname, ' had errors, no .js file written', Chr(16));
         return exit(undefined);
     }
@@ -5899,21 +5806,26 @@ async function JSB2JS_UPDATEJSCODE_Sub(ByRef_Src, ByRef_Fname, ByRef_Sname, ByRe
 
     Outputname = CStr(ByRef_Fname) + '.js';
     if (await JSB_ODB_READ(Linkjs, Commons_JSB2JS.D_Ffile, CStr(Outputname), function (_Linkjs) { Linkjs = _Linkjs })); else Linkjs = '';
-
-    Marker = '// \<' + UCase(ByRef_Sname) + CStr(ByRef_Appendage) + '\>';
-    Marker2 = '// \</' + UCase(ByRef_Sname) + CStr(ByRef_Appendage) + '\>';
-
-    I = InStr1(1, Linkjs, Marker);
-    if (CBool(I)) {
-        J = InStr1(1, Linkjs, Marker2);
-        if (Not(J)) I = 0;
-    }
-
-    if (CBool(I)) {
-        Commons_JSB2JS.Lineno = DCount(Left(Linkjs, I), am);
-        Linkjs = Left(Linkjs, +I - 1) + CStr(Marker) + am + CStr(ByRef_Src) + am + Mid1(Linkjs, J);
+    if (Commons_JSB2JS.Processingtemplates) {
+        if (Commons_JSB2JS.Firstone) Linkjs = ''; else Linkjs += am;
+        Linkjs += CStr(ByRef_Src) + am;
     } else {
-        Linkjs += am + CStr(Marker) + am + CStr(ByRef_Src) + am + CStr(Marker2) + am;
+
+        Marker = '// \<' + UCase(ByRef_Sname) + CStr(ByRef_Appendage) + '\>';
+        Marker2 = '// \</' + UCase(ByRef_Sname) + CStr(ByRef_Appendage) + '\>';
+
+        I = InStr1(1, Linkjs, Marker);
+        if (CBool(I)) {
+            J = InStr1(1, Linkjs, Marker2);
+            if (Not(J)) I = 0;
+        }
+
+        if (CBool(I)) {
+            Commons_JSB2JS.Lineno = DCount(Left(Linkjs, I), am);
+            Linkjs = Left(Linkjs, +I - 1) + CStr(Marker) + am + CStr(ByRef_Src) + am + Mid1(Linkjs, J);
+        } else {
+            Linkjs += am + CStr(Marker) + am + CStr(ByRef_Src) + am + CStr(Marker2) + am;
+        }
     }
 
     if (await JSB_ODB_WRITE(CStr(Linkjs), Commons_JSB2JS.D_Ffile, CStr(Outputname))); else return Stop(activeProcess.At_Errors);
