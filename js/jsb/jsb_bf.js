@@ -9094,7 +9094,8 @@ function jsbRootExecute(Urlcmdandparams, Jsstringescapeit) {
     Urlcmdandparams = Change(Urlcmdandparams, '+', '%20');
     var Rootpath = jsbRootAct(false);
     if (Right(Rootpath, 6) == '.html/') {
-        if (Left(Urlcmdandparams, 1) == '?') Rootpath = Left(Rootpath, Len(Rootpath) - 1);
+        if (Left(Urlcmdandparams, 1) != '?') Urlcmdandparams = '?' + Urlcmdandparams;
+        Rootpath = Left(Rootpath, Len(Rootpath) - 1);
         Rootpath += Urlcmdandparams;;
     } else if (Right(Rootpath, 1) == '/') {
         Rootpath += Urlcmdandparams;;
