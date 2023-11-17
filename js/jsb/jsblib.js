@@ -3759,8 +3759,9 @@ function callStack(jsbRoutinesOnly) {
         if (l == 'callStack') return;
 
         if (jsbRoutinesOnly) {
-            if (!l.startsWith("async ")) return;
-            l = l.substr(6);
+            if (l.startsWith("async ")) l = l.substr(6);
+            else if (l.endsWith("_Pgm")) l = l.substr(0, l.length - 4);
+            else return;
             if (l[0] != l[0].toUpperCase()) return;
         } else {
             if (l.startsWith("async ")) l.substr(6);
@@ -3843,10 +3844,12 @@ function System(n, fromJsbRoutine) {
             if (dotNetObj) return dotNetObj.dnoSystem(26); else return dropIfLeft(window.location.href, 'file:///');
 
         case 27: // Current FName
-            return Field(callStack(true)[1], ":", 2); // fromJsbRoutine._fileName
+            var p = callStack(true)[0];
+            return dropIfRight(p, "_");
 
         case 28: // Current IName
-            return Field(callStack(true)[1], ":", 2); // fromJsbRoutine._itemName
+            var p = callStack(true)[0];
+            return fieldIfRight(p, "_")
 
         case 29: // determine columns for given fhandle
 
@@ -3857,12 +3860,12 @@ function System(n, fromJsbRoutine) {
             return jsbRootAct()
 
         case 32: // parent's IName
-            var p = callStack(true)[1]; // [0] is System()
-            return dropIfRight(p, "_")
+            var p = callStack(true)[1]; 
+            return fieldIfRight(p, "_")
 
         case 33: // parent's FName
-            var p = callStack(true)[1]; // [0] is System()
-            return fieldIfRight(p, "_");
+            var p = callStack(true)[1]; 
+            return dropIfRight(p, "_");
 
         // case 34: // get auditLog (aspx)
 

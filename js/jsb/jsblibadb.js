@@ -21,7 +21,7 @@ var odbAttachedDB = 'A'
 
 var attachedOdbDB = null;     // Current attached database
 var validOpens = {}           // cache of sucessful odbOpens() by path
-var notValidOpens = {}        // cache of unsucessful odbOpens()
+// var notValidOpens = {}        // cache of unsucessful odbOpens()
 
 
 // File System Globals
@@ -756,7 +756,7 @@ function clearCaches() {
         itemAge: {}
     }
     validOpens = {}
-    notValidOpens = {}
+    // notValidOpens = {}
 }
 
 function cacheAdd(theCache, name, msdata) {
@@ -1110,11 +1110,11 @@ async function asyncCreateTable(dictData, tableName, callback_fHandle) {
     if (jsbFileType == odbJavaScriptInclude) { activeProcess.At_Errors = "Read only cache system"; return false; }
 
     validOpens[directoryPath] = fHandle;
-    delete notValidOpens[directoryPath];
+    // delete notValidOpens[directoryPath];
 
     if (InStr(directoryPath, ":") > 0) {
         directoryPath = dropLeft(directoryPath, ":")
-        delete notValidOpens[directoryPath];
+        // delete notValidOpens[directoryPath];
     }
 
     return exit(true);
@@ -1174,10 +1174,12 @@ async function asyncOpen(dictData, tableName, callback_fHandle) {
         return true;
     }
 
-    if (!odbCurrentDBName && notValidOpens[directoryPath]) {
-        activeProcess.At_Errors = notValidOpens[directoryPath]
-        return false;
-    }
+    var jsbFileType = getFileType(dictData, tableName, _tableName => tableName = _tableName)
+
+    //if (!odbCurrentDBName && notValidOpens[directoryPath]) {
+    //    activeProcess.At_Errors = notValidOpens[directoryPath]
+    //    return false;
+    //}
 
     // Do we have a javascript include item for this table?
     var cacheList = await asyncGetCacheList(directoryPath);
@@ -1249,7 +1251,7 @@ async function asyncOpen(dictData, tableName, callback_fHandle) {
 
         // attachedOdbDB success?
         if (successfulOpen) {
-            validOpens[directoryPath] = fHandle;
+            if (attachedOdbDB != odbJavaScriptInclude) validOpens[directoryPath] = fHandle;
             if (callback_fHandle) callback_fHandle(fHandle);
             return true;
         }
@@ -1314,13 +1316,14 @@ async function asyncOpen(dictData, tableName, callback_fHandle) {
 
         // This will change on a write
         fHandle = odbJavaScriptInclude + am + dictData + am + tableName;
-        validOpens[directoryPath] = fHandle;
+        // - force odbJavaScriptInclude to always try to open - may have changed from another window
+        // validOpens[directoryPath] = fHandle;
         if (callback_fHandle) callback_fHandle(fHandle);
         return true;
     }
 
     // Failed to open
-    if (Left(directoryPath, 1) != "/" && Left(directoryPath, 1) != ".") notValidOpens[directoryPath] = activeProcess.At_Errors
+    // if (Left(directoryPath, 1) != "/" && Left(directoryPath, 1) != ".") notValidOpens[directoryPath] = activeProcess.At_Errors
     return false;
 }
 
