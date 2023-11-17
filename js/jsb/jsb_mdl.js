@@ -3408,7 +3408,7 @@ async function JSB_MDL_EDITPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, Show
             Toolbar = CStr(Toolbar) + JSB_HTML_SUBMITBTN('formBtn', 'S', 'Save') + JSB_HTML_SUBMITBTN('formBtn', 'CC', 'Cancel') + JSB_HTML_SUBMITBTN('formBtn', 'D', 'Delete');
         } else {
             Toolbar = JSB_HTML_SUBMITBTN('formBtn', 'Q', 'Quit');
-            Toolbar = CStr(Toolbar) + JSB_HTML_SAVEBTN('formBtn', 'S', 'Save') + JSB_HTML_SUBMITBTN('formBtn', 'D', 'Delete') + JSB_HTML_SAVEBTN('formBtn', 'G', 'Generate');
+            Toolbar = (CStr(Toolbar) + JSB_HTML_SAVEBTN('formBtn', 'S', 'Save') + JSB_HTML_SAVEBTN('formBtn', 'SR', 'Save & Run') + JSB_HTML_SUBMITBTN('formBtn', 'D', 'Delete') + JSB_HTML_SAVEBTN('formBtn', 'G', 'Generate'));
         }
         Toolbar = CStr(Toolbar) + JSB_HTML_SAVEBTN('formBtn', 'C', 'Clone');
 
@@ -3464,17 +3464,18 @@ async function JSB_MDL_EDITPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, Show
 
                 break;
 
-            case 'S': case 'G':
+            case 'S': case 'G': case 'SR':
                 Print(clearScreen());
                 if (await JSB_ODB_WRITEJSON(Pagedataset, await JSB_BF_FHANDLE('dict', ByRef_Projectname), CStr(ByRef_Pagename) + '.page')); else return Stop(At(-1), 'Edp-', System(28), ': ', activeProcess.At_Errors);
                 await JSB_MDL_REGENPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, true);
+                if (Cmd == 'SR') {
+                    return At_Response.Redirect(jsbRootExecute(CStr(ByRef_Pagename)));
+                }
                 if (Cmd == 'S') {
                     if (CBool(Showbackbtn)) {
                         if (await JSB_ODB_ATTACHDB(CStr(Originaldb))); else null;
                         return exit(undefined);
                     }
-
-                    return At_Response.Redirect(jsbRootExecute(CStr(ByRef_Pagename)));
                 }
 
                 break;
