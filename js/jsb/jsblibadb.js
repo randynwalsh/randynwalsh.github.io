@@ -892,7 +892,7 @@ function jsbFHandleType(fHandle, callBack_newfHandle) {
 
     fHandle = validOpens[directoyPath];
     jsbFileType = Left(fHandle, 1);
-    if (!directoyPath || fHandle == odbJavaScriptInclude) return odbJavaScriptInclude;
+    if (!directoyPath || !jsbFileType || fHandle == odbJavaScriptInclude) return odbJavaScriptInclude;
     callBack_newfHandle(fHandle);
     return jsbFileType
 }
