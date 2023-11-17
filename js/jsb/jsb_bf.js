@@ -2765,7 +2765,7 @@ async function JSB_BF_DEBUGGER_Sub(Fromobj, Ilineno) {
 
         if (fromObj.localValue) {
             for (; ;) {
-                try { vo = fromObj.localValue(Name); if (typeOf(vo) != "Function") break; } catch (e) { };
+                try { vo = fromObj.localValue(Name); if (typeOf(vo) != "function") break; } catch (e) { };
                 try { vo = fromObj.localValue("_" + Name); break; } catch (e) { };
 
                 var myCommons = window['Commons_' + UCase(fromObj._fileName)]
