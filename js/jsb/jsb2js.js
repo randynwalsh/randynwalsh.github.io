@@ -4533,7 +4533,7 @@ async function Incfile(Ifilename, Iitemname) {
         Header[Header.length] = (Space(Commons_JSB2JS.Indent) + 'forceReset |= (typeof ' + CStr(Commonsname) + ' == "undefined") || (typeof ' + CStr(Equatesname) + ' == "undefined"); ');
         Header[Header.length] = Space(Commons_JSB2JS.Indent) + 'if (!forceReset) return; ';
         Header[Header.length] = '';
-        Header[Header.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + CStr(Ifilename) + '", "' + CStr(Ifilename) + '.js", "' + CStr(Includesubname) + '"); me.localValue = function (varName) { return me[varName] }; ';
+        Header[Header.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + CStr(Ifilename) + '", "' + CStr(Ifilename) + '.js", "' + CStr(Includesubname) + '"); me.localValue = function (varName) { return eval(varName) }; ';
         Header[Header.length] = Space(Commons_JSB2JS.Indent) + CStr(Commonsname) + ' = {}; ';
         Header[Header.length] = Space(Commons_JSB2JS.Indent) + CStr(Equatesname) + ' = {}; ';
         Header[Header.length] = '';
@@ -5748,7 +5748,7 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
 
     if (Commons_JSB2JS.Adddebugging || CBool(Commons_JSB2JS.Insideclass)) {
         Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + Change(UCase(Commons_JSB2JS.Pcfname), '\\', '\\\\') + '", "' + CStr(Commons_JSB2JS.Itemid) + '", "' + CStr(Cname) + CStr(ByRef_Appendage) + '"); ';
-        if (Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) { Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'me.localValue = function (varName) { return me[varName] }'; }
+        if (Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) { Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'me.localValue = function (varName) { return eval(varName)] }'; }
     }
 
     if (CBool(Locallist)) {
