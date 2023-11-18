@@ -10980,7 +10980,11 @@ async function Tcv(Inexpression) {
                         Commons_JSB2JS.Tkpos = 0;
                         Commons_JSB2JS.Tkstr = '';;
                     } else if (C2 == '\<' && Nc == '%') {
-                        await Err('Nested \<%');
+                        await Err2('Nested \<%');
+                        Commons_JSB2JS.Tkno = Equates_JSB2JS.C_SM;
+                        Commons_JSB2JS.Tkline = '';
+                        Commons_JSB2JS.Tkstr = '';
+                        Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
                         return;
                     }
 
