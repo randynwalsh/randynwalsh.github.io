@@ -10757,3 +10757,528 @@ async function JSB2JS_XREF_Pgm() {  // PROGRAM
     return;
 }
 // </XREF_Pgm>
+
+// <TCV>
+async function Tcv(Inexpression) {
+    // local variables
+    var Ec, J, Nc, L, Ll, Hstr;
+
+    await Include_JSB2JS__Comms(false)
+
+    var C2 = '';
+    var Pau = '';
+    var C3 = '';
+    var C = '';
+    var Lib = '';
+    var I = undefined;
+    var Epos = undefined;
+    var Cvt = undefined;
+    var Tkstrlen = undefined;
+    var Si = undefined;
+    var Cmts = [undefined,];
+
+    // Pre-Compile a BASIC program
+
+    if (Commons_JSB2JS.Tkno == Equates_JSB2JS.C_SM) return;
+
+    if (Commons_JSB2JS.Tkno == Equates_JSB2JS.C_AM) {
+        Commons_JSB2JS.Tkam++;
+        Commons_JSB2JS.Tkpos = 1;
+        if (Commons_JSB2JS.Tkam > UBound(Commons_JSB2JS.Itemsrc)) {
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_SM;
+            Commons_JSB2JS.Tkline = '';
+            Commons_JSB2JS.Tkstr = '';
+            Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+            return;
+        }
+        Commons_JSB2JS.Tkline = Commons_JSB2JS.Itemsrc[Commons_JSB2JS.Tkam];
+    }
+
+    Commons_JSB2JS.Tkstartpos = Commons_JSB2JS.Tkpos;
+
+    // SKIP WHITE SPACE
+
+    Commons_JSB2JS.Spaces = Commons_JSB2JS.Tkstartpos;
+
+    while (true) {
+        C = Seq(Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkstartpos, 1));
+        if (Not(Null0(C) == 32 || Null0(C) == 9 || Null0(C) == 8203)) break;
+        Commons_JSB2JS.Tkstartpos = +Commons_JSB2JS.Tkstartpos + 1;
+    }
+    Commons_JSB2JS.Spaces = +Commons_JSB2JS.Tkstartpos - Commons_JSB2JS.Spaces;
+
+    C = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkstartpos, 1);
+    if (!C) {
+        Commons_JSB2JS.Tkno = Equates_JSB2JS.C_AM;
+        Commons_JSB2JS.Tkstr = '';
+        Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+        return;
+    }
+
+    // CHECK FOR STRINGS
+
+    if (C == '\'' || C == '"' || C == '`') {
+        if (C == '`' || Commons_JSB2JS.Mr83) Ec = Chr(255); else Ec = '\\';
+        Commons_JSB2JS.Tkpos = Commons_JSB2JS.Tkstartpos;
+        Commons_JSB2JS.Tkstr = C;
+
+        do {
+            Commons_JSB2JS.Tkpos++;
+            I = InStr1(Commons_JSB2JS.Tkpos, Commons_JSB2JS.Tkline, C);
+            J = InStr1(Commons_JSB2JS.Tkpos, Commons_JSB2JS.Tkline, Ec);
+
+            if (I == 0) I = Len(Commons_JSB2JS.Tkline) + 1;
+            if (Null0(J) == '0') J = Len(Commons_JSB2JS.Tkline) + 1;
+            if (Null0(J) < I && !Commons_JSB2JS.Simplestrings) I = J;
+
+            Commons_JSB2JS.Tkstr += Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, I - Commons_JSB2JS.Tkpos);
+            Commons_JSB2JS.Tkpos = I;
+
+            C2 = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+            if (Null0(C2) == Null0(Ec)) {
+                Commons_JSB2JS.Tkpos++;
+                C2 += Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+            } else {
+                if (C2 == C) {
+                    Commons_JSB2JS.Tkstr += C2;
+                    break;
+                }
+            }
+
+            Commons_JSB2JS.Tkstr += C2;
+
+            // End of the line?
+            if (!C2) {
+                // Did we start with ' or "?
+                if (C != '`') {
+                    // If what preceeded the string was a CR, AM, ;, THEN, ELSE - it's a comment
+                    Si = +Commons_JSB2JS.Tkstartpos - 1;
+
+                    while (true) {
+                        if (Si <= 0) break;
+                        C2 = Mid1(Commons_JSB2JS.Tkline, Si, 1);
+                        if (C2 == ';') break;
+                        if (C2 == ')') break;
+                        if (C2 != ' ') {
+                            Commons_JSB2JS.Tkstr += C;
+                            if (CBool(Inexpression)) await Err('Missing string terminator: ' + C);
+                            break;
+                        }
+                        Si--;
+                    }
+                    break;
+                }
+
+                Commons_JSB2JS.Tkam++;
+                Commons_JSB2JS.Tkstr += Chr(13) + Chr(10);
+                if (Commons_JSB2JS.Tkam > UBound(Commons_JSB2JS.Itemsrc)) {
+                    await Err('Missing string terminator: ' + C);
+                    break;
+                }
+                Commons_JSB2JS.Tkline = Commons_JSB2JS.Itemsrc[Commons_JSB2JS.Tkam];
+                Commons_JSB2JS.Tkpos = 0;
+            }
+        }
+        while (1);
+
+        Commons_JSB2JS.Tkpos++;
+        Commons_JSB2JS.Tkno = Equates_JSB2JS.C_STR;
+        Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+        return;
+    }
+
+    // CHECK FOR SYMBOLS
+
+    // Changed $ to !, and _ to ! to allow identifiers to start with _ 
+    // !  $      !        ` " '  
+    Si = (Index1(Chr(253) + '!@#!%^&*()!+-={}~[]!:!;\'\<\>?,./|', C, 1));
+    if (Si) {
+        Commons_JSB2JS.Tkpos = +Commons_JSB2JS.Tkstartpos + 1;
+        Commons_JSB2JS.Tkstr = C;
+        Commons_JSB2JS.Tkno = Chr(Si + Seq(Equates_JSB2JS.C_VM) - 1);
+        Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+
+        // CHANGE != TO "<>"
+        if (C == '!') {
+            if (Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1) == '=') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Tkstr = '#';
+                Commons_JSB2JS.Tkno = Equates_JSB2JS.C_POUND;
+                Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+            }
+        } else if (C == '&') {
+            if (Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1) == '&') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Tkstr = 'AND';
+                Commons_JSB2JS.Tkno = Equates_JSB2JS.C_AND;
+                Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+            }
+        } else if (C == '|') {
+            if (Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1) == '|') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Tkstr = 'OR';
+                Commons_JSB2JS.Tkno = Equates_JSB2JS.C_OR;
+                Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+            }
+        } else if (C == '=') {
+            if (Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1) == '=') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+            }
+        } else if (C == '\<') {
+            if (Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1) == '%') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Tkstr = '\<%';
+
+
+                while (true) {
+                    C2 = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+                    Commons_JSB2JS.Tkstr += C2;
+                    Nc = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos + 1, 1);
+
+                    // End at */?
+                    if (C2 == '%' && Nc == '\>') {
+                        Cmts[Cmts.length] = Commons_JSB2JS.Tkstr + '\>';
+
+                        Commons_JSB2JS.Tkstr = Join(Cmts, crlf);
+                        Commons_JSB2JS.Tkpos += 2;
+
+                        if (CBool(Inexpression)) {
+                            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CMTBLOCK;
+                        } else {
+                            if (Not(Commons_JSB2JS.Hush)) {
+                                if (Trim(Commons_JSB2JS.Oc)) {
+                                    Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Commons_JSB2JS.Oc; Commons_JSB2JS.Oc = Space(Commons_JSB2JS.Indent);
+                                }
+
+                                L = UBound(Commons_JSB2JS.Ocpgm);
+                                Ll = Commons_JSB2JS.Ocpgm[L];
+                                if (Ll == '\<!!\>') {
+                                    Commons_JSB2JS.Ocpgm.delete(L);
+                                    L--;
+                                }
+
+                                L++;
+                                Commons_JSB2JS.Ocpgm[L] += Commons_JSB2JS.Tkstr;
+                                Commons_JSB2JS.Ocpgm[+L + 1] = '\<!!\>';
+                                await Tcv(false);
+                            }
+                        }
+                        return;;
+                    } else if (!C2) {
+                        Commons_JSB2JS.Tkam++;
+                        Cmts[Cmts.length] = Commons_JSB2JS.Tkstr;
+
+                        if (Commons_JSB2JS.Tkam > UBound(Commons_JSB2JS.Itemsrc)) {
+                            Commons_JSB2JS.Tkstr += Join(Cmts, crlf);
+                            break;
+                        }
+
+                        Commons_JSB2JS.Tkline = Commons_JSB2JS.Itemsrc[Commons_JSB2JS.Tkam];
+                        Commons_JSB2JS.Tkpos = 0;
+                        Commons_JSB2JS.Tkstr = '';;
+                    } else if (C2 == '\<' && Nc == '%') {
+                        await JSB2JS_ERR__Sub('Nested \<%');
+                    }
+
+                    Commons_JSB2JS.Tkpos++;
+                }
+            }
+        } else if (C == '/') {
+
+            // Comments?
+            C2 = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+            if (C2 == '/') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Tkstr = '//';
+                Commons_JSB2JS.Tkno = Equates_JSB2JS.C_DBLSLASH;;
+            } else if (C2 == '*') {
+                Commons_JSB2JS.Tkpos++;
+                Commons_JSB2JS.Tkstr = '/*';
+
+
+                while (true) {
+                    C2 = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+                    Commons_JSB2JS.Tkstr += C2;
+
+                    // End at */?
+                    if (C2 == '*' && Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos + 1, 1) == '/') {
+                        Commons_JSB2JS.Tkstr = Join(Cmts, crlf) + Commons_JSB2JS.Tkstr + '/';
+                        Commons_JSB2JS.Tkpos += 2;
+
+                        if (CBool(Inexpression)) {
+                            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CMTBLOCK;
+                        } else {
+                            Hstr = Commons_JSB2JS.Tkstr;
+                            await Tcv(false);
+                            Commons_JSB2JS.Tkstr = CStr(Hstr) + Commons_JSB2JS.Tkstr;
+                        }
+                        return;;
+                    } else if (!C2) {
+                        Commons_JSB2JS.Tkam++;
+                        Cmts[Cmts.length] = Commons_JSB2JS.Tkstr;
+
+                        if (Commons_JSB2JS.Tkam > UBound(Commons_JSB2JS.Itemsrc)) {
+                            Commons_JSB2JS.Tkstr += Join(Cmts, crlf);
+                            break;
+                        }
+
+                        Commons_JSB2JS.Tkline = Commons_JSB2JS.Itemsrc[Commons_JSB2JS.Tkam];
+                        Commons_JSB2JS.Tkpos = 0;
+                        Commons_JSB2JS.Tkstr = '';
+                    }
+
+                    Commons_JSB2JS.Tkpos++;
+                }
+
+                if (CBool(Inexpression)) {
+                    Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CMTBLOCK;
+                } else {
+                    Hstr = Commons_JSB2JS.Tkstr;
+                    await Tcv(false);
+                    Commons_JSB2JS.Tkstr = CStr(Hstr) + Commons_JSB2JS.Tkstr;
+                }
+            } else {
+                Commons_JSB2JS.Tkno = Equates_JSB2JS.C_FSLASH;
+            }
+        }
+
+        return;
+    }
+
+    // CHECK FOR NUMBERS
+
+    if (Index1(' 0123456789', C, 1) > 1) {
+        Commons_JSB2JS.Tkpos = Commons_JSB2JS.Tkstartpos;
+
+        do {
+            Commons_JSB2JS.Tkpos++;
+            C = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+        }
+        while (Index1(' 0123456789', C, 1) > 1 && C);
+
+        Commons_JSB2JS.Tkstr = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkstartpos, Commons_JSB2JS.Tkpos - +Commons_JSB2JS.Tkstartpos);
+        Commons_JSB2JS.Tkno = Equates_JSB2JS.C_NUMBER;
+        Commons_JSB2JS.Otkstr = Commons_JSB2JS.Tkstr;
+        return;
+    }
+
+    // MUST BE IDENTIFIER
+    Commons_JSB2JS.Tkpos = Commons_JSB2JS.Tkstartpos;
+
+    do {
+        Commons_JSB2JS.Tkpos++;
+        C = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+        if (C == '\<' && Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos + 1, 1) == '%') {
+
+            while (true) {
+                C2 = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+
+                // End at */?
+                if (C2 == '%' && Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos + 1, 1) == '\>') {
+                    Commons_JSB2JS.Tkpos += 2;
+                    C = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkpos, 1);
+                    break;
+                }
+
+                if (!C2) break;
+
+                Commons_JSB2JS.Tkpos++;
+            }
+        }
+
+    }
+    while (Not(Index1('@#*() +-=[]{}":;\<\>|,/' + '\'', C, 1) || !C || C == Commons_JSB2JS.Mobjectdelemeter));
+
+    Commons_JSB2JS.Otkstr = Mid1(Commons_JSB2JS.Tkline, Commons_JSB2JS.Tkstartpos, Commons_JSB2JS.Tkpos - +Commons_JSB2JS.Tkstartpos);
+    if (Mid1(Commons_JSB2JS.Otkstr, 1, 1) == '\\') {
+        Commons_JSB2JS.Otkstr = Mid1(Commons_JSB2JS.Otkstr, 2);
+        Commons_JSB2JS.Tkstr = Commons_JSB2JS.Otkstr;
+    } else {
+        Commons_JSB2JS.Tkstr = Commons_JSB2JS.Otkstr;
+        Commons_JSB2JS.Tkstr = UCase(Commons_JSB2JS.Tkstr);
+    }
+
+    Commons_JSB2JS.Tkno = Equates_JSB2JS.C_IDENT;
+
+    switch (true) {
+        case Commons_JSB2JS.Tkstr == 'CASE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CASE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'ELSE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_ELSE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'END':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_END;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'ENDIF':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_END;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'MOD':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_MOD;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'FROM':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_FROM;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'NEXT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_NEXT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'OFF':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_OFF;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'ON':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_ON;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'REPEAT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_REPEAT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'THEN':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_THEN;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'TO':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_TO;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'UNTIL':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_UNTIL;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'WHILE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_WHILE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'OR':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_OR;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'AND':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_AND;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'MATCH':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_MATCH;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'MATCHES':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_MATCHES;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'CAT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CAT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'LT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_LT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'GT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_GT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'LE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_LE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'NE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_NE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'GE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_GE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'EQ':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_EQ;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'STEP':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_STEP;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'BEFORE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_BEFORE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'SETTING':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_SETTING;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'BY':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_BY;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'LOCKED':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_LOCKED;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'GOTO':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_GOTO;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'GO':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_GOTO;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'GOSUB':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_GOSUB;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'DO':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_DO;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'LOOP':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_LOOP;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'MAT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_MAT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'ERROR':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_ERROR;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'IN':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_IN;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'CAPTURING':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CAPTURING;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'USING':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_USING;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'WITH':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_WITH;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'WHERE':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_WHERE;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'DEFAULT':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_DEFAULT;
+            break;
+
+        case Commons_JSB2JS.Tkstr == 'CATCH':
+            Commons_JSB2JS.Tkno = Equates_JSB2JS.C_CATCH;
+    }
+    return;
+
+    // ********************************************************************************************************************
+}
+// </TCV>
