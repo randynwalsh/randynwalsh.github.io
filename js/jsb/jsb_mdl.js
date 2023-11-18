@@ -4886,7 +4886,7 @@ async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilen
     await asyncTclExecute('Basic TMP ' + CStr(Codename), _capturedData => ByRef_Compileresults = _capturedData)
     ByRef_Compileresults = 'Generating ' + CStr(ByRef_Projectname) + ' ' + CStr(ByRef_Objectname) + crlf + Change(ByRef_Compileresults, am, crlf);
 
-    if (InStr1(1, ByRef_Compileresults, '^') || InStr1(1, ByRef_Compileresults, 'You must be an administrator')) {
+    if (InStr1(1, ByRef_Compileresults, '^') || InStr1(1, ByRef_Compileresults, '|') || InStr1(1, ByRef_Compileresults, 'You must be an administrator')) {
         ByRef_Compileresults = 'Compiler error: Basic TMP ' + CStr(Codename) + crlf + CStr(ByRef_Compileresults) + crlf;
         ByRef_Compileresults += anchorEdit(CStr(Templatefilename), CStr(Templatename));
         return exit(false);
@@ -8162,13 +8162,13 @@ async function JSB_MDL_PROCESSSHEET(ByRef_Settings, ByRef_Sheetname, setByRefVal
 // </PROCESSSHEET>
 
 // <PROCESSTEMPLATE_Sub>
-async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef__Code, Templatefilename, Templatename, Template, setByRefValues) {
+async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef_Code, Templatefilename, Templatename, Template, setByRefValues) {
     // local variables
     var Originaltemplate, I, S, E, Upto, Section, After, Ifile;
     var Iitem, Ffile, Itemplate, Lno, Lno2, Ot;
 
     function exit(v) {
-        if (typeof setByRefValues == 'function') setByRefValues(ByRef__Code)
+        if (typeof setByRefValues == 'function') setByRefValues(ByRef_Code)
         return v
     }
     // %options aspxC-
@@ -8193,22 +8193,26 @@ async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef__Code, Templatefilename, Templa
         After = Mid1(Template, +E + 2);
         Ifile = '';
 
-        ByRef__Code[ByRef__Code.length] = 'Gen[-1] = `' + CStr(Upto) + '`';
+        ByRef_Code[ByRef_Code.length] = 'Gen[-1] = `' + CStr(Upto) + '`';
         if (Left(Section, 1) == '=') {
-            ByRef__Code[ByRef__Code.length] = 'Gen[-1] = ' + Mid1(Section, 2);
+            ByRef_Code[ByRef_Code.length] = 'Gen[-1] = ' + Mid1(Section, 2);
         } else if (LCase(Left(LTrim(Section), 8)) == '$include') {
             Section = Trim(Section);
             Ifile = Field(Section, ' ', 2);
             Iitem = Field(Section, ' ', 3);
             if (Not(Iitem)) { Iitem = Ifile; Ifile = Templatefilename; }
             if (await JSB_ODB_OPEN('', CStr(Ifile), Ffile, function (_Ffile) { Ffile = _Ffile })); else Alert('You\'re include file ' + CStr(Ifile) + ' wasn\'t found.');
-            if (await JSB_ODB_READ(Itemplate, Ffile, CStr(Iitem), function (_Itemplate) { Itemplate = _Itemplate })); else Alert('You\'re include item ' + CStr(Iitem) + ' wasn\'t found.');
+            if (await JSB_ODB_READ(Itemplate, Ffile, CStr(Iitem), function (_Itemplate) { Itemplate = _Itemplate })); else {
+                if (await JSB_ODB_READ(Itemplate, Ffile, dropIfRight(CStr(Iitem), '.'), function (_Itemplate) { Itemplate = _Itemplate })); else {
+                    Alert('You\'re include item ' + CStr(Iitem) + ' wasn\'t found.');
+                }
+            }
             if (InStr1(1, Itemplate, '`')) Alert('Your template ' + CStr(Iitem) + ' is using the ` character.  You need change this.');
             // NewCode = []
-            await JSB_MDL_PROCESSTEMPLATE_Sub(ByRef__Code, Ifile, Iitem, Itemplate, function (_ByRef__Code) { ByRef__Code = _ByRef__Code });
+            await JSB_MDL_PROCESSTEMPLATE_Sub(ByRef_Code, Ifile, Iitem, Itemplate, function (_ByRef_Code) { ByRef_Code = _ByRef_Code });
             if (Left(After, 1) == am) After = Mid1(After, 2);
         } else {
-            ByRef__Code[ByRef__Code.length] = Section;
+            ByRef_Code[ByRef_Code.length] = Section;
         }
 
         Lno += Count(Upto, am);
@@ -8222,7 +8226,7 @@ async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef__Code, Templatefilename, Templa
             if (Right(Upto, 1) == am) Template = After;
         }
     }
-    if (CBool(Template)) ByRef__Code[ByRef__Code.length] = 'Gen[-1] = `' + CStr(Template) + '`';
+    if (CBool(Template)) ByRef_Code[ByRef_Code.length] = 'Gen[-1] = `' + CStr(Template) + '`';
 
     if (CBool(S) || CBool(E)) {
         // If S Then LNo2 = DCount(Left(Template, S), AM())  
@@ -8240,8 +8244,8 @@ async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef__Code, Templatefilename, Templa
 
         Println(At(-1), 'Ending marker missing in template ', Templatefilename, ' ', Templatename, ' at line number ', Lno);
         Println();
-        var _ForEndI_14 = +Lno2;
-        for (I = +Lno; I <= _ForEndI_14; I++) {
+        var _ForEndI_15 = +Lno2;
+        for (I = +Lno; I <= _ForEndI_15; I++) {
             if (Null0(I) > '0') Println(I, ' ', Change(Change(Extract(Originaltemplate, I, 0, 0), '\<%', bold('\<%')), '%\>', bold('%\>')));
         }
 
