@@ -5398,8 +5398,10 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
                 await JSB2JS_BASECONV_Sub(Commons_JSB2JS.Pcfname, Commons_JSB2JS.Itemid); // Inits Tkline, Tkam, Tkpos, Tkno, Lineno
 
                 if (Not(Commons_JSB2JS.Itemsrc)) {
-                    Println('Item ', Commons_JSB2JS.Itemid, ' not found.');
-                    continue;
+                    await Err2('Item ' + Commons_JSB2JS.Itemid + ' not found.');
+                    Commons_JSB2JS.Tkam = 99999;
+                    Commons_JSB2JS.Tkno = Equates_JSB2JS.C_SM;
+                    break;
                 }
 
                 Orginalsrccnt = UBound(Commons_JSB2JS.Itemsrc);
