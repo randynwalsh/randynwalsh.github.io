@@ -4794,8 +4794,8 @@ async function JSB_MDL_FULLLINECOLUMN_Sub(ByRef_Projectname, ByRef_Pagename, ByR
 // <GENERATECODEFROMTEMPLATE>
 async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilename, ByRef_Parentobjectname, ByRef_Parentobject, ByRef_Objectname, ByRef_Results, ByRef_Compileresults, Nomodelingstuff, setByRefValues) {
     // local variables
-    var Objectmodel, Templatename, Template, Templatejson, Templatefield;
-    var _Code, Codename, Errors;
+    var Objectmodel, Templatename, _Language, Template, Templatejson;
+    var Templatefield, _Code, Codename, Errors;
 
     function exit(v) {
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Projectname, ByRef_Parentobjectname, ByRef_Parentobject, ByRef_Objectname, ByRef_Results, ByRef_Compileresults)
@@ -4823,10 +4823,20 @@ async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilen
         return exit(false);
     }
 
-    if (await JSB_ODB_READ(Template, await JSB_BF_FHANDLE(CStr(Templatefilename)), CStr(Templatename), function (_Template) { Template = _Template })); else {
-        ByRef_Compileresults = '^GenerateCodeFromTemplate: Your \'' + CStr(ByRef_Objectname) + '\' has an unknown template reference: \'' + CStr(Templatename) + '\' from fHandle(' + CStr(Templatefilename) + ')';
-        if (CBool(ByRef_Parentobject)) ByRef_Compileresults += 'This is coming from an embedded template ' + CStr(ByRef_Parentobject.templateName);
-        return exit(false);
+    _Language = Objectmodel.language;
+    if (Not(_Language) && CBool(ByRef_Parentobject.language)) _Language = ByRef_Parentobject.language;
+    Template = '';
+    if (CBool(_Language)) {
+        if (await JSB_ODB_READ(Template, await JSB_BF_FHANDLE(CStr(Templatefilename)), CStr(Templatename) + '.' + CStr(_Language), function (_Template) { Template = _Template })); else Template = '';
+    }
+
+    if (Not(Template)) {
+        if (await JSB_ODB_READ(Template, await JSB_BF_FHANDLE(CStr(Templatefilename)), CStr(Templatename), function (_Template) { Template = _Template })); else {
+            ByRef_Compileresults = '^GenerateCodeFromTemplate: Your \'' + CStr(ByRef_Objectname) + '\' has an unknown template reference: \'' + CStr(Templatename) + '\' from fHandle(' + CStr(Templatefilename) + ')';
+            Print(); debugger;
+            if (CBool(ByRef_Parentobject)) ByRef_Compileresults += 'This is coming from an embedded template ' + CStr(ByRef_Parentobject.templateName);
+            return exit(false);
+        }
     }
 
     Templatejson = Field(Template, '******************************************************************************', 1, true);
