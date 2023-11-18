@@ -3632,7 +3632,7 @@ async function Makestr(Suggest_Type, Gattr) {
 // <OPTIONS>
 async function Options() {
     var me = new jsbRoutine("JSB2JS", "options", "Options");
-    me.localValue = function (varName) { return me[varName] }
+    me.localValue = function (varName) { return eval(varName) }
     // local variables
     var Forme, Notforme, Gotsomething, Ntkstr, Exitdo, Ocpgms;
     var Casesen, Holdhush, Hasexternalprefix, Optionsinternal;
@@ -4588,7 +4588,7 @@ async function Incfile(Ifilename, Iitemname) {
 // <SKIPRESTOFLINE>
 async function Skiprestofline() {
     var me = new jsbRoutine("JSB2JS", "PARSEPROGRAM", "Skiprestofline");
-    me.localValue = function (varName) { return me[varName] }
+    me.localValue = function (varName) { return eval(varName) }
     // local variables
     var Restofline;
 
@@ -5054,7 +5054,7 @@ async function Include_JSB2JS__Comms(forceReset) {
     forceReset |= (typeof Commons_JSB2JS == "undefined") || (typeof Equates_JSB2JS == "undefined");
     if (!forceReset) return;
 
-    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return me[varName] };
+    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return eval(varName) };
     Commons_JSB2JS = {};
     Equates_JSB2JS = {};
     // AM is expanded inline as Chr(254);// VM is expanded inline as Chr(253);// SVM is expanded inline as Chr(252);
@@ -5527,7 +5527,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
 // <PO_Sub>
 async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, ByRef_Serrcnt, setByRefValues) {
     var me = new jsbRoutine("JSB2JS", "po", "JSB2JS_PO_Sub");
-    me.localValue = function (varName) { return me[varName] }
+    me.localValue = function (varName) { return eval(varName) }
     // local variables
     var Socpgm, Outputtrycatch, Cname, Pdef, Rattr, Declaration;
     var Locallist, Hascommons, Localtypes, Id, _Typedef, Funcheader;
@@ -5748,7 +5748,7 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
 
     if (Commons_JSB2JS.Adddebugging || CBool(Commons_JSB2JS.Insideclass)) {
         Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'var me = new jsbRoutine("' + Change(UCase(Commons_JSB2JS.Pcfname), '\\', '\\\\') + '", "' + CStr(Commons_JSB2JS.Itemid) + '", "' + CStr(Cname) + CStr(ByRef_Appendage) + '"); ';
-        if (Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) { Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'me.localValue = function (varName) { return eval(varName)] }'; }
+        if (Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) { Hpfx[Hpfx.length] = Space(Commons_JSB2JS.Indent) + 'me.localValue = function (varName) { return eval(varName) }'; }
     }
 
     if (CBool(Locallist)) {
@@ -6399,7 +6399,7 @@ async function stmThenBlock(Lb) {
 // <STMSTATEMENT>
 async function stmStatement(Lb) {
     var me = new jsbRoutine("JSB2JS", "STATES", "stmStatement");
-    me.localValue = function (varName) { return me[varName] }
+    me.localValue = function (varName) { return eval(varName) }
     // local variables
     var Breakcase, Hardstuff, Cmt, Cmd, Ud7, Nextc, Ptkno, Fl;
     var Htk, Begincase, Postpgm, Breaklbl, Holdocpgm, Sellbl, Aexpr;
