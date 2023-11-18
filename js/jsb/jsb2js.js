@@ -22,7 +22,7 @@ async function Assment() {
         Op = Commons_JSB2JS.Tkstr;
         await Restoret(R);
         Pattr = await Atom(Vattr.SYM_TYPE, Equates_JSB2JS.C_EQUAL + Equates_JSB2JS.C_PLUS + Equates_JSB2JS.C_MINUS + Equates_JSB2JS.C_LESS + Equates_JSB2JS.C_FSLASH + Equates_JSB2JS.C_ASTERISK + Equates_JSB2JS.C_PERCENT + Equates_JSB2JS.C_COLON);
-        if (Null0(Op) == Null0(Commons_JSB2JS.Tkstr)) await Tcv(false); else Err('error');
+        if (Null0(Op) == Null0(Commons_JSB2JS.Tkstr)) await Tcv(false); else await Err('error');
     } else {
         Op = '';
     }
@@ -5054,7 +5054,7 @@ async function Include_JSB2JS__Comms(forceReset) {
     forceReset |= (typeof Commons_JSB2JS == "undefined") || (typeof Equates_JSB2JS == "undefined");
     if (!forceReset) return;
 
-    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return eval(varName) };
+    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return me[varName] };
     Commons_JSB2JS = {};
     Equates_JSB2JS = {};
     // AM is expanded inline as Chr(254);// VM is expanded inline as Chr(253);// SVM is expanded inline as Chr(252);
@@ -10980,7 +10980,7 @@ async function Tcv(Inexpression) {
                         Commons_JSB2JS.Tkpos = 0;
                         Commons_JSB2JS.Tkstr = '';;
                     } else if (C2 == '\<' && Nc == '%') {
-                        await JSB2JS_ERR__Sub('Nested \<%');
+                        await Err('Nested \<%');
                     }
 
                     Commons_JSB2JS.Tkpos++;
