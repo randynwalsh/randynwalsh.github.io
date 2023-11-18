@@ -4170,13 +4170,12 @@ async function JSB_MDL_EDP_Pgm() {  // PROGRAM
 
     if (CBool(Frompage)) return At_Response.Redirect(Frompage);
 
-    At_Response.buffer(B);
-
     if (Pagename != Chr(27) && !isEmpty(Pagename)) {
         if (hasParentProcess()) {
             if (await JSB_BF_MSGBOX('Launch page', CStr(Pagename), '*Yes,No') != 'Yes') return;
         }
 
+        At_Response.buffer(B);
         return At_Response.Redirect(jsbRootExecute(CStr(Pagename)));
     }
 
