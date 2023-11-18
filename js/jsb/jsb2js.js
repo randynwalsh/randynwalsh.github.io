@@ -10981,6 +10981,7 @@ async function Tcv(Inexpression) {
                         Commons_JSB2JS.Tkstr = '';;
                     } else if (C2 == '\<' && Nc == '%') {
                         await Err('Nested \<%');
+                        return;
                     }
 
                     Commons_JSB2JS.Tkpos++;
