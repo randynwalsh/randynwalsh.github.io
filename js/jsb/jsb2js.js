@@ -4009,7 +4009,9 @@ async function Parseprogram() {
         await Tcv(false);
         if (Commons_JSB2JS.Tkstr != 'FUNCTION') await Err('FUNCTION EXPECTED');
         Commons_JSB2JS.Tkstr = 'PROGRAM';
-        Endclause = 'END FUN';
+        Endclause = 'END FUN';;
+    } else if (Commons_JSB2JS.Tkstr == 'ASYNC') {
+        await Tcv(false);
     }
 
     Subtype = Commons_JSB2JS.Tkstr;
@@ -4561,8 +4563,8 @@ async function Incfile(Ifilename, Iitemname) {
         Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = '';
     } else {
         Holdpgm[Holdpgm.length] = '    // Include ' + CStr(Ifilename) + ' ' + CStr(Iitemname);
-        var _ForEndI_86 = UBound(Commons_JSB2JS.Ocpgm);
-        for (I = 1; I <= _ForEndI_86; I++) {
+        var _ForEndI_87 = UBound(Commons_JSB2JS.Ocpgm);
+        for (I = 1; I <= _ForEndI_87; I++) {
             Holdpgm[Holdpgm.length] = Commons_JSB2JS.Ocpgm[I];
         }
         Commons_JSB2JS.Ocpgm = Holdpgm;
@@ -4588,11 +4590,11 @@ async function Incfile(Ifilename, Iitemname) {
 // <SKIPRESTOFLINE>
 async function Skiprestofline() {
     var me = new jsbRoutine("JSB2JS", "PARSEPROGRAM", "Skiprestofline");
-    me.localValue = function (varName) { return eval(varName) }
+    me.localValue = function (varName) { return me[varName] }
     // local variables
     var Restofline;
 
-    await dbgCheck(me, 621, true /* modal */);
+    await dbgCheck(me, 623, true /* modal */);
     await Include_JSB2JS__Comms(false)
 
     if (Commons_JSB2JS.Tkpos != 99999) {
@@ -4608,7 +4610,7 @@ async function Skiprestofline() {
         if (Trim(Commons_JSB2JS.Oc) && Not(Commons_JSB2JS.Hush)) Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Commons_JSB2JS.Oc;
         Commons_JSB2JS.Oc = Space(Commons_JSB2JS.Indent);
 
-        if (Commons_JSB2JS._Incfile == 0 && Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction) {
+        if (Commons_JSB2JS._Incfile == 0 && Commons_JSB2JS.Adddebugging && !Commons_JSB2JS.Notasyncfunction && Commons_JSB2JS.Subname) {
             Commons_JSB2JS.Ocpgm[Commons_JSB2JS.Ocpgm.length] = Space(Commons_JSB2JS.Indent) + 'await dbgCheck(me, ' + CStr(Commons_JSB2JS.Tkam + 1) + '); '; // Tkam+1 Because this Is Preceeding The Next Line;
         }
 
@@ -4626,8 +4628,8 @@ async function Findendofsub(Src, Startlineno) {
     await Include_JSB2JS__Comms(false)
 
     Srca = Split(UCase(Src), Chr(254));
-    var _ForEndI_94 = UBound(Srca);
-    for (Linei = +Startlineno + 1; Linei <= _ForEndI_94; Linei++) {
+    var _ForEndI_95 = UBound(Srca);
+    for (Linei = +Startlineno + 1; Linei <= _ForEndI_95; Linei++) {
         Line = Srca[Linei];
         if (Left(Line, 1) == ' ') Line = Mid1(Line, 2);
         F1 = Field(Line, ' ', 1);
@@ -5054,7 +5056,7 @@ async function Include_JSB2JS__Comms(forceReset) {
     forceReset |= (typeof Commons_JSB2JS == "undefined") || (typeof Equates_JSB2JS == "undefined");
     if (!forceReset) return;
 
-    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return me[varName] };
+    var me = new jsbRoutine("jsb2js", "jsb2js.js", "Include_JSB2JS__Comms"); me.localValue = function (varName) { return eval(varName) };
     Commons_JSB2JS = {};
     Equates_JSB2JS = {};
     // AM is expanded inline as Chr(254);// VM is expanded inline as Chr(253);// SVM is expanded inline as Chr(252);
@@ -5411,13 +5413,11 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
             await SkipOverComments(true);
             if (Commons_JSB2JS.Tkno == Equates_JSB2JS.C_SM) break;
 
-            if (Not(Commons_JSB2JS.Firstone == 1 || Commons_JSB2JS.Tkstr == 'SUBROUTINE' || Commons_JSB2JS.Tkstr == 'SUB' || Commons_JSB2JS.Tkstr == 'FUNCTION' || Commons_JSB2JS.Tkstr == 'PROGRAM' || Commons_JSB2JS.Tkstr == 'GLOBALS' || Commons_JSB2JS.Tkstr == 'COMMONS' || Commons_JSB2JS.Tkstr == 'CLASS' || Commons_JSB2JS.Tkstr == 'PARTIAL' || Commons_JSB2JS.Tkstr == 'RESTFUL' || Commons_JSB2JS.Tkstr == 'PICK')) break;
+            if (Not(Commons_JSB2JS.Firstone == 1 || Commons_JSB2JS.Tkstr == 'SUBROUTINE' || Commons_JSB2JS.Tkstr == 'SUB' || Commons_JSB2JS.Tkstr == 'FUNCTION' || Commons_JSB2JS.Tkstr == 'PROGRAM' || Commons_JSB2JS.Tkstr == 'GLOBALS' || Commons_JSB2JS.Tkstr == 'COMMONS' || Commons_JSB2JS.Tkstr == 'CLASS' || Commons_JSB2JS.Tkstr == 'PARTIAL' || Commons_JSB2JS.Tkstr == 'RESTFUL' || Commons_JSB2JS.Tkstr == 'PICK' || Commons_JSB2JS.Tkstr == 'ASYNC')) break;
             if (Commons_JSB2JS.Mr83) Commons_JSB2JS.Mobjectdelemeter = ('|'); else Commons_JSB2JS.Mobjectdelemeter = '.';
             if (Commons_JSB2JS.Mr83) Commons_JSB2JS.Simplestrings = true; else Commons_JSB2JS.Simplestrings = false;
 
-            if (!Commons_JSB2JS.Firstone) {
-                Commons_JSB2JS.Subname = ''; // Should Get From Subroutine Header;
-            }
+            Commons_JSB2JS.Subname = ''; // Should Get From Subroutine Header
 
             if (Commons_JSB2JS.Tkstr == 'CLASS') {
                 Commons_JSB2JS.Insideclass = true;
@@ -5493,7 +5493,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
             Commons_JSB2JS.Firstone = 0;
         }
 
-        if (Commons_JSB2JS.Tkno != Equates_JSB2JS.C_SM && Commons_JSB2JS.Tkstr != 'SUBROUTINE' && Commons_JSB2JS.Tkstr != 'SUB' && Commons_JSB2JS.Tkstr != 'FUNCTION' && Commons_JSB2JS.Tkstr != 'FUNC' && Commons_JSB2JS.Tkstr != 'PROGRAM' && Commons_JSB2JS.Tkstr != 'GLOBALS' && Commons_JSB2JS.Tkstr != 'COMMONS' && Commons_JSB2JS.Tkstr != 'COMMON' && Commons_JSB2JS.Tkstr != 'RESTFUL' && Commons_JSB2JS.Tkstr != 'PICK') {
+        if (Commons_JSB2JS.Tkno != Equates_JSB2JS.C_SM && Commons_JSB2JS.Tkstr != 'SUBROUTINE' && Commons_JSB2JS.Tkstr != 'SUB' && Commons_JSB2JS.Tkstr != 'FUNCTION' && Commons_JSB2JS.Tkstr != 'FUNC' && Commons_JSB2JS.Tkstr != 'PROGRAM' && Commons_JSB2JS.Tkstr != 'GLOBALS' && Commons_JSB2JS.Tkstr != 'COMMONS' && Commons_JSB2JS.Tkstr != 'COMMON' && Commons_JSB2JS.Tkstr != 'RESTFUL' && Commons_JSB2JS.Tkstr != 'PICK' && Commons_JSB2JS.Tkstr != 'ASYNC') {
             await Warning('Unknown code, end of code or another routine expected. ' + CStr(Commons_JSB2JS.Tkstr) + crlf + Commons_JSB2JS.Tkline);
         }
 
@@ -5529,7 +5529,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
 // <PO_Sub>
 async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, ByRef_Serrcnt, setByRefValues) {
     var me = new jsbRoutine("JSB2JS", "po", "JSB2JS_PO_Sub");
-    me.localValue = function (varName) { return eval(varName) }
+    me.localValue = function (varName) { return me[varName] }
     // local variables
     var Socpgm, Outputtrycatch, Cname, Pdef, Rattr, Declaration;
     var Locallist, Hascommons, Localtypes, Id, _Typedef, Funcheader;
