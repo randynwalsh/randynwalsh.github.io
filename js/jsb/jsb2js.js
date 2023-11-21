@@ -5390,6 +5390,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
             Commons_JSB2JS.Errpos = 0;
             await ResetGlobalOpts();
             Commons_JSB2JS.Symtab = {};
+            Commons_JSB2JS.Subname = '';
 
             if (Commons_JSB2JS.Firstone) {
                 Commons_JSB2JS._Incfile = 0;
@@ -5416,8 +5417,6 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
             if (Not(Commons_JSB2JS.Firstone == 1 || Commons_JSB2JS.Tkstr == 'SUBROUTINE' || Commons_JSB2JS.Tkstr == 'SUB' || Commons_JSB2JS.Tkstr == 'FUNCTION' || Commons_JSB2JS.Tkstr == 'PROGRAM' || Commons_JSB2JS.Tkstr == 'GLOBALS' || Commons_JSB2JS.Tkstr == 'COMMONS' || Commons_JSB2JS.Tkstr == 'CLASS' || Commons_JSB2JS.Tkstr == 'PARTIAL' || Commons_JSB2JS.Tkstr == 'RESTFUL' || Commons_JSB2JS.Tkstr == 'PICK' || Commons_JSB2JS.Tkstr == 'ASYNC')) break;
             if (Commons_JSB2JS.Mr83) Commons_JSB2JS.Mobjectdelemeter = ('|'); else Commons_JSB2JS.Mobjectdelemeter = '.';
             if (Commons_JSB2JS.Mr83) Commons_JSB2JS.Simplestrings = true; else Commons_JSB2JS.Simplestrings = false;
-
-            Commons_JSB2JS.Subname = ''; // Should Get From Subroutine Header
 
             if (Commons_JSB2JS.Tkstr == 'CLASS') {
                 Commons_JSB2JS.Insideclass = true;
