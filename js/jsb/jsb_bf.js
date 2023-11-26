@@ -15793,6 +15793,8 @@ async function JSB_BF_TRUEFILENAME(Fname) {
             if (Right(Tf, 1) != '/') Tf += '/';
             return Ddata + Field(Tf, '/', Count(Tf, '/'));
         }
+
+        if (Not(Tf)) Tf = Fname;
         return Ddata + Tf;
     }
 
@@ -17317,3 +17319,194 @@ async function JSB_BF_DBTABLESCHEMA(Databasename, Filename) {
 
 }
 // </DBTABLESCHEMA>
+
+// <FORMATCODEJS>
+function JSB_BF_FORMATCODEJS(Code, Indentation, Showprogress) {
+    // local variables
+    var Ni, Am, Item, Line1, C255, Ts, Smarkers, Inscriptblock;
+    var Linei, Sline, Ci, Multilinestring, Checklbl, Lbl, Lbli;
+    var J, T, Nsline, Llen, C, Je, Smi, Dropstart, Nc, Tline, Ui;
+    var Spcs, Dc;
+
+    if (Indentation === undefined) Indentation = 4;
+    Ni = 0;
+    Am = Chr(254);
+
+    Code = Change(Code, Chr(9), ' ');
+    Code = Change(Code, crlf, Am);
+    Item = Split(Code, Am);
+    if (UBound(Item) > 10000) return Item;
+    Line1 = Item[1];
+    if (Left(LTrim(Line1), 1) == '{') return Item;
+
+    C255 = Chr(255);
+    Ts = Timer() + 10000;
+    Smarkers = '"\'' + '`';
+    Inscriptblock = 0;
+
+    var _ForEndI_4 = UBound(Item);
+    for (Linei = 1; Linei <= _ForEndI_4; Linei++) {
+        if (CBool(Showprogress)) Print('*');
+        Sline = Item[Linei];
+        Ci = Ni;
+        Multilinestring = false;
+        Checklbl = Mid1(Sline, 1, 1) != ' ';
+        Sline = LTrim(Sline);
+        Lbl = '';
+
+        // Ignore anything starting with a comment marker
+        if (Mid1(Sline, 1, 2) == '//') {
+            // Line starts with a comment
+            // If comment at BOL, leave it there, else put it at correct indentation
+            if (Not(Checklbl)) Item[Linei] = Space(Ci) + CStr(Sline);
+        } else {
+            // Remove labels, will put them back later
+            if (CBool(Checklbl)) {
+                Lbli = Index1(Sline, ':', 1);
+
+                // Find first thing that isn't part of a label (default to eol)
+                J = Len(Sline) + 1;
+                T = Index1(Sline, ' ', 1);
+                if (Null0(T) < Null0(J) && Null0(T) > '0') J = Index1(Sline, ' ', 1);
+                T = Index1(Sline, '*', 1);
+                if (Null0(T) < Null0(J) && Null0(T) > '0') J = Index1(Sline, '*', 1);
+                T = Index1(Sline, '=', 1);
+                if (Null0(T) < Null0(J) && Null0(T) > '0') J = Index1(Sline, '=', 1);
+                T = Index1(Sline, '(', 1);
+                if (Null0(T) < Null0(J) && Null0(T) > '0') J = Index1(Sline, '(', 1);
+
+                // Anything starting with a number is assumed to be a label
+                if (Null0(Lbli) == '0' && isNumber(Mid1(Sline, 1, 1))) Lbli = J;
+                if (Null0(Lbli) > Null0(J)) Lbli = 0;
+                if (Null0(Lbli) > 1 && Null0(Lbli) <= Null0(J)) {
+                    Lbl = LTrim(Mid1(Sline, 1, +Lbli - 1) + ': ');
+                    if (Mid1(Sline, Lbli, 1) == ':') {
+                        Sline = LTrim(Mid1(Sline, +Lbli + 1, 999));
+                    } else {
+                        Sline = LTrim(Mid1(Sline, Lbli, 999));
+                    }
+                }
+            }
+
+            // Mask out strings (NSLINE) - use this to determine indentation
+            Nsline = '';
+            if (Index1(Sline, '"', 1) || Index1(Sline, '\'', 1) || Index1(Sline, '`', 1)) {
+                Llen = Len(Sline);
+                var _ForEndI_18 = +Llen;
+                for (J = 1; J <= _ForEndI_18; J++) {
+                    C = Mid1(Sline, J, 1);
+                    if (InStr1(1, Smarkers, C)) {
+                        J = InStr1(+J + 1, Sline, C);
+                        if (CBool(J)) {
+                            C = 'X';
+                        } else {
+                            J = +Llen + 1;
+                            if (C == '`') Multilinestring = true;
+                            if (C == '\'') C = ''; else C = 'X';
+                        }
+                    }
+                    Nsline = CStr(Nsline) + CStr(C);
+                }
+            } else {
+                Nsline = Sline;
+            }
+            Nsline = UCase(Nsline);
+
+            // Remove trailing comments
+            if (Index1(Nsline, '\'', 1)) Nsline = Field(Nsline, '\'', 1);
+            if (Index1(Nsline, '//', 1)) {
+                Nsline = Field(Nsline, '//', 1);
+            }
+            if (Index1(Nsline, ';*', 1)) { Nsline = Field(Nsline, ';*', 1); }
+
+            // Mask out Script Blocks <% ... %>
+            if (CBool(Inscriptblock)) {
+                Je = InStr1(1, Nsline, '%\>');
+                if (CBool(Je)) {
+                    Nsline = Mid1(Nsline, +Je + 2);
+                    Inscriptblock = false;
+                } else {
+                    Nsline = '';
+                }
+            }
+
+
+            while (true) {
+                J = InStr1(1, Nsline, '\<%');
+                if (Not(CBool(J))) break;
+                Je = InStr1(+J + 2, Sline, '%\>');
+                if (CBool(Je)) {
+                    Nsline = Left(Nsline, +J - 1) + Mid1(Nsline, +Je + 2);
+                } else {
+                    Nsline = Left(Nsline, +J - 1);
+                    Inscriptblock = true;
+                }
+            }
+
+            if (Not(Inscriptblock)) {
+                // Drop end of line comments
+                Smi = Index1(Nsline, ';', 1);
+                if (Not(Smi)) Smi = Index1(Nsline, ':', 1);
+                if (CBool(Smi)) {
+                    Dropstart = +Smi - 1;
+
+                    do {
+                        Smi++;
+                        Nc = Mid1(Nsline, Smi, 1);
+                    }
+                    while (Nc == ' ');
+                    if (Nc == '\'') Nc = '/';
+                    if (Nc == '/') Nsline = Left(Nsline, Dropstart);
+                }
+
+                if (Left(Nsline, 1) == '}') Ci -= Indentation;
+
+                // Pad front and Back
+                Nsline = ' ' + Trim(Nsline) + ' ';
+
+                Ni += Count(Nsline, '{') * Indentation;
+                Ni -= Count(Nsline, '}') * Indentation;
+
+                Tline = UCase(Sline);
+                if (isEmpty(Sline)) {
+                    Item[Linei] = Lbl;;
+                } else if (Left(Tline, 2) == '/*') {
+                    if (Null0(Ci) == Indentation && Left(Item[Linei], 1) != ' ') Ui = 0; else Ui = Ci;
+                    Ui = +Ui - (InStr1(1, Item[Linei], Left(Sline, 1)) - 1);
+
+
+                    while (true) {
+                        if (Null0(Ui) < '0') {
+                            if (Left(Item[Linei], - +Ui) == Space(- +Ui)) {
+                                Item[Linei] = Mid1(Item[Linei], - +Ui);
+                            }
+                        } else {
+                            Item[Linei] = Space(Ui) + CStr(Item[Linei]);
+                        }
+
+                        if (InStr1(1, Item[Linei], '*/') > 0 || isEmpty(Item[Linei])) break;
+                        Linei = +Linei + 1;
+                    };
+                } else {
+                    Spcs = +Ci - Len(Lbl);
+                    if (Null0(Spcs) < 1) Spcs = 0;
+                    Item[Linei] = CStr(Lbl) + Space(Spcs) + CStr(Sline);
+                }
+
+                if (CBool(Multilinestring)) {
+
+                    do {
+                        Linei = +Linei + 1;
+                        Dc = Count(Item[Linei], '`');
+                    }
+                    while (Not(+Dc % 2 == 1 || Null0(Linei) > UBound(Item)));
+                }
+            }
+        }
+    }
+
+    if (CBool(Showprogress)) Println();
+
+    return Item;
+}
+// </FORMATCODEJS>

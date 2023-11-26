@@ -3322,7 +3322,7 @@ async function JSB_TCL_ED_Pgm() {  // PROGRAM
 
         if (InStr1(1, _Options, 'W')) {
             Print(JSB_HTML_SCRIPT('\r\n\
-             window.top.open("' + JsbRootAct() + '?' + urlEncode('ED ' + Fname + ' ' + CStr(Iname) + ' (' + CStr(Fromlineno)) + '", "_blank");\r\n\
+             window.top.open("' + jsbRootAct() + '?' + urlEncode('ED ' + Fname + ' ' + CStr(Iname) + ' (' + CStr(Fromlineno)) + '", "_blank");\r\n\
           '));
             Inames = [undefined,];
             continue;
@@ -3446,7 +3446,11 @@ async function JSB_TCL_ED_Pgm() {  // PROGRAM
                 // Auto format?
                 Af = InStr1(1, Item, '* EDITOR-OPTION: AUTOFORMAT');
                 if (Null0(Af) > '0' && Null0(Af) < 3000) {
-                    Item = CStr(formatCode(CStr(Item), 4, false), true);;
+                    if (LCase(Right(Iname, 3)) == '.js') {
+                        Item = CStr(JSB_BF_FORMATCODEJS(CStr(Item), 4, false), true);
+                    } else {
+                        Item = CStr(formatCode(CStr(Item), 4, false), true);
+                    }
                 } else if (isValidJSon(Item)) {
                     J = CJSon(Item);
                     if (typeOf(J) == 'Array') {
@@ -3666,7 +3670,7 @@ async function JSB_TCL_ED_Pgm() {  // PROGRAM
                 }
 
                 Print(JSB_HTML_SCRIPT('\r\n\
-                        window.top.open("' + JsbRootAct() + '?' + urlEncode('ED ' + Fname + ' ' + CStr(Iname) + ' (' + CStr(Fromlineno)) + '", "_blank");\r\n\
+                        window.top.open("' + jsbRootAct() + '?' + urlEncode('ED ' + Fname + ' ' + CStr(Iname) + ' (' + CStr(Fromlineno)) + '", "_blank");\r\n\
                     '));
                 FlushHTML();
                 break;
@@ -3779,7 +3783,7 @@ async function JSB_TCL_ED_Pgm() {  // PROGRAM
             // Save As
 
             if (Btn == 'Save As') {
-                Ans = await JSB_BF_INPUTBOX('Item ' + CStr(Iname), 'Save a copy as: ', undefined, undefined, undefined, function (_P1) { });
+                Ans = await JSB_BF_INPUTBOX('Item ' + CStr(Iname), 'Save a copy as: ', undefined, undefined, undefined);
                 if (isEmpty(Ans) || Ans == Chr(27)) {
                     continue; // Redisplay;
                 }
@@ -3820,7 +3824,7 @@ async function JSB_TCL_ED_Pgm() {  // PROGRAM
             }
 
             if (Btn == 'Rename') {
-                Ans = await JSB_BF_INPUTBOX('Item ' + CStr(Iname), 'Rename as: ', CStr(Iname), undefined, undefined, function (_P1) { });
+                Ans = await JSB_BF_INPUTBOX('Item ' + CStr(Iname), 'Rename as: ', CStr(Iname), undefined, undefined);
                 if (isEmpty(Ans) || Ans == Chr(27)) {
                     continue; // Redisplay;
                 }
@@ -4060,8 +4064,10 @@ async function JSB_TCL_ED_Pgm() {  // PROGRAM
                     } else {
                         Item = CStr(J, true);
                     }
+                } else if (LCase(Right(Iname, 3)) == '.js') {
+                    Item = CStr(JSB_BF_FORMATCODEJS(CStr(Item), 4, false), true);
                 } else {
-                    Item = formatCode(CStr(Item), 4, false);
+                    Item = CStr(formatCode(CStr(Item), 4, false), true);
                 }
             }
 
@@ -5922,7 +5928,7 @@ async function JSB_TCL_TCL_LCMD_Sub(ByRef_Sentence, ByRef_Checkprivilages, setBy
     var C, I, Wheadercolumns, Jcolumnnames, Headline, Readdicts;
     var Lcolumns, Ci, Dreads, Fd_File, Oconvs, R, Max, Lc, Preread;
     var Ditem, V, Cache, Conv, _Space, Itemids, Direntryi, Name;
-    var Id, Li, Td, _Ismissing, X, Desc, Bytesfree, Errs, Nbytesfree;
+    var Li, Id, Td, _Ismissing, X, Desc, Bytesfree, Errs, Nbytesfree;
 
     function exit(v) {
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Sentence, ByRef_Checkprivilages)
@@ -6200,11 +6206,12 @@ async function JSB_TCL_TCL_LCMD_Sub(ByRef_Sentence, ByRef_Checkprivilages, setBy
             }
         }
 
-        var ID_LastI77 = UBound(Ds); for (Li = LBound(Ds); Li <= ID_LastI77; Li++) {
-            Id = Extract(Ds, Li, 0, 0);
+        var _ForEndI_67 = UBound(Ds);
+        for (Li = LBound(Ds); Li <= _ForEndI_67; Li++) {
+            Id = Ds[Li];
             Td = '';
-            var _ForEndI_67 = +Cols;
-            for (I = 1; I <= _ForEndI_67; I++) {
+            var _ForEndI_68 = +Cols;
+            for (I = 1; I <= _ForEndI_68; I++) {
                 _Ismissing = isEmpty(Id);
 
                 do {
@@ -6306,7 +6313,7 @@ async function JSB_TCL_LF_Pgm() {  // PROGRAM
     var Localfiles, E, Viewname, I, Isjsbfile, Displayname, Execmd;
 
     clearSelect(odbActiveSelectList);
-    var Attacheddb = await JSB_BF_ATTACHEDDB();
+    var Attacheddb = JSB_BF_ATTACHEDDB();
     var Rmtattacheddb = '';
     if (Attacheddb) Rmtattacheddb = await asyncRpcRequest('ATTACHEDDB');
 
@@ -6393,7 +6400,7 @@ async function JSB_TCL_LF_Pgm() {  // PROGRAM
 
     if (Includeviews) {
         var Views = undefined;
-        if (System(1) == 'js') { Views = await asyncRpcRequest('LISTFILES', E, true, function (_E, _P2) { }); } else Views = System(37);
+        if (System(1) == 'js') Views = await asyncRpcRequest('LISTFILES', E, true); else Views = System(37);
         if (CBool(Views)) {
             for (Viewname of iterateOver(Views)) {
                 Filelist[Filelist.length] = Viewname;
@@ -6884,7 +6891,7 @@ async function JSB_TCL_META_Pgm() {  // PROGRAM
         if (Not(Itemname)) return Stop('An ItemName is required');
 
         if (await JSB_ODB_READJSON(Ds, Fsrc, CStr(Itemname), function (_Ds) { Ds = _Ds })); else return Stop(activeProcess.At_Errors);
-        Schemadefs = await JSB_BF_ANALYSEJSON(Ds, 'primaryKey', false, function (_P2) { });
+        Schemadefs = await JSB_BF_ANALYSEJSON(Ds, 'primaryKey', false);
 
         Ans = '';
         for (Col of iterateOver(Schemadefs)) {
@@ -6907,7 +6914,7 @@ async function JSB_TCL_META_Pgm() {  // PROGRAM
 
         Ds = await JSB_TCL_CONVERTCSV2JSON(Csvdata, 200, function (_Csvdata) { Csvdata = _Csvdata });
 
-        Schemadefs = await JSB_BF_ANALYSEJSON(Ds, 'primaryKey', false, function (_P2) { });
+        Schemadefs = await JSB_BF_ANALYSEJSON(Ds, 'primaryKey', false);
 
         Ans = '';
         for (Col of iterateOver(Schemadefs)) {
@@ -6933,7 +6940,7 @@ async function JSB_TCL_META_Pgm() {  // PROGRAM
                 if (!At_Session.Item('ATTACHEDDATABASE')) return Stop('Please attach to a SQL database first');
                 if (await JSB_ODB_READJSON(Columndefs, Fmeta, CStr(Tablename), function (_Columndefs) { Columndefs = _Columndefs })); else return Stop('I wasn\'t able to find your jsb_metadef for this table');
 
-                if (CBool(Promptforname)) { Tablename = await JSB_BF_INPUTBOX('Create File', 'Create file from metadefs ' + CStr(Tablename), CStr(Tablename), undefined, undefined, function (_P1) { }); }
+                if (CBool(Promptforname)) Tablename = await JSB_BF_INPUTBOX('Create File', 'Create file from metadefs ' + CStr(Tablename), CStr(Tablename), undefined, undefined);
                 if (isEmpty(Tablename) || Tablename == Chr(27)) return Stop();
 
                 if (await JSB_ODB_OPEN('', CStr(Tablename), Sqlhandle, function (_Sqlhandle) { Sqlhandle = _Sqlhandle })) {
@@ -6963,8 +6970,8 @@ async function JSB_TCL_META_Pgm() {  // PROGRAM
 // <CONVERTCSV2JSON>
 async function JSB_TCL_CONVERTCSV2JSON(ByRef_Csvdata, Limit, setByRefValues) {
     // local variables
-    var Csv, Ds, Keys, Line, Csvi, Fieldnames, Datavalues, Record;
-    var Fieldname, I, Dv, R3;
+    var Csv, Ds, Keys, Line, Csvi, Fieldnames, Datavalues, Newguid;
+    var Record, Fieldname, I, Dv, R3;
 
     function exit(v) {
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Csvdata)
@@ -6978,26 +6985,27 @@ async function JSB_TCL_CONVERTCSV2JSON(ByRef_Csvdata, Limit, setByRefValues) {
     Keys = [undefined,];
 
     if (Not(Limit)) Limit = UBound(Csv);
-    var LINE_LastI39 = UBound(Csv);
-    for (Csvi = LBound(Csv); Csvi <= LINE_LastI39; Csvi++) {
-        Line = Extract(Csv, Csvi, 0, 0);
+    Csvi = LBound(Csv) - 1;
+    for (Line of iterateOver(Csv)) {
+        Csvi++;
         if (Null0(Csvi) > Null0(Limit)) break;
 
         if (Null0(Csvi) == 1) {
             Fieldnames = await JSB_TCL_GETCSVFIELDS(Line, function (_Line) { Line = _Line });
         } else {
             Datavalues = await JSB_TCL_GETCSVFIELDS(Line, function (_Line) { Line = _Line });
-            Record = { "primaryKey": await JSB_TCL_GUID() };
+            Newguid = newGUID();
+            Record = { "primaryKey": Newguid };
 
-            var FIELDNAME_LastI42 = UBound(Fieldnames);
-            for (I = LBound(Fieldnames); I <= FIELDNAME_LastI42; I++) {
-                Fieldname = Extract(Fieldnames, I, 0, 0);
+            I = LBound(Fieldnames) - 1;
+            for (Fieldname of iterateOver(Fieldnames)) {
+                I++;
                 Dv = Datavalues[I];
                 if (CBool(Dv)) Record[Fieldname] = Dv; else Record[Fieldname] = undefined;
 
                 R3 = Right(Dv, 3);
                 if (R3 == ' am()' || R3 == ' PM' && r83Date(Dv)) {
-                    Dv = JSB_BF_DATETIME(r83Date(Dv));
+                    Dv = DateTime(r83Date(Dv));
                     // if field(dv, " ", 2) = "07:00:00" then dv = field(dv, " ", 1)
                     Record[Fieldname] = Dv;;
                 } else if (Count(Dv, '-') == 2 && r83Date(Dv)) {
@@ -7033,9 +7041,9 @@ async function JSB_TCL_GETCSVFIELDS(ByRef_Line, setByRefValues) {
 
     Fields = Split(ByRef_Line, ',', 4);
 
-    var FIELD_LastI51 = UBound(Fields);
-    for (Fieldi = LBound(Fields); Fieldi <= FIELD_LastI51; Fieldi++) {
-        Field = Extract(Fields, Fieldi, 0, 0);
+    Fieldi = LBound(Fields) - 1;
+    for (Field of iterateOver(Fields)) {
+        Fieldi++;
         F = Fields[Fieldi];
         if (InStr1(1, F, Chr(1))) {
             F = Change(F, Chr(1), '`');
@@ -7080,9 +7088,9 @@ async function JSB_TCL_ANALYSEJSON_Pgm() {  // PROGRAM
     Tablenames = Split(F, ' ');
     Fmeta = await JSB_BF_FHANDLE('', 'jsb_metadefs', true);
 
-    var TABLENAME_LastI56 = UBound(Tablenames);
-    for (Tablei = LBound(Tablenames); Tablei <= TABLENAME_LastI56; Tablei++) {
-        Tablename = Extract(Tablenames, Tablei, 0, 0);
+    Tablei = LBound(Tablenames) - 1;
+    for (Tablename of iterateOver(Tablenames)) {
+        Tablei++;
         Tablename = Trim(Tablename);
         if (Not(Tablename)) continue;
         if (await JSB_ODB_OPEN('', CStr(Tablename), Sqlhandle, function (_Sqlhandle) { Sqlhandle = _Sqlhandle })); else return Stop(activeProcess.At_Errors);
@@ -7114,7 +7122,7 @@ async function JSB_TCL_ANALYSEJSON_Pgm() {  // PROGRAM
             }
         }
         if (await JSB_ODB_WRITEJSON(Ana, await JSB_BF_FHANDLE('jsb_metadefs'), CStr(Tablename))); else return Stop(activeProcess.At_Errors);
-        Println(JSB_BF_ANCHOREDIT('jsb_metadefs', CStr(Tablename), '!'));
+        Println(anchorEdit('jsb_metadefs', CStr(Tablename), '!'));
     }
     return;
 }

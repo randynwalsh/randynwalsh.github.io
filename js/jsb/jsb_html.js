@@ -1426,11 +1426,11 @@ function JSB_HTML_JQGRID2(Jqgridid, Restfulnameordataarray, Usermodelcolumns, My
             resizeStop: function () { saveColumnStates("' + Jqgridid + '") },\r\n\
 \r\n\
             onSelectRow: function(id, a, dataRow) { \r\n\
-                // jqGrid_onSelectRow() will call eventHandler_eventHandler_rowSelected() - Setup your events with JSB_BF @genEventHandler("rowSelected", ...)\r\n\
+                // jqGrid_onSelectRow() will call eventHandler_rowSelected() - Setup your events with JSB_BF @genEventHandler("rowSelected", ...)\r\n\
                 jqGrid_onSelectRow(dataRow, \'' + Jqgridid + '\', id) \r\n\
             },\r\n\
             ondblClickRow: function(id, a, b, e) { \r\n\
-                // jqGrid_ondblClickRow() will call eventHandler_dblClickRow() - Setup your events with JSB_BF @genEventHandler("dblClickRow", ...)\r\n\
+                // jsblib.js - jqGrid_ondblClickRow() will call eventHandler_dblClickRow() - Setup your events with JSB_BF @genEventHandler("dblClickRow", ...)\r\n\
                 jqGrid_ondblClickRow(e, \'' + Jqgridid + '\', id) \r\n\
             },\r\n\
             \r\n\
@@ -4457,6 +4457,50 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
                   showPageSizeSelector: true,\r\n\
                   allowedPageSizes: [10, 25, 50, 100],\r\n\
                 },\r\n\
+    \r\n\
+                // See all events at: https://js.devexpress.com/Documentation/ApiReference/UI_Components/dxDataGrid/Configuration/#onFocusedRowChanged\r\n\
+                // [accessKey,activeStateEnabled,allowColumnReordering,allowColumnResizing,autoNavigateToFocusedRow,cacheEnabled,cellHintEnabled,columnAutoWidth,\r\n\
+                //  columnChooser,columnFixing,columnHidingEnabled,columnMinWidth,columnResizingMode,columns[],columnWidth,customizeColumns,dataRowComponent,\r\n\
+                //  dataRowRender,dataRowTemplate,dataSource,dateSerializationFormat,disabled,editing,elementAttr,errorRowEnabled,export,filterBuilder,\r\n\
+                //  filterBuilderPopup,filterPanel,filterRow,filterSyncEnabled,filterValue,focusedColumnIndex,focusedRowEnabled,focusedRowIndex,focusedRowKey,\r\n\
+                //  grouping,groupPanel,headerFilter,height,highlightChanges,hint,hoverStateEnabled,keyboardNavigation,keyExpr,loadPanel,masterDetail,noDataText,\r\n\
+                //  onAdaptiveDetailRowPreparing,onCellClick,onCellDblClick,onCellHoverChanged,onCellPrepared,onContentReady,onContextMenuPreparing,\r\n\
+                //  onDataErrorOccurred,onDisposing,onEditCanceled,onEditCanceling,onEditingStart,onEditorPrepared,onEditorPreparing,onExporting,onFocusedCellChanged,\r\n\
+                //  onFocusedCellChanging,onFocusedRowChanged,onFocusedRowChanging,onInitialized,onInitNewRow,onKeyDown,onOptionChanged,onRowClick,onRowCollapsed,\r\n\
+                //  onRowCollapsing,onRowDblClick,onRowExpanded,onRowExpanding,onRowInserted,onRowInserting,onRowPrepared,onRowRemoved,onRowRemoving,onRowUpdated,\r\n\
+                //  onRowUpdating,onRowValidating,onSaved,onSaving,onSelectionChanged]\r\n\
+                focusedRowEnabled: true,\r\n\
+                onFocusedRowChanging(e) {\r\n\
+                      const rowsCount = e.component.getVisibleRows().length;\r\n\
+                      const pageCount = e.component.pageCount();\r\n\
+                      const pageIndex = e.component.pageIndex();\r\n\
+                      const key = e.event && e.event.key;\r\n\
+                \r\n\
+                      if (key && e.prevRowIndex === e.newRowIndex) {\r\n\
+                        if (e.newRowIndex === rowsCount - 1 && pageIndex \< pageCount - 1) {\r\n\
+                          e.component.pageIndex(pageIndex + 1).done(() =\> {\r\n\
+                            e.component.option(\'focusedRowIndex\', 0);\r\n\
+                          });\r\n\
+                        } else if (e.newRowIndex === 0 && pageIndex \> 0) {\r\n\
+                          e.component.pageIndex(pageIndex - 1).done(() =\> {\r\n\
+                            e.component.option(\'focusedRowIndex\', rowsCount - 1);\r\n\
+                          });\r\n\
+                        }\r\n\
+                      }\r\n\
+                },\r\n\
+                // or onRowClick?\r\n\
+                onFocusedRowChanged(e) {\r\n\
+                      // const focusedRowKey = e.component.option(\'focusedRowKey\');\r\n\
+                      var dataRow = e.row && e.row.data\r\n\
+                      if (window.eventHandler_rowSelected) eventHandler_rowSelected(dataRow, \'' + CStr(Gridid) + '\', e.row.key) \r\n\
+                },\r\n\
+                onRowDblClick(e) {\r\n\
+                      // const focusedRowKey = e.component.option(\'focusedRowKey\');\r\n\
+                      var dataRow = e.row && e.row.data\r\n\
+                      if (window.eventHandler_dblClickRow) eventHandler_dblClickRow(dataRow, \'' + CStr(Gridid) + '\', e.row.key) \r\n\
+                },\r\n\
+\r\n\
+                    \r\n\
     ';
 
     if (CBool(Usersettings.columnAutoWidth)) {
@@ -4509,6 +4553,8 @@ async function JSB_HTML_DEVXGRID(Gridid, Tblnameorarray, Usersettings) {
         });\r\n\
 \r\n\
         collapsed = false;\r\n\
+\r\n\
+\r\n\
     ';
 
     return _Html + JSB_HTML_SCRIPT(S);
