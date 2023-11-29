@@ -3431,6 +3431,7 @@ async function JSB_MDL_EDITPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, Show
 
         switch (Cmd) {
             case 'Q': case 'B':
+                Print(clearScreen());
                 if (await JSB_ODB_ATTACHDB(CStr(Originaldb))); else null;
                 ByRef_Pagename = Chr(27);
                 return exit(undefined);
@@ -3467,15 +3468,14 @@ async function JSB_MDL_EDITPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, Show
             case 'S': case 'G': case 'SR':
                 Print(clearScreen());
                 if (await JSB_ODB_WRITEJSON(Pagedataset, await JSB_BF_FHANDLE('dict', ByRef_Projectname), CStr(ByRef_Pagename) + '.page')); else return Stop(At(-1), 'Edp-', System(28), ': ', activeProcess.At_Errors);
-                await JSB_MDL_REGENPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, true);
+                await JSB_MDL_REGENPAGEMODEL_Sub(ByRef_Projectname, ByRef_Pagename, true, true);
                 if (Cmd == 'SR') {
                     return At_Response.Redirect(jsbRootExecute(CStr(ByRef_Pagename)));
                 }
                 if (Cmd == 'S') {
-                    if (CBool(Showbackbtn)) {
-                        if (await JSB_ODB_ATTACHDB(CStr(Originaldb))); else null;
-                        return exit(undefined);
-                    }
+                    if (await JSB_ODB_ATTACHDB(CStr(Originaldb))); else null;
+                    ByRef_Pagename = Chr(27);
+                    return exit(undefined);
                 }
 
                 break;
@@ -4793,8 +4793,8 @@ async function JSB_MDL_FULLLINECOLUMN_Sub(ByRef_Projectname, ByRef_Pagename, ByR
 // <GENERATECODEFROMTEMPLATE>
 async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilename, ByRef_Parentobjectname, ByRef_Parentobject, ByRef_Objectname, ByRef_Results, ByRef_Compileresults, Nomodelingstuff, setByRefValues) {
     // local variables
-    var Objectmodel, Templatename, _Language, Template, Templatejson;
-    var Templatefield, _Code, Codename, Errors;
+    var Objectmodel, Templatename, _Language, Ftemplate, Template;
+    var Templatejson, Templatefield, _Code, Codename, Errors;
 
     function exit(v) {
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Projectname, ByRef_Parentobjectname, ByRef_Parentobject, ByRef_Objectname, ByRef_Results, ByRef_Compileresults)
@@ -4823,23 +4823,25 @@ async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilen
     }
 
     _Language = Objectmodel.language;
-    if (Not(_Language) && CBool(ByRef_Parentobject.language)) _Language = ByRef_Parentobject.language;
-    Template = '';
-    if (CBool(_Language)) {
-        if (await JSB_ODB_READ(Template, await JSB_BF_FHANDLE(CStr(Templatefilename)), CStr(Templatename) + '.' + CStr(_Language), function (_Template) { Template = _Template })); else Template = '';
+    if (Not(_Language) && CBool(ByRef_Parentobject)) {
+        if (CBool(ByRef_Parentobject.language)) _Language = ByRef_Parentobject.language;
     }
 
-    if (Not(Template)) {
-        if (await JSB_ODB_READ(Template, await JSB_BF_FHANDLE(CStr(Templatefilename)), CStr(Templatename), function (_Template) { Template = _Template })); else {
-            ByRef_Compileresults = '^GenerateCodeFromTemplate: Your \'' + CStr(ByRef_Objectname) + '\' has an unknown template reference: \'' + CStr(Templatename) + '\' from fHandle(' + CStr(Templatefilename) + ')';
-            Print(); debugger;
-            if (CBool(ByRef_Parentobject)) ByRef_Compileresults += 'This is coming from an embedded template ' + CStr(ByRef_Parentobject.templateName);
-            return exit(false);
-        }
+    if (CBool(_Language) && !InStr1(1, Templatefilename, '.')) Templatefilename += '.' + CStr(_Language);
+    Ftemplate = await JSB_BF_FHANDLE(CStr(Templatefilename));
+    if (Not(Ftemplate)) return Stop('Missing ', Templatefilename);
+
+    if (await JSB_ODB_READ(Template, Ftemplate, CStr(Templatename), function (_Template) { Template = _Template })); else {
+        ByRef_Compileresults = '^GenerateCodeFromTemplate: Your \'' + CStr(ByRef_Objectname) + '\' has an unknown template reference: \'' + CStr(Templatename) + '\' from fHandle(' + CStr(Templatefilename) + ')';
+        Print(); debugger;
+        if (CBool(ByRef_Parentobject)) ByRef_Compileresults += 'This is coming from an embedded template ' + CStr(ByRef_Parentobject.templateName);
+        return exit(false);
     }
 
-    Templatejson = Field(Template, '******************************************************************************', 1, true);
-    Template = Mid1(Template, activeProcess.Col2);
+    Templatejson = Field(Template, '*******************', 1);
+    Template = dropLeft(CStr(Template), '*******************');
+    Template = dropLeft(CStr(Template), am);
+
     if (InStr1(1, Template, '`')) {
         ByRef_Compileresults = '^Your template ' + CStr(Templatename) + ' is using the ` character.  You need change this.';
         return exit(false);
@@ -4865,10 +4867,10 @@ async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilen
 
     _Code[_Code.length] = 'Gen = []';
 
-    if (Templatefilename == 'jsb_viewtemplates') {
+    if (await JSB_MDL_LEFTFIELD(Templatefilename, '.', function (_Templatefilename, _P2) { Templatefilename = _Templatefilename }) == 'jsb_viewtemplates') {
         if (CBool(ByRef_Parentobject)) _Code[_Code.length] = 'pageTemplateName = "' + LCase(Objectmodel.templateName) + '"';
         _Code[_Code.length] = 'viewTemplateName = "' + CStr(Templatename) + '"';;
-    } else if (Templatefilename == 'jsb_pagetemplates') {
+    } else if (await JSB_MDL_LEFTFIELD(Templatefilename, '.', function (_Templatefilename, _P2) { Templatefilename = _Templatefilename }) == 'jsb_pagetemplates') {
         _Code[_Code.length] = 'pageTemplateName = "' + CStr(Templatename) + '"';;
     } else {
         _Code[_Code.length] = 'TemplateName = "' + CStr(Templatename) + '"';
@@ -8759,7 +8761,7 @@ async function JSB_MDL_REGENPAGEMODEL_Sub(Projectname, Ipagename, Showresults, N
         } else if (Not(Nostopping)) {
             Alert('Sucessful generation of page ' + CStr(Pagename));
         }
-    } else if (InStr1(1, Compileresults, '^')) {
+    } else if (InStr1(1, Compileresults, '^') || InStr1(1, Compileresults, '|')) {
         if (CBool(Nostopping)) Println(Compileresults); else { Println(At(-1), Compileresults, JSB_HTML_SUBMITBTN('edv_formBtn', 'OK')); await At_Server.asyncPause(me); }
     }
 }
@@ -10580,7 +10582,7 @@ async function JSB_MDL_TOOLTIPCOLUMN_Sub(ByRef_Projectname, ByRef_Pagename, ByRe
 // </TOOLTIPCOLUMN_Sub>
 
 // <UPDATECODE>
-async function JSB_MDL_UPDATECODE(Genedsrc, Projectname, Itemid) {
+async function JSB_MDL_UPDATECODE(Genedsrc, Projectname, Itemid, Nocompile) {
     // local variables
     var Usrmodifiedsrc, Blockname, Genedblock, Priorblock, Results;
 
@@ -10603,47 +10605,52 @@ async function JSB_MDL_UPDATECODE(Genedsrc, Projectname, Itemid) {
     }
 
     if (await JSB_ODB_READ(Usrmodifiedsrc, await JSB_BF_FHANDLE(CStr(Projectname)), CStr(Itemid), function (_Usrmodifiedsrc) { Usrmodifiedsrc = _Usrmodifiedsrc })); else Usrmodifiedsrc = '';
-    if (Null0(Usrmodifiedsrc) != Null0(Genedsrc)) {
-        var Lprior = LCase(Usrmodifiedsrc);
-        if (InStr1(1, Lprior, '* \<insert\>') || InStr1(1, Lprior, '*\<insert\>') || InStr1(1, Lprior, '* \<delete\>') || InStr1(1, Lprior, '*\<delete\>')) {
-            var Priorblocks = JSB_BF_SPLITJSBCODE(CStr(Usrmodifiedsrc), CStr(false));
-            var Genedblocks = JSB_BF_SPLITJSBCODE(Genedsrc, CStr(false));
+    if (Null0(Usrmodifiedsrc) == Null0(Genedsrc)) {
+        if (Nocompile) return Genedsrc;
+        return anchorEdit(CStr(Projectname), CStr(Itemid)) + crlf + crlf;
+    }
 
-            for (Blockname of iterateOver(Genedblocks)) {
-                Genedblock = Genedblocks[Blockname];
-                Priorblock = Priorblocks[Blockname];
+    var Lprior = LCase(Usrmodifiedsrc);
+    if (InStr1(1, Lprior, '* \<insert\>') || InStr1(1, Lprior, '*\<insert\>') || InStr1(1, Lprior, '* \<delete\>') || InStr1(1, Lprior, '*\<delete\>')) {
+        var Priorblocks = JSB_BF_SPLITJSBCODE(CStr(Usrmodifiedsrc), CStr(false));
+        var Genedblocks = JSB_BF_SPLITJSBCODE(Genedsrc, CStr(false));
 
-                Genedblocks[Blockname] = await JSB_MDL_CUSTOMMERGE(Genedblock, Priorblock);
-                delete Priorblocks[Blockname]
-            }
+        for (Blockname of iterateOver(Genedblocks)) {
+            Genedblock = Genedblocks[Blockname];
+            Priorblock = Priorblocks[Blockname];
 
-            // Append any extra routines
-            for (Blockname of iterateOver(Priorblocks)) {
-                var Pblock = Priorblocks[Blockname];
-                var Lpblock = LCase(Pblock);
-
-                if (InStr1(1, Lpblock, '* \<insert\>') || InStr1(1, Lpblock, '*\<insert\>') || InStr1(1, Lpblock, '* \<delete\>') || InStr1(1, Lpblock, '*\<delete\>')) {
-                    Genedblocks[Blockname] = Pblock;
-                }
-            }
-
-            var Genedsrcary = [undefined,];
-            for (Blockname of iterateOver(Genedblocks)) {
-                Genedsrcary[Genedsrcary.length] = Genedblocks[Blockname];
-            }
-
-            Genedsrc = Join(Genedsrcary, am + am);
-
-            await JSB_BF_TRASHIT(CStr(Projectname), CStr(Itemid));
+            Genedblocks[Blockname] = await JSB_MDL_CUSTOMMERGE(Genedblock, Priorblock);
+            delete Priorblocks[Blockname]
         }
 
-        if (await JSB_ODB_WRITE(Genedsrc, Fproject, CStr(Itemid))); else return Stop('Form-', System(28), ': ', activeProcess.At_Errors);
+        // Append any extra routines
+        for (Blockname of iterateOver(Priorblocks)) {
+            var Pblock = Priorblocks[Blockname];
+            var Lpblock = LCase(Pblock);
 
-        await asyncTclExecute('Basic ' + CStr(Projectname) + ' ' + CStr(Itemid), _capturedData => Results = _capturedData)
-        Results = Change(Results, am, crlf);
-        if (InStr1(1, Results, '^')) {
-            Results = 'Compiler error: ' + 'Basic ' + CStr(Projectname) + ' ' + CStr(Itemid) + crlf + CStr(Results) + crlf;
+            if (InStr1(1, Lpblock, '* \<insert\>') || InStr1(1, Lpblock, '*\<insert\>') || InStr1(1, Lpblock, '* \<delete\>') || InStr1(1, Lpblock, '*\<delete\>')) {
+                Genedblocks[Blockname] = Pblock;
+            }
         }
+
+        var Genedsrcary = [undefined,];
+        for (Blockname of iterateOver(Genedblocks)) {
+            Genedsrcary[Genedsrcary.length] = Genedblocks[Blockname];
+        }
+
+        Genedsrc = Join(Genedsrcary, am + am);
+
+        await JSB_BF_TRASHIT(CStr(Projectname), CStr(Itemid));
+    }
+
+    if (await JSB_ODB_WRITE(Genedsrc, Fproject, CStr(Itemid))); else return Stop('Form-', System(28), ': ', activeProcess.At_Errors);
+
+    Results = Change(Results, am, crlf);
+    if (Nocompile) return Genedsrc;
+
+    await asyncTclExecute('Basic ' + CStr(Projectname) + ' ' + CStr(Itemid), _capturedData => Results = _capturedData)
+    if (InStr1(1, Results, '^') || InStr1(1, Results, '|')) {
+        Results = 'Compiler error: ' + 'Basic ' + CStr(Projectname) + ' ' + CStr(Itemid) + crlf + CStr(Results) + crlf;
     }
 
     return CStr(Results) + anchorEdit(CStr(Projectname), CStr(Itemid)) + crlf + crlf;
