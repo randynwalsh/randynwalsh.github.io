@@ -4867,10 +4867,10 @@ async function JSB_MDL_GENERATECODEFROMTEMPLATE(ByRef_Projectname, Templatefilen
 
     _Code[_Code.length] = 'Gen = []';
 
-    if (await JSB_MDL_LEFTFIELD(Templatefilename, '.', function (_Templatefilename, _P2) { Templatefilename = _Templatefilename }) == 'jsb_viewtemplates') {
+    if (fieldLeft(CStr(Templatefilename), '.') == 'jsb_viewtemplates') {
         if (CBool(ByRef_Parentobject)) _Code[_Code.length] = 'pageTemplateName = "' + LCase(Objectmodel.templateName) + '"';
         _Code[_Code.length] = 'viewTemplateName = "' + CStr(Templatename) + '"';;
-    } else if (await JSB_MDL_LEFTFIELD(Templatefilename, '.', function (_Templatefilename, _P2) { Templatefilename = _Templatefilename }) == 'jsb_pagetemplates') {
+    } else if (fieldLeft(CStr(Templatefilename), '.') == 'jsb_pagetemplates') {
         _Code[_Code.length] = 'pageTemplateName = "' + CStr(Templatename) + '"';;
     } else {
         _Code[_Code.length] = 'TemplateName = "' + CStr(Templatename) + '"';
