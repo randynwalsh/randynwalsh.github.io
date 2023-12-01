@@ -200,9 +200,9 @@ async function Docall(Isfunc, Xtraparams) {
     var Isatat, Iscallat, Dblparen, Rtnattr, Ignoremissingcall;
     var Hasliteralfname, Callnameisliteral, Cname, Firsttkstr;
     var Pattr, Xrefsuffix, Cnamesuffix, Fname, Shortcallname, X;
-    var Standardjscall, Calldef, Subtkstr, Myfunctype, Needlp;
-    var Cbadr, Paramcnt, Paramtypes, Byreffparams, Expectingtype;
-    var Holdtk, Lce, Typei, Isbyref, Pname, Prefix, Returntype;
+    var Standardjscall, Calldef, Subtkstr, Myfunctype, Calledbydef;
+    var Needlp, Cbadr, Paramcnt, Paramtypes, Byreffparams, Expectingtype;
+    var Holdtk, Lce, Typei, Isbyref, Pname, Prefix, Priordef, Returntype;
     var Callid;
 
     // Build and return RTNATTR
@@ -337,6 +337,7 @@ async function Docall(Isfunc, Xtraparams) {
             Calldef = await JSB2JS_READXREF(CStr(Cname) + CStr(Xrefsuffix));
             if (Not(Calldef)) Needcalldef = true;
         }
+
         await Tcv(false);;
     } else if (CBool(Callnameisliteral)) {
         // if callNameIsLiteral then firstTkStr is valid
@@ -386,12 +387,17 @@ async function Docall(Isfunc, Xtraparams) {
         }
     }
 
-    if (CBool(Needcalldef)) {
-        Myfunctype = await calcAppendage(Commons_JSB2JS.Functiontype);
-        if (Not(Myfunctype)) Myfunctype = '_fnc';
+    if (Not(Needcalldef)) {
+        if (Not(Calldef.SUB_COMPILEDATE)) Needcalldef = true;
+    }
 
+    Myfunctype = await calcAppendage(Commons_JSB2JS.Functiontype);
+    if (Not(Myfunctype)) Myfunctype = '_fnc';
+    Calledbydef = LCase(CStr(Commons_JSB2JS.Pcfname) + '*' + CStr(Commons_JSB2JS.Itemid) + '*' + CStr(Commons_JSB2JS.Pcfname) + '_' + CStr(Commons_JSB2JS.Subname) + '*' + CStr(Commons_JSB2JS.Pcfname) + '_' + CStr(Commons_JSB2JS.Subname) + CStr(Myfunctype));
+
+    if (CBool(Needcalldef)) {
         Calldef = {
-            "SUB_COMPILEDATE": 'Referenced by ' + CStr(Commons_JSB2JS.Pcfname) + ' ' + CStr(Commons_JSB2JS.Itemid) + ' on ' + DateTime(),
+            "SUB_COMPILEDATE": 0,
             "SUB_FNAME": LCase(Fname),
             "SUB_CNAME": Cname,
             "SUB_SUBNAME": Shortcallname,
@@ -399,7 +405,7 @@ async function Docall(Isfunc, Xtraparams) {
             "SUB_PARAMTYPES": '',
             "SUB_RTNTYPE": '',
             "SUB_OPTIONALPARAMCNT": 0,
-            "SUB_ISCALLEDBY": LCase(CStr(Commons_JSB2JS.Pcfname) + '*' + CStr(Commons_JSB2JS.Itemid) + '*' + CStr(Commons_JSB2JS.Pcfname) + '_' + CStr(Commons_JSB2JS.Subname) + '*' + CStr(Commons_JSB2JS.Pcfname) + '_' + CStr(Commons_JSB2JS.Subname) + CStr(Myfunctype))
+            "SUB_ISCALLEDBY": Calledbydef
         };
         if (CBool(Isfunc)) Calldef.SUB_ISFUNCTION = 2;
     } else {
@@ -561,8 +567,8 @@ async function Docall(Isfunc, Xtraparams) {
 
     // Fill in optional parameters
     if (Not(Needcalldef) && CBool(Byreffparams)) {
-        var _ForEndI_70 = UBound(Paramtypes);
-        for (Parami = +Parami + 1; Parami <= _ForEndI_70; Parami++) {
+        var _ForEndI_72 = UBound(Paramtypes);
+        for (Parami = +Parami + 1; Parami <= _ForEndI_72; Parami++) {
             Expectingtype = Paramtypes[Parami];
             if (Len(Prmlist)) Prmlist += ', ';
             Prmlist += 'undefined';
@@ -609,8 +615,16 @@ async function Docall(Isfunc, Xtraparams) {
         }
     }
 
-    // To update or not.... what we temporarily built isn't exactly the definition
-    // if needCallDef Then writejson CallDef on fXRefs, LCase(Cname):xrefSuffix
+    if (await JSB_ODB_READJSON(Priordef, Commons_JSB2JS.Fxrefs, LCase(Cname) + CStr(Xrefsuffix), function (_Priordef) { Priordef = _Priordef })) {
+        if (Locate(Calledbydef, Priordef.SUB_ISCALLEDBY, 1, 0, 0, "", position => { })); else {
+            Priordef.SUB_ISCALLEDBY = Replace(Priordef.SUB_ISCALLEDBY, 1, -1, 0, Calledbydef);
+            if (await JSB_ODB_WRITEJSON(Priordef, Commons_JSB2JS.Fxrefs, LCase(Cname) + CStr(Xrefsuffix))); else Alert(CStr(activeProcess.At_Errors));
+        }
+    } else if (CBool(Needcalldef)) {
+        if (CBool(Calldef.SUB_PARAMTYPES)) {
+            if (await JSB_ODB_WRITEJSON(Calldef, Commons_JSB2JS.Fxrefs, LCase(Cname) + CStr(Xrefsuffix))); else Alert(CStr(activeProcess.At_Errors));
+        }
+    }
 
     if (CBool(Needcalldef) && CBool(Isfunc)) Returntype = 'v'; else Returntype = Calldef.SUB_RTNTYPE;
     switch (true) {
@@ -5369,7 +5383,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
             }
         }
 
-        Commons_JSB2JS.Processingtemplates = (Commons_JSB2JS.Pcfname == 'jsb_pagetemplates' || Commons_JSB2JS.Pcfname == 'jsb_viewtemplates');
+        Commons_JSB2JS.Processingtemplates = (InStr1(1, Commons_JSB2JS.Pcfname, 'templates') && Left(Commons_JSB2JS.Pcfname, 4) == 'jsb_');
         Commons_JSB2JS.Firstone = 1;
 
         if (Mid1(Commons_JSB2JS.Itemid, 1, 1) == '_') {
@@ -5528,7 +5542,7 @@ async function JSB2JS_PC_Pgm() {  // PROGRAM
 // <PO_Sub>
 async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, ByRef_Serrcnt, setByRefValues) {
     var me = new jsbRoutine("JSB2JS", "po", "JSB2JS_PO_Sub");
-    me.localValue = function (varName) { return me[varName] }
+    me.localValue = function (varName) { return eval(varName) }
     // local variables
     var Socpgm, Outputtrycatch, Cname, Pdef, Rattr, Declaration;
     var Locallist, Hascommons, Localtypes, Id, _Typedef, Funcheader;
@@ -5896,8 +5910,8 @@ async function JSB2JS_PO_Sub(ByRef_Ignored, ByRef_Firstlineno, ByRef_Appendage, 
 // <UPDATEJSCODE_Sub>
 async function JSB2JS_UPDATEJSCODE_Sub(ByRef_Src, ByRef_Fname, ByRef_Sname, ByRef_Appendage, setByRefValues) {
     // local variables
-    var C, Outiname, Outputname, Linkjs, Marker, Marker2, I, J;
-    var Cdef, L1, Spot;
+    var C, Outiname, Jsitemid, Linkjs, Marker, Marker2, I, J, Cdef;
+    var L1, Spot;
 
     function exit(v) {
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Src, ByRef_Fname, ByRef_Sname, ByRef_Appendage)
@@ -5912,16 +5926,11 @@ async function JSB2JS_UPDATEJSCODE_Sub(ByRef_Src, ByRef_Fname, ByRef_Sname, ByRe
         ByRef_Src = Left(ByRef_Src, Len(ByRef_Src) - 1);
     }
 
-    Outiname = LCase(CStr(ByRef_Sname) + CStr(ByRef_Appendage) + '.js');
-    // Write Src On D_ffile, outIName Else Stop @Errors
-
-    // If Not(Hush) Then Print Chr(16):outIName:" ":anchorEdit("dict ":fName, outIName):" ":Len(Src):" bytes. Successful. ":UBound(ItemList):" item(s) remaining.":Chr(16)        
+    Outiname = LCase(CStr(ByRef_Sname) + CStr(ByRef_Appendage));
     if (Not(Commons_JSB2JS.Hush)) Println(Chr(16), Outiname, ' ', Len(ByRef_Src), ' bytes. Successful. ', UBound(Commons_JSB2JS.Itemlist), ' item(s) remaining.', Chr(16));
 
-    Commons_JSB2JS.Itemid = UCase(Commons_JSB2JS.Itemid);
-
-    Outputname = CStr(ByRef_Fname) + '.js';
-    if (await JSB_ODB_READ(Linkjs, Commons_JSB2JS.D_Ffile, CStr(Outputname), function (_Linkjs) { Linkjs = _Linkjs })); else Linkjs = '';
+    Jsitemid = CStr(ByRef_Fname) + '.js';
+    if (await JSB_ODB_READ(Linkjs, Commons_JSB2JS.D_Ffile, CStr(Jsitemid), function (_Linkjs) { Linkjs = _Linkjs })); else Linkjs = '';
     if (Commons_JSB2JS.Processingtemplates) {
         if (Commons_JSB2JS.Firstone) Linkjs = ''; else Linkjs += am;
         Linkjs += CStr(ByRef_Src) + am;
@@ -5944,8 +5953,8 @@ async function JSB2JS_UPDATEJSCODE_Sub(ByRef_Src, ByRef_Fname, ByRef_Sname, ByRe
         }
     }
 
-    if (await JSB_ODB_WRITE(CStr(Linkjs), Commons_JSB2JS.D_Ffile, CStr(Outputname))); else return Stop(activeProcess.At_Errors);
-    Println(anchorEdit('dict ' + CStr(ByRef_Fname), CStr(Outputname), 'Results writtien to dict ' + CStr(ByRef_Fname) + ' ' + CStr(Outputname), '', +'', Commons_JSB2JS.Lineno));
+    if (await JSB_ODB_WRITE(CStr(Linkjs), Commons_JSB2JS.D_Ffile, CStr(Jsitemid))); else return Stop(activeProcess.At_Errors);
+    Println(anchorEdit('dict ' + CStr(ByRef_Fname), CStr(Jsitemid), 'Results writtien to dict ' + CStr(ByRef_Fname) + ' ' + CStr(Jsitemid), '', +'', Commons_JSB2JS.Lineno));
 
     // Update in memory copies           
     if (System(1) == 'js') {

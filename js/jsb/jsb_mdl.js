@@ -8166,8 +8166,8 @@ async function JSB_MDL_PROCESSSHEET(ByRef_Settings, ByRef_Sheetname, setByRefVal
 // <PROCESSTEMPLATE_Sub>
 async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef_Code, Templatefilename, Templatename, Template, setByRefValues) {
     // local variables
-    var Originaltemplate, I, S, E, Upto, Section, After, Ifile;
-    var Iitem, Ffile, Itemplate, Lno, Lno2, Ot;
+    var Originaltemplate, I, Lno, Pau, S, E, Upto, Section, After;
+    var Ifile, Iitem, Ffile, Itemplate, Precount, Ot, Lno1, Lno2;
 
     function exit(v) {
         if (typeof setByRefValues == 'function') setByRefValues(ByRef_Code)
@@ -8185,14 +8185,23 @@ async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef_Code, Templatefilename, Templat
         }
     }
 
+    Lno = 1;
 
     while (true) {
+        if (Templatename == 'x_form' && Null0(Lno) > 390) {
+            Println(Right('0000' + CStr(Lno), 4), Extract(Originaltemplate, Lno, 0, 0));
+            Pau = await asyncInput(''); if (activeProcess.At_Echo) Println(Pau); FlushHTML();
+            if (CBool(Pau)) { Print(); debugger; }
+        }
+
         S = InStr1(1, Template, '\<%');
         E = InStr1(1, Template, '%\>');
         if (Not(Null0(S) < Null0(E) && Null0(S) != '0')) break;
         Upto = Left(Template, +S - 1);
         Section = Mid1(Template, +S + 2, +E - +S - 2);
         After = Mid1(Template, +E + 2);
+        Lno += Count(Upto, am);
+        Lno += Count(Section, am);
         Ifile = '';
 
         ByRef_Code[ByRef_Code.length] = 'Gen[-1] = `' + CStr(Upto) + '`';
@@ -8212,47 +8221,59 @@ async function JSB_MDL_PROCESSTEMPLATE_Sub(ByRef_Code, Templatefilename, Templat
             if (InStr1(1, Itemplate, '`')) Alert('Your template ' + CStr(Iitem) + ' is using the ` character.  You need change this.');
             // NewCode = []
             await JSB_MDL_PROCESSTEMPLATE_Sub(ByRef_Code, Ifile, Iitem, Itemplate, function (_ByRef_Code) { ByRef_Code = _ByRef_Code });
-            if (Left(After, 1) == am) After = Mid1(After, 2);
+            if (Left(After, 1) == am) {
+                After = Mid1(After, 2);
+                Lno++;
+            }
         } else {
             ByRef_Code[ByRef_Code.length] = Section;
         }
-
-        Lno += Count(Upto, am);
-        Lno += Count(Section, am);
 
         Upto = RTrim(Upto);
 
         Template = After;
         if (Left(After, 1) == am && Not(Ifile)) {
-            After = LTrim(Mid1(After, 2));
-            if (Right(Upto, 1) == am) Template = After;
+            if (Right(Upto, 1) == am) {
+                Lno++;
+                Template = LTrim(Mid1(After, 2));
+            }
         }
     }
     if (CBool(Template)) ByRef_Code[ByRef_Code.length] = 'Gen[-1] = `' + CStr(Template) + '`';
 
     if (CBool(S) || CBool(E)) {
-        // If S Then LNo2 = DCount(Left(Template, S), AM())  
-
-        Lno2 = +Lno + DCount(Left(Template, E), am);
-
+        Precount = 0;
         if (await JSB_ODB_READ(Ot, await JSB_BF_FHANDLE(CStr(Templatefilename)), CStr(Templatename), function (_Ot) { Ot = _Ot })) {
             I = InStr1(1, Ot, '******************************************************************************');
             if (CBool(I)) {
-                Lno += Count(Left(Ot, I), am);
-                Lno2 += Count(Left(Ot, I), am);
+                Precount = Count(Left(Ot, I), am);
                 Originaltemplate = Ot;
             }
         }
 
-        Println(At(-1), 'Ending marker missing in template ', Templatefilename, ' ', Templatename, ' at line number ', Lno);
-        Println();
-        var _ForEndI_15 = +Lno2;
-        for (I = +Lno; I <= _ForEndI_15; I++) {
-            if (Null0(I) > '0') Println(I, ' ', Change(Change(Extract(Originaltemplate, I, 0, 0), '\<%', bold('\<%')), '%\>', bold('%\>')));
-        }
+        Lno1 = +Precount + +Lno + DCount(Left(Template, S), am);
+        Lno2 = +Precount + +Lno + DCount(Left(Template, E), am);
 
-        Println('Ending marker missing in template ', Templatefilename, ' ', Templatename, ' at line number ', Lno);
-        Println();
+        Print(); debugger;
+
+        if (Null0(E) < Null0(S)) {
+            Println(At(-1), 'Extra ending marker found in template ', Templatefilename, ' ', Templatename, ' at line number ', Lno1);
+            Println(Extract(Originaltemplate, Lno1, 0, 0));
+        } else {
+
+            Lno1 = +Precount + +Lno + DCount(Left(Template, S), am);
+            Lno2 = +Precount + +Lno + DCount(Left(Template, E), am);
+
+            Println(At(-1), 'Ending marker missing in template ', Templatefilename, ' ', Templatename, ' at line number ', Lno1);
+            Println();
+            var _ForEndI_18 = +Lno2;
+            for (I = +Lno1; I <= _ForEndI_18; I++) {
+                if (Null0(I) > '0') Println(I, ' ', Change(Change(Extract(Originaltemplate, I, 0, 0), '\<%', bold('\<%')), '%\>', bold('%\>')));
+            }
+
+            Println('Ending marker missing in template ', Templatefilename, ' ', Templatename, ' at line number ', Lno1);
+            Println();
+        }
 
         Println();
         Println(html('\<a href=' + jsbRootExecute('ED ' + CStr(Templatefilename) + ' ' + CStr(Templatename) + ' (' + CStr(Lno2), CStr(true)) + ' target="_blank"\>' + Chr(29) + 'ED ' + CStr(Templatefilename) + ' ' + CStr(Templatename) + Chr(28) + '\</a\>'));
@@ -8609,8 +8630,7 @@ async function JSB_MDL_REGEN_Pgm() {  // PROGRAM
     Equates_JSB_MDL = {};
 
     // local variables
-    var Nomodelingstuff, Fdict, Lctime, Iname, Itemi, Pagename;
-    var Pagedataset;
+    var Nomodelingstuff, Fdict, Iname, Itemi, Pagename, Pagedataset;
 
     // %options aspxC-
     if (Not(isAdmin())) return Stop('You are not an administrator');
@@ -8710,7 +8730,6 @@ async function JSB_MDL_REGEN_Pgm() {  // PROGRAM
     Fdict = await JSB_BF_FHANDLE('dict', Fname);
 
     Errors = [undefined,];
-    Lctime = At_Session.Item('LastMenuCompile_' + Fname);
 
     Itemi = LBound(Inames) - 1;
     for (Iname of iterateOver(Inames)) {
@@ -8732,7 +8751,7 @@ async function JSB_MDL_REGEN_Pgm() {  // PROGRAM
 
     if (CBool(Errors)) Println(MonoSpace(Join(Errors, crlf)));
 
-    At_Session.Item('LastMenuCompile_' + Fname, Lctime);
+    At_Session.Item('LastMenuCompile_' + Fname, r83Time() - 30);
 
     await JSB_MDL_UPDATEMENU_Sub(Fname);
     return Stop('Done');
@@ -8755,6 +8774,7 @@ async function JSB_MDL_REGENPAGEMODEL_Sub(Projectname, Ipagename, Showresults, N
 
     await JSB_MDL_UPDATEMENU_Sub(CStr(Projectname));
     await JSB_MDL_GENERATECODEFROMTEMPLATE(Projectname, 'JSB_pageTemplates', '', undefined, Pagename, '', Compileresults, Nomodelingstuff, function (_Projectname, _P3, _P4, _Pagename, _P6, _Compileresults) { Projectname = _Projectname; Pagename = _Pagename; Compileresults = _Compileresults });
+
     if (CBool(Showresults)) {
         if (CBool(Compileresults)) {
             if (CBool(Nostopping)) Println(Compileresults); else { Println(At(-1), Compileresults, JSB_HTML_SUBMITBTN('edv_formBtn', 'OK')); await At_Server.asyncPause(me); }
